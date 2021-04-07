@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://service.apidojosoap.demo.capgemini.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="UserServiceImplService" targetNamespace="http://service.apidojosoap.demo.capgemini.com/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://service.apidojosoap.demo.capgemini.com/" elementFormDefault="unqualified" targetNamespace="http://service.apidojosoap.demo.capgemini.com/" version="1.0">
+
+  <xs:element name="getEventInfo" type="tns:getEventInfo"/>
+
+  <xs:element name="getEventInfoResponse" type="tns:getEventInfoResponse"/>
+
+  <xs:element name="setUser" type="tns:setUser"/>
+
+  <xs:element name="setUserResponse" type="tns:setUserResponse"/>
+
+  <xs:complexType name="getEventInfo">
+    <xs:sequence>
+      <xs:element name="arg0" type="tns:EventRequest"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EventRequest">
+    <xs:sequence>
+      <xs:element name="userName" type="xs:string"/>
+      <xs:element name="userEmail" type="xs:string"/>
+      <xs:element name="userPassword" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="getEventInfoResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:EventResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EventResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="usuario" type="tns:usuario"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="usuario">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="name" type="xs:string"/>
+      <xs:element minOccurs="0" name="email" type="xs:string"/>
+      <xs:element minOccurs="0" name="password" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="setUser">
+    <xs:sequence>
+      <xs:element name="arg0" type="tns:EventRequest"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="setUserResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:EventResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getEventInfo">
+    <wsdl:part element="tns:getEventInfo" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setUserResponse">
+    <wsdl:part element="tns:setUserResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getEventInfoResponse">
+    <wsdl:part element="tns:getEventInfoResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setUser">
+    <wsdl:part element="tns:setUser" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="UserService">
+    <wsdl:operation name="getEventInfo">
+      <wsdl:input message="tns:getEventInfo" name="getEventInfo">
+    </wsdl:input>
+      <wsdl:output message="tns:getEventInfoResponse" name="getEventInfoResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setUser">
+      <wsdl:input message="tns:setUser" name="setUser">
+    </wsdl:input>
+      <wsdl:output message="tns:setUserResponse" name="setUserResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="UserServiceImplServiceSoapBinding" type="tns:UserService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getEventInfo">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getEventInfo">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getEventInfoResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setUser">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="setUser">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="setUserResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="UserServiceImplService">
+    <wsdl:port binding="tns:UserServiceImplServiceSoapBinding" name="UserServiceImplPort">
+      <soap:address location="http://localhost:8080/services/eventservice"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

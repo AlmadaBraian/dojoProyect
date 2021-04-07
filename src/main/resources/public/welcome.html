@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Titulo de la web| Menos de 55 caracteres</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="Debe contener las palabras clave, tratar de atraer clicks y de longitud entre 150 y 160 caracteres">
+    <script>
+        fetch('http://localhost:8080/services/eventservice?wsdl')
+    </script>
+
+</head>
+
+<body>
+    <table id="demo"></table>
+    <input type="button" value="SOAPrequest" id="boton" />
+    <script>
+        document.getElementById("boton").addEventListener("click", iniciarSesion);
+
+        function iniciarSesion() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    cargaXML(this);
+                }
+
+            };
+            xhr.open("GET", "eventservice.xml", true);
+            xhr.send();
+        }
+
+        function cargaXML(xml) {
+            var docXML = xml.responseXML;
+            var tabla = "<tr><th>Email </th><th>Usuario</th></tr>";
+            var usuario = docXML.getElementsByTagName("usuario");
+            tabla += "<tr><td>";
+            tabla += usuario.getElementsByTagName("email");
+            tabla += "</td><td>"
+            tabla += usuario.getElementsByTagName("nombre");
+            tabla += "</td></tr>"
+
+        }
+    </script>
+</body>
+
+</html>

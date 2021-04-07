@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Formulario dojo</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="/src/main/resources/templates/js/lib/dojo/dijit/themes/claro/claro.css" />
+    <script>
+        dojoConfig = {
+            async: true
+        };
+    </script>
+</head>
+
+<body class="claro">
+    <script src="/src/main/resources/templates/js/lib/dojo/dojo/dojo.js"></script>
+
+    <div id="app"></div>
+
+    <form data-dojo-type="dojox/form/Manager" id="formNode">
+
+        <br/>
+        <label>Email</label><br/>
+        <input type="email" name="email" id="email" data-dojo-observer="showValues" data-dojo-type="dijit/form/TextBox" intermediateChanges="true">
+        <br/>
+        <label>password</label>
+        <br/>
+        <input type="password" name="password" id="password" data-dojo-observer="showValues" data-dojo-type="dijit/form/TextBox" intermediateChanges="true">
+        <br/>
+
+        <script type="dojo/method" data-dojo-event="showValues" data-dojo-args="value,name">
+            //observador registra los cambios en todos los elementos en pantalla//
+            if (name) {
+                console.log("name = ", name, " value = ", value);
+            }
+        </script>
+    </form>
+
+    <!-- later on in your HTML document -->
+    <script type="text/javascript">
+        require([
+            "dojo/dom-construct",
+            "dojo/on", "dijit/form/Button",
+            "dojo/domReady!"
+        ], function(domConstruct, on, Button) {
+            var button = new Button({
+                label: 'Click me'
+            });
+            button.placeAt('app');
+            on(button, 'click', function() {
+                domConstruct.create("div", {
+                    innerHTML: 'Hello Dojo Toolkit!!!'
+                }, 'app', "first");
+            });
+        });
+    </script>
+</body>
+
+</html>
