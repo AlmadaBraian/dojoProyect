@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" style="width: 100%;height:100%">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Testing dojo...</title>
+    <link rel="stylesheet" href="js/lib/dojo/themes/flat/flat.css" />
+    <script>
+        dojoConfig = {
+            async: true
+        };
+    </script>
+    <script src="js/lib/dojo/dojo/dojo.js"></script>
+</head>
+
+<body class="flat" style="width: 100%;height:100%">
+
+    <div id="app" style="width: 100%;height:100%"></div>
+
+
+    <script type="text/javascript">
+        require([
+                "dijit/layout/BorderContainer",
+                "dijit/layout/LayoutContainer",
+                "dijit/layout/ContentPane",
+                "dojo/domReady!"
+            ],
+            function(BorderContainer, LayoutContainer, ContentPane) {
+                var appContainer = new BorderContainer({
+                    design: 'sidebar'
+                }, "app");
+                appContainer.startup();
+
+                var topArea = new ContentPane({
+                    region: 'top',
+                    splitter: true,
+                    content: 'TOP AREA',
+                    style: 'width: 80%;height: 10%; border: solid 2px black'
+                });
+
+                topArea.placeAt(appContainer);
+
+                var sideArea = new ContentPane({
+                    region: 'left',
+                    content: 'SIDE AREA',
+                    style: 'width: 15%; height: 80%; border: solid 2px black'
+                });
+
+                sideArea.placeAt(appContainer);
+
+                var centerArea = new ContentPane({
+                    region: 'center',
+                    content: 'CENTER AREA',
+                    style: 'width: 60%; height: 80%; border: solid 2px black'
+                });
+
+                centerArea.placeAt(appContainer);
+
+                var rightArea = new ContentPane({
+                    region: 'right',
+                    content: 'RIGHT AREA',
+                    style: 'width: 15%; height: 80%; border: solid 2px black'
+                });
+
+                rightArea.placeAt(appContainer);
+
+                var bottomArea = new ContentPane({
+                    region: 'bottom',
+                    content: 'BOTTOM AREA',
+                    style: 'width: 100%; height: 10%; border: solid 2px black'
+                });
+
+                bottomArea.placeAt(appContainer);
+
+                var topArea = new ContentPane({
+                    region: 'top',
+                    splitter: true,
+                    href: 'content.html',
+                    style: 'width: 80%;height: 10%; border: solid 2px black'
+                });
+            });
+    </script>
+
+</body>
+
+</html>

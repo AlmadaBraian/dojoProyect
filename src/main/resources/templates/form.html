@@ -17,7 +17,10 @@
 <body class="claro">
     <script src="/src/main/resources/templates/js/lib/dojo/dojo/dojo.js"></script>
 
-    <div id="app"></div>
+    <div id="app">
+        <div id="mens"></div>
+    </div>
+
 
     <form data-dojo-type="dojox/form/Manager" id="formNode">
 
@@ -37,24 +40,108 @@
             }
         </script>
     </form>
+    <script>
+        import axios from "axios";
+
+        const pokemon = "";
+        const pokeArray = [];
+        const options = [];
+
+        const obtenerPokemon = async() => {
+            try {
+                const url = `https://pokeapi.co/api/v2/pokemon/?limit=-1`;
+                const res = await axios.get(url);
+                const listaPokemon = res.data.results;
+                const nombres = listaPokemon.map((pokemon) => pokemon.name);
+
+                setOptions(nombres);
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        const getPokemon = async() => {
+            try {
+                const url = `https://pokeapi.co/api/v2/pokemon/${pokemon}`;
+                const res = await axios.get(url);
+
+
+                const pokeObjeto = {
+                    id: res.data.id,
+                    Nombre: pokemon,
+                    Tipo: res.data.types[0].type.name,
+                    Altura: Math.round(res.data.height * 10),
+                    Peso: Math.round(res.data.weight / 10),
+                    Batallas: res.data.game_indices.length,
+                    Frente: res.data.sprites.front_default,
+                    Espalda: res.data.sprites.back_default,
+                };
+                //console.log(res.data.name)
+
+                setPokemonArray([...pokeArray, pokeObjeto]);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        const handleChange = (e) => {
+            setPokemon(e.target.value.toLowerCase());
+            //console.log(e.target.value.toLowerCase());  
+        };
+
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            //console.log("hola");
+            getPokemon();
+        };
+    </script>
 
     <!-- later on in your HTML document -->
     <script type="text/javascript">
         require([
-            "dojo/dom-construct",
-            "dojo/on", "dijit/form/Button",
+            "dojo/dom",
+            "dijit/form/Button",
+            "dijit/layout/TabContainer",
+            "dijit/layout/ContentPane",
             "dojo/domReady!"
-        ], function(domConstruct, on, Button) {
-            var button = new Button({
-                label: 'Click me'
-            });
-            button.placeAt('app');
-            on(button, 'click', function() {
-                domConstruct.create("div", {
-                    innerHTML: 'Hello Dojo Toolkit!!!'
-                }, 'app', "first");
-            });
+        ], function(dom, Button, TabContainer, ContentPane) {
+            var tc = new TabContainer({
+                    style: {
+                        height: "200px",
+                        width: "400px"
+                    },
+                    id: "tc"
+                }),
+
+                atab = new ContentPane({
+                    title: "A Tab",
+                    closable: false,
+                    id: "atab"
+                }),
+                myButton = new Button({
+                    label: "Click Me!",
+                    id: "myButton",
+                    onclick: function() {
+                        console.log("mensaje");
+                        domConstruct.create("div", {
+                            innerHTML: 'Hello Dojo Toolkit!!!'
+                        }, 'mens', "first");
+                    }
+                });
+
+            atab.addChild(myButton);
+            tc.addChild(atab);
+            tc.startup();
+            tc.placeAt('app');
+
+
+
         });
+    </script>
+    <script type="dojo/on" data-dojo-event="click">
+
+        alert("I was clicked!");
+
     </script>
 </body>
 

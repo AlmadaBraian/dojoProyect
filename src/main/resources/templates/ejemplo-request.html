@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/src/main/resources/templates/js/lib/dojo/dijit/themes/claro/claro.css" />
+    <link rel="stylesheet" href="/src/main/resources/templates/css/main.css" />
+    <link rel="stylesheet" href="/src/main/resources/templates/js/lib/dojo/dijit/themes/claro/claro.css" />
+    <!-- Dojo Config e import -->
+    <script>
+        var dojoConfig = {
+            parseOnLoad: 1,
+            async: true,
+            packages: [{
+                name: "js",
+                location: location.pathname.replace(/\/[^/]*$/, "") + "/js",
+            }, ],
+        };
+    </script>
+    <script src="/src/main/resources/templates/js/lib/dojo/dojo/dojo.js"></script>
+
+    <title>Document</title>
+
+</head>
+
+<body class="claro">
+    <div id="appLayout" class="demoLayout" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design: 'headline'">
+        <div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'">
+            <div class="panel">
+                <h4>Escriba el nombre del pokemon</h4>
+                <div><input id="pokemonName" type="text" name="txt" data-dojo-observer="showValues" data-dojo-type="dijit/form/TextBox" intermediateChanges="true"></div>
+            </div>
+            <div>
+                <br/>
+            </div>
+            <div>
+                <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
+            </div>
+            <div id="tabla"></div>
+        </div>
+        <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'">
+            <div class="contenedor1">
+                <h1>Pokedex Dojo</h1>
+            </div>
+        </div>
+        <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">Sidebar content (left)</div>
+        <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">Sidebar content (right)</div>
+    </div>
+
+
+
+
+
+    <!-- Funciones Dojo -->
+    <script>
+        // Para hacer la solicitud a la API importar la funcion "dojo/request"
+        require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dojo/domReady!", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
+            "dijit/layout/ContentPane"
+        ], function(dom, on, mouse, request, domStyle) {
+
+            let botonRefresh = dom.byId("botonRefresh");
+            let tabla = dom.byId("tabla");
+            let pokeArray = [];
+            const url = "https://pokeapi.co/api/v2/pokemon/";
+
+            function searchPokemon() {
+                var pokemonId = document.getElementById('pokemonName').value;
+
+                var xmlhttp = new XMLHttpRequest();
+
+                xmlhttp.onreadystatechange = function() {
+                    var response,
+                        types;
+                    if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+
+                        /* Success request */
+                        if (xmlhttp.status == 200) {
+                            var html = "<table class=`table` border= `1px;><thead><tr><th scope=`col`>Nombre</th><th scope=`col`>Altura</th><th scope=`col`>Peso</th><th scope=`col`>Tipo</th><th scope=`col`>Batallas</th><th scope=`col`>Sprite</th></tr></thead>";
+                            //response = JSON.parse(xmlhttp.responseText);
+                            fetch(url + pokemonId)
+                                .then(res => res.json())
+                                .then(res => {
+                                    const pokeObjeto = {
+                                        id: res.id,
+                                        Nombre: res.name,
+                                        Tipo: res.types[0].type.name,
+                                        Altura: Math.round(res.height * 10),
+                                        Peso: Math.round(res.weight / 10),
+                                        Batallas: res.game_indices.length,
+                                        Frente: res.sprites.front_default,
+                                        Espalda: res.sprites.back_default,
+                                    };
+                                    pokeArray.push(pokeObjeto);
+
+                                    pokeArray.forEach(element => {
+                                        html = html + "<tr>";
+                                        html = html + "<th scope='row'>" + element.Nombre + "</th>";
+                                        html = html + "<th scope='row'>" + element.Altura + "cm" + "</th>";
+                                        html = html + "<th scope='row'>" + element.Peso + "kg" + "</th>";
+                                        html = html + "<th scope='row'>" + element.Tipo + "</th>";
+                                        html = html + "<th scope='row'>" + element.Batallas + "</th>";
+                                        html = html + "<th scope='row'>" + `<img src="${element.Frente}" alt=""></th>`;
+                                        html = html + "</tr>";
+                                    });
+                                    html = html + "</table>";
+                                    tabla.innerHTML = html;
+                                });
+                        }
+                        /* Errors */
+                        else if (xmlhttp.status == 400) {
+                            alert('There was an error 400');
+                        } else {
+                            alert('something else other than 200 was returned');
+                        }
+                    }
+                };
+
+                xmlhttp.open('GET', url + pokemonId + '/', true);
+                xmlhttp.send();
+            }
+
+            // Funcion de evento click izquierda
+            // params (target, event, function)
+            on(botonRefresh, "mousedown", function(event) {
+                if (mouse.isLeft(event)) {
+                    searchPokemon();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

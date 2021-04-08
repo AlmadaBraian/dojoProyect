@@ -1,0 +1,71 @@
+table {
+    width: 100%;
+    border: 1px solid #000;
+}
+
+th,
+td {
+    width: 25%;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #000;
+    border-collapse: collapse;
+    padding: 0.3em;
+    caption-side: bottom;
+}
+
+caption {
+    padding: 0.3em;
+    color: #fff;
+    background: #000;
+}
+
+th {
+    background: #eee;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+#appLayout {
+    height: 100%;
+}
+
+#leftCol {
+    width: 14em;
+}
+
+.claro .demoLayout .edgePanel {
+    background-color: #d0e9fc;
+}
+
+#viewsChart {
+    width: 550px;
+    height: 550px;
+}
+
+#formItem label {
+    display: block;
+    text-align: center;
+    line-height: 150%;
+    font-size: .85em;
+}
+
+.edgePanel {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    /* requerido para alineación horizontal */
+}
+
+.centerPanel {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    /* requerido para alineación horizontal */
+}
