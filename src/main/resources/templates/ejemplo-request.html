@@ -27,11 +27,19 @@
 </head>
 
 <body class="claro">
+
     <div id="appLayout" class="demoLayout" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design: 'headline'">
         <div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'">
             <div class="panel">
                 <h4>Escriba el nombre del pokemon</h4>
-                <div><input id="pokemonName" type="text" name="txt" data-dojo-observer="showValues" data-dojo-type="dijit/form/TextBox" intermediateChanges="true"></div>
+
+                <select id="pokemonName" name="stateSelect" data-dojo-type="dijit/form/ComboBox" data-dojo-props="
+                    value: '',
+                    placeHolder: 'Select a Pokemon'">
+                    
+                </select>
+                <div id="cosa"></div>
+
             </div>
             <div>
                 <br/>
@@ -46,25 +54,99 @@
                 <h1>Pokedex Dojo</h1>
             </div>
         </div>
-        <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">Sidebar content (left)</div>
-        <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">Sidebar content (right)</div>
+        <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
+            <button id="botonTest" class="btn btn-danger">boton test</button>
+            </br>
+            <div id="test"></div>
+            <select id="stateSelect" name="stateSelect" data-dojo-type="dijit/form/ComboBox" data-dojo-props="
+                value: '',
+                placeHolder: 'Select a State'">
+                    <option value="AL">Alabama</option>
+                    <option value="AK">Alaska</option>
+                    <option value="AZ">Arizona</option>
+                    <option value="AR">Arkansas</option>
+                    <option value="CA">California</option>
+
+        </select>
+        </div>
     </div>
-
-
-
-
+    <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">Sidebar content (right)</div>
+    </div>
 
     <!-- Funciones Dojo -->
     <script>
         // Para hacer la solicitud a la API importar la funcion "dojo/request"
         require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dojo/domReady!", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
-            "dijit/layout/ContentPane"
-        ], function(dom, on, mouse, request, domStyle) {
-
+            "dijit/layout/ContentPane", "dojo/store/Memory",
+            "dijit/form/ComboBox", "dojo/parser", "dijit/form/FilteringSelect", "dijit/form/TextBox"
+        ], function(dom, on, mouse, request, Select, Memory, ComboBox) {
+            let cosa = dom.byId("cosa");
+            let options = document.getElementById("pokemonName");
             let botonRefresh = dom.byId("botonRefresh");
+            let botonTest = dom.byId("botonTest");
             let tabla = dom.byId("tabla");
+            let test = dom.byId("test");
             let pokeArray = [];
+
             const url = "https://pokeapi.co/api/v2/pokemon/";
+
+            let test2 = "<option>" + url + "</option>";
+            options.innerHTML = test2;
+
+
+            function setOptions(pokeOption) {
+                console.log(pokeOption)
+                let select = document.querySelector("#stateSelect");
+                const option = document.createElement('option');
+                const valor = pokeOption;
+                option.value = valor;
+                option.text = valor;
+                select.appendChild(option);
+            }
+
+            function obtenerPokemones() {
+                let pokenombres = [];
+                request.get(`https://pokeapi.co/api/v2/pokemon/?limit=-1`, {
+                    handleAs: "json"
+                }).then(
+                    function(response) {
+                        
+                        listaPokemon = response.results;
+                        const nombres = listaPokemon.map((pokemon) => pokemon.name) //.forEach(function(value, key) {
+                            //setOptions(value)
+                            //})
+                            //respuesta.innerHTML = JSON.stringify(response);
+                            //respuesta.innerHTML = response.name;
+
+                        //        fetch(`https://pokeapi.co/api/v2/pokemon/?limit=-1`)
+                        //          .then(res => res.json())
+                        //        .then(res => {
+                        //      let cont = 0;
+                        //        listaPokemon = res.results;
+                        //    const nombres = listaPokemon.map((pokemon) => pokemon.name).forEach(function(value, key) {
+                        //      if (cont < 3) {
+                        //        setOptions(value)
+                        //      cont++;
+                        //}
+                        //})
+
+                        //options.innerHTML = "<option>pokemon</option>"
+                    });
+
+
+                let pokeOption = "pikachu";
+                let select = document.querySelector("#stateSelect");
+                const option = document.createElement('option');
+                const valor = pokeOption;
+                option.value = valor;
+                option.text = valor;
+                select.appendChild(option);
+
+
+                //options.innerHTML = "<option>pokemon</option>"
+                // let opcion = "<option>" + element + "</option>";
+                //poke.innerHTML = opcion;})
+            }
 
             function searchPokemon() {
                 var pokemonId = document.getElementById('pokemonName').value;
@@ -107,12 +189,18 @@
                                     });
                                     html = html + "</table>";
                                     tabla.innerHTML = html;
+
                                 });
                         }
                         /* Errors */
-                        else if (xmlhttp.status == 400) {
+                        else if (xmlhttp.status == 0) {
+                            alert('Debes escribir el nombre de un pokemon');
+
+                        } else if (xmlhttp.status == 400) {
                             alert('There was an error 400');
+
                         } else {
+
                             alert('something else other than 200 was returned');
                         }
                     }
@@ -121,12 +209,18 @@
                 xmlhttp.open('GET', url + pokemonId + '/', true);
                 xmlhttp.send();
             }
-
+            obtenerPokemones();
             // Funcion de evento click izquierda
             // params (target, event, function)
             on(botonRefresh, "mousedown", function(event) {
                 if (mouse.isLeft(event)) {
                     searchPokemon();
+
+                }
+            });
+            on(botonTest, "mousedown", function(event) {
+                if (mouse.isLeft(event)) {
+                    test.innerHTML = "<label>mensaje</label>";
                 }
             });
         });

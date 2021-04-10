@@ -31,14 +31,11 @@
 
         function cargaXML(xml) {
             var docXML = xml.responseXML;
-            var tabla = "<tr><th>Email </th><th>Usuario</th></tr>";
-            var usuario = docXML.getElementsByTagName("usuario");
-            tabla += "<tr><td>";
-            tabla += usuario.getElementsByTagName("email");
-            tabla += "</td><td>"
-            tabla += usuario.getElementsByTagName("nombre");
-            tabla += "</td></tr>"
-
+            fetch(docXML)
+                .then(res => res.json())
+                .then(res => {
+                    console.log(res);
+                })
         }
     </script>
 </body>
