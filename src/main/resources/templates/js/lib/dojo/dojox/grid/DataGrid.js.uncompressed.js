@@ -1006,10 +1006,10 @@ define([
 				if(this.layout.cells.length){
 					this.scroller.updateRowCount(inRowCount);
 				}
+				this._resize();
 				if(this.layout.cells.length){
 					this.setScrollTop(this.scrollTop);
 				}
-				this._resize();
 			}
 		},
 
@@ -2820,7 +2820,7 @@ return declare("dojox.grid._Layout", null, {
 				}
 			}
 		}
-
+		
 		//Fix #9481 - reset idx in cell markup
 		array.forEach(this.cells, function(c){
 			var marks = c.markup[2].split(" ");
@@ -2830,7 +2830,7 @@ return declare("dojox.grid._Layout", null, {
 				c.markup[2] = marks.join(" ");
 			}
 		});
-
+		
 		this.grid.setupHeaderMenu();
 		//this.grid.renderOnIdle();
 	},
@@ -2849,7 +2849,7 @@ return declare("dojox.grid._Layout", null, {
 			return false;
 		}
 	},
-
+	
 	addCellDef: function(inRowIndex, inCellIndex, inDef){
 		var self = this;
 		var getCellWidth = function(inDef){
@@ -2888,7 +2888,7 @@ return declare("dojox.grid._Layout", null, {
 		props.unitWidth = getCellWidth(inDef);
 		return new cell_type(lang.mixin({}, this._defaultCellProps, inDef, props));
 	},
-
+	
 	addRowDef: function(inRowIndex, inDef){
 		var result = [];
 		var relSum = 0, pctSum = 0, doRel = true;
@@ -2920,16 +2920,13 @@ return declare("dojox.grid._Layout", null, {
 			});
 		}
 		return result;
-
+	
 	},
 
 	addRowsDef: function(inDef){
 		var result = [];
 		if(lang.isArray(inDef)){
-            // inDef[0] could be a NodeList if the Grid is defined in a declarative way.
-            // lang.isArray() does not recognize a NodeList as an array, now so the wrong path will be chosen.
-            // lang.isArrayLike() does the right match against a NodeList, instead.
-			if(lang.isArrayLike(inDef[0])){
+			if(lang.isArray(inDef[0])){
 				for(var i=0, row; inDef && (row=inDef[i]); i++){
 					result.push(this.addRowDef(i, row));
 				}
@@ -2939,7 +2936,7 @@ return declare("dojox.grid._Layout", null, {
 		}
 		return result;
 	},
-
+	
 	addViewDef: function(inDef){
 		this._defaultCellProps = inDef.defaultCell || {};
 		if(inDef.width && inDef.width == "auto"){
@@ -2947,7 +2944,7 @@ return declare("dojox.grid._Layout", null, {
 		}
 		return lang.mixin({}, inDef, {cells: this.addRowsDef(inDef.rows || inDef.cells)});
 	},
-
+	
 	setStructure: function(inStructure){
 		this.fieldIndex = 0;
 		this.cells = [];
@@ -2993,7 +2990,7 @@ return declare("dojox.grid._Layout", null, {
 					("cells" in def || "rows" in def || ("type" in def && !isCell(def))));
 		};
 
-		if(lang.isArrayLike(inStructure)){
+		if(lang.isArray(inStructure)){
 			var hasViews = false;
 			for(var i=0, st; (st=inStructure[i]); i++){
 				if(isView(st)){
@@ -3986,10 +3983,6 @@ define([
 		// |		_setMyClassAttr: { node: "domNode", type: "class" }
 		//		Maps this.myClass to this.domNode.className
 		//
-		//		- Toggle DOM node CSS class
-		// |		_setMyClassAttr: { node: "domNode", type: "toggleClass" }
-		//		Toggles myClass on this.domNode by this.myClass
-		//
 		//		If the value of _setXXXAttr is an array, then each element in the array matches one of the
 		//		formats of the above list.
 		//
@@ -4160,21 +4153,6 @@ define([
 		//		Used by `<img>` nodes in templates that really get their image via CSS background-image.
 		_blankGif: config.blankGif || require.toUrl("dojo/resources/blank.gif"),
 
-		// textDir: String
-		//		Bi-directional support,	the main variable which is responsible for the direction of the text.
-		//		The text direction can be different than the GUI direction by using this parameter in creation
-		//		of a widget.
-		//
-		//		This property is only effective when `has("dojo-bidi")` is defined to be true.
-		//
-		//		Allowed values:
-		//
-		//		1. "" - default value; text is same direction as widget
-		//		2. "ltr"
-		//		3. "rtl"
-		//		4. "auto" - contextual the direction of a text defined by first strong letter.
-		textDir: "",
-
 		//////////// INITIALIZATION METHODS ///////////////////////////////////////
 
 		/*=====
@@ -4277,7 +4255,7 @@ define([
 			this._supportingWidgets = [];
 
 			// this is here for back-compat, remove in 2.0 (but check NodeList-instantiate.html test)
-			if(this.srcNodeRef && this.srcNodeRef.id  && (typeof this.srcNodeRef.id == "string")){
+			if(this.srcNodeRef && (typeof this.srcNodeRef.id == "string")){
 				this.id = this.srcNodeRef.id;
 			}
 
@@ -4645,21 +4623,14 @@ define([
 						}
 						break;
 					case "innerText":
-						// Deprecated, use "textContent" instead.
 						mapNode.innerHTML = "";
 						mapNode.appendChild(this.ownerDocument.createTextNode(value));
-						break;
-					case "textContent":
-						mapNode.textContent = value;
 						break;
 					case "innerHTML":
 						mapNode.innerHTML = value;
 						break;
 					case "class":
 						domClass.replace(mapNode, value, this[attr]);
-						break;
-					case "toggleClass":
-						domClass.toggle(mapNode, command.className || attr, value);
 						break;
 				}
 			}, this);
@@ -5785,29 +5756,16 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 						// sent shortly after ours, similar to what is done in dualEvent.
 						// The INPUT.dijitOffScreen test is for offscreen inputs used in dijit/form/Button, on which
 						// we call click() explicitly, we don't want to stop this event.
-						var target = e.target;
 						if(clickTracker && !e._dojo_click &&
 								(new Date()).getTime() <= clickTime + 1000 &&
-								!(target.tagName == "INPUT" && domClass.contains(target, "dijitOffScreen"))){
+								!(e.target.tagName == "INPUT" && domClass.contains(e.target, "dijitOffScreen"))){
 							e.stopPropagation();
 							e.stopImmediatePropagation && e.stopImmediatePropagation();
-							if(type == "click" &&
-								(target.tagName != "INPUT" ||
-								(target.type == "radio" &&
-									// #18352 Do not preventDefault for radios that are not dijit or
-									// dojox/mobile widgets.
-									// (The CSS class dijitCheckBoxInput holds for both checkboxes and radio buttons.)
-									(domClass.contains(target, "dijitCheckBoxInput") ||
-										domClass.contains(target, "mblRadioButton"))) ||
-								(target.type == "checkbox" &&
-									// #18352 Do not preventDefault for checkboxes that are not dijit or
-									// dojox/mobile widgets.
-									(domClass.contains(target, "dijitCheckBoxInput") ||
-										domClass.contains(target, "mblCheckBox")))) &&
-								target.tagName != "TEXTAREA" && target.tagName != "AUDIO" && target.tagName != "VIDEO"){
-								// preventDefault() breaks textual <input>s on android, keyboard doesn't popup,
-								// but it is still needed for checkboxes and radio buttons, otherwise in some cases
-								// the checked state becomes inconsistent with the widget's state
+							if(type == "click" && (e.target.tagName != "INPUT" || e.target.type == "radio" || e.target.type == "checkbox")
+								&& e.target.tagName != "TEXTAREA" && e.target.tagName != "AUDIO" && e.target.tagName != "VIDEO"){
+								 // preventDefault() breaks textual <input>s on android, keyboard doesn't popup,
+								 // but it is still needed for checkboxes and radio buttons, otherwise in some cases
+								 // the checked state becomes inconsistent with the widget's state
 								e.preventDefault();
 							}
 						}
@@ -7090,25 +7048,22 @@ define([
 	has.add("highcontrast", function(){
 		// note: if multiple documents, doesn't matter which one we use
 		var div = win.doc.createElement("div");
-		try{
-			div.style.cssText = "border: 1px solid; border-color:red green; position: absolute; height: 5px; top: -999px;" +
-				"background-image: url(\"" + (config.blankGif || require.toUrl("./resources/blank.gif")) + "\");";
-			win.body().appendChild(div);
+		div.style.cssText = "border: 1px solid; border-color:red green; position: absolute; height: 5px; top: -999px;" +
+			"background-image: url(\"" + (config.blankGif || require.toUrl("./resources/blank.gif")) + "\");";
+		win.body().appendChild(div);
 
-			var cs = domStyle.getComputedStyle(div),
-				bkImg = cs.backgroundImage;
-			return cs.borderTopColor == cs.borderRightColor ||
+		var cs = domStyle.getComputedStyle(div),
+			bkImg = cs.backgroundImage,
+			hc = (cs.borderTopColor == cs.borderRightColor) ||
 				(bkImg && (bkImg == "none" || bkImg == "url(invalid-url:)" ));
-		}catch(e){
-			console.warn("hccss: exception detecting high-contrast mode, document is likely hidden: " + e.toString());
-			return false;
-		}finally{
-			if(has("ie") <= 8){
-				div.outerHTML = "";		// prevent mixed-content warning, see http://support.microsoft.com/kb/925014
-			}else{
-				win.body().removeChild(div);
-			}
+
+		if(has("ie") <= 8){
+			div.outerHTML = "";		// prevent mixed-content warning, see http://support.microsoft.com/kb/925014
+		}else{
+			win.body().removeChild(div);
 		}
+
+		return hc;
 	});
 
 	domReady(function(){
@@ -10210,7 +10165,6 @@ string.substitute = function(	/*String*/		template,
 	// template:
 	//		a string with expressions in the form `${key}` to be replaced or
 	//		`${key:format}` which specifies a format function. keys are case-sensitive.
-	//		The special sequence `${}` can be used escape `$`.
 	// map:
 	//		hash to search for substitutions
 	// transform:
@@ -10262,22 +10216,13 @@ string.substitute = function(	/*String*/		template,
 	transform = transform ?
 		lang.hitch(thisObject, transform) : function(v){ return v; };
 
-	return template.replace(/\$\{([^\s\:\}]*)(?:\:([^\s\:\}]+))?\}/g,
+	return template.replace(/\$\{([^\s\:\}]+)(?:\:([^\s\:\}]+))?\}/g,
 		function(match, key, format){
-			if (key == ''){
-				return '$';
-			}
 			var value = lang.getObject(key, false, map);
 			if(format){
 				value = lang.getObject(format, false, thisObject).call(thisObject, value, key);
 			}
-			var result = transform(value, key);
-
-			if (typeof result === 'undefined') {
-				throw new Error('string.substitute could not find key "' + key + '" in template');
-			}
-
-			return result.toString();
+			return transform(value, key).toString();
 		}); // String
 };
 
@@ -10469,7 +10414,7 @@ define([
 			var attachEvent = getAttrFunc(baseNode, "dojoAttachEvent") || getAttrFunc(baseNode, "data-dojo-attach-event");
 			if(attachEvent){
 				// NOTE: we want to support attributes that have the form
-				// "domEvent: nativeEvent, ..."
+				// "domEvent: nativeEvent; ..."
 				var event, events = attachEvent.split(/\s*,\s*/);
 				var trim = lang.trim;
 				while((event = events.shift())){
@@ -11600,7 +11545,7 @@ var Moveable = declare("dojo.dnd.Moveable", [Evented], {
 		if(this.delay){
 			this.events.push(
 				on(this.handle, touch.move, lang.hitch(this, "onMouseMove")),
-				on(this.handle.ownerDocument, touch.release, lang.hitch(this, "onMouseUp"))
+				on(this.handle, touch.release, lang.hitch(this, "onMouseUp"))
 			);
 			this._lastX = e.pageX;
 			this._lastY = e.pageY;

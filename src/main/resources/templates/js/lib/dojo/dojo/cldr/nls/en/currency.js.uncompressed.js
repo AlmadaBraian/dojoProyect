@@ -10,7 +10,7 @@ define(
 	"AUD_displayName": "Australian Dollar",
 	"JPY_displayName": "Japanese Yen",
 	"USD_displayName": "US Dollar",
-	"GBP_displayName": "British Pound",
+	"GBP_displayName": "British Pound Sterling",
 	"EUR_displayName": "Euro"
 }
 //end v1.x content

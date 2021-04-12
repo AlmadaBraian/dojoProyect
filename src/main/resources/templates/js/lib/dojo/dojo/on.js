@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/on",["./has!dom-addeventlistener?:./aspect","./_base/kernel","./sniff"],function(_1,_2,_3){
 "use strict";
@@ -146,7 +145,6 @@ return on(_38,_3b(_3c),_39);
 return on(_38,_36,function(_3e){
 var _3f=_3c(_3e.target);
 if(_3f){
-_3e.selectorTarget=_3f;
 return _39.call(_3f,_3e);
 }
 });

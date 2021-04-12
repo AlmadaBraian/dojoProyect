@@ -1,23 +1,26 @@
-define("dojox/storage/LocalStorageProvider", [
-	"dojo/_base/declare",
-	"dojox/storage/Provider",
-	"dojox/storage/manager",
-	"dojo/_base/array",
-	"dojo/_base/lang",
-	"dojo/json"
-], function(declare, Provider, storageManager, array, lang, JSON){
-	var LocalStorageProvider = declare("dojox.storage.LocalStorageProvider", [Provider], {
+// wrapped by build app
+define("dojox/storage/LocalStorageProvider", ["dojo","dijit","dojox","dojo/require!dojox/storage/Provider,dojox/storage/manager"], function(dojo,dijit,dojox){
+dojo.provide("dojox.storage.LocalStorageProvider");
+
+dojo.require("dojox.storage.Provider");
+dojo.require("dojox.storage.manager");
+
+dojo.declare(
+	"dojox.storage.LocalStorageProvider",
+	[dojox.storage.Provider],
+	{
 		store: null,
+
 		initialize: function(){
 
 			this.store = localStorage;
 
 			this.initialized = true;
-			storageManager.loaded();
+			dojox.storage.manager.loaded();
 		},
 
 		isAvailable: function(){ /*Boolean*/
-			return typeof localStorage != "undefined";
+			return typeof localStorage != 'undefined';
 		},
 
 		put: function(	/*string*/ key,
@@ -39,7 +42,7 @@ define("dojox/storage/LocalStorageProvider", [
 			// will result in that prefix not being
 			// usable as a value, so we better use
 			// toJson() always.
-			value = JSON.stringify(value);
+			value = dojo.toJson(value);
 
 			try { // ua may raise an QUOTA_EXCEEDED_ERR exception
 				this.store.setItem(fullKey,value);
@@ -63,7 +66,7 @@ define("dojox/storage/LocalStorageProvider", [
 			// get our full key name, which is namespace + key
 			key = this.getFullKey(key, namespace);
 
-			return JSON.parse(this.store.getItem(key));
+			return dojo.fromJson(this.store.getItem(key));
 		},
 
 		getKeys: function(/*string?*/ namespace){ /*Array*/
@@ -103,7 +106,7 @@ define("dojox/storage/LocalStorageProvider", [
 				}
 			}
 
-			array.forEach(keys, lang.hitch(this.store, "removeItem"));
+			dojo.forEach(keys, dojo.hitch(this.store, "removeItem"));
 		},
 
 		remove: function(/*string*/ key, /*string?*/ namespace){
@@ -198,7 +201,8 @@ define("dojox/storage/LocalStorageProvider", [
 				throw new Error("Invalid key given: " + key);
 			}
 		}
-	});
-	storageManager.register("dojox.storage.LocalStorageProvider", new LocalStorageProvider());
-	return LocalStorageProvider;
+	}
+);
+
+dojox.storage.manager.register("dojox.storage.LocalStorageProvider", new dojox.storage.LocalStorageProvider());
 });

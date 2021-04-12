@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/hash",["./_base/kernel","require","./_base/config","./aspect","./_base/lang","./topic","./domReady","./sniff"],function(_1,_2,_3,_4,_5,_6,_7,_8){
 _1.hash=function(_9,_a){
@@ -16,7 +15,7 @@ _9=_9.substring(1);
 if(_a){
 _c(_9);
 }else{
-location.hash="#"+_9;
+location.href="#"+_9;
 }
 return _9;
 };
@@ -49,8 +48,7 @@ var _17=_16.indexOf("?");
 _e.iframe.location.replace(_16.substring(0,_17)+"?"+_15);
 return;
 }
-var _16=location.href.replace(/#.*/,"");
-location.replace(_16+"#"+_15);
+location.replace("#"+_15);
 !_f&&_14();
 };
 function _18(){

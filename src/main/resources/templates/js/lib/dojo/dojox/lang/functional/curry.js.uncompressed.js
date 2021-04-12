@@ -1,5 +1,8 @@
-define("dojox/lang/functional/curry", ["dojo/_base/lang", "./lambda"],
-	function(lang, df){
+// wrapped by build app
+define("dojox/lang/functional/curry", ["dojo","dijit","dojox","dojo/require!dojox/lang/functional/lambda"], function(dojo,dijit,dojox){
+dojo.provide("dojox.lang.functional.curry");
+
+dojo.require("dojox.lang.functional.lambda");
 
 // This module adds high-level functions and related constructs:
 //	- currying and partial functions
@@ -12,7 +15,10 @@ define("dojox/lang/functional/curry", ["dojo/_base/lang", "./lambda"],
 
 // Defined methods:
 //	- take any valid lambda argument as the functional argument
-        var ap = Array.prototype;
+
+(function(){
+	var df = dojox.lang.functional, ap = Array.prototype;
+
 	var currying = function(/*Object*/ info){
 		return function(){	// Function
 			var args = info.args.concat(ap.slice.call(arguments, 0));
@@ -23,7 +29,7 @@ define("dojox/lang/functional/curry", ["dojo/_base/lang", "./lambda"],
 		};
 	};
 
-	lang.mixin(df, {
+	dojo.mixin(df, {
 		// currying and partial functions
 		curry: function(/*Function|String|Array*/ f, /*Number?*/ arity){
 			// summary:
@@ -91,4 +97,6 @@ define("dojox/lang/functional/curry", ["dojo/_base/lang", "./lambda"],
 			};
 		}
 	});
+})();
+
 });

@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/request/script",["module","./watch","./util","../_base/kernel","../_base/array","../_base/lang","../on","../dom","../dom-construct","../has","../_base/window"],function(_1,_2,_3,_4,_5,_6,on,_7,_8,_9,_a){
 _9.add("script-readystatechange",function(_b,_c){

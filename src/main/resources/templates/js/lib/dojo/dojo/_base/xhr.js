@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/_base/xhr",["./kernel","./sniff","require","../io-query","../dom","../dom-form","./Deferred","./config","./json","./lang","./array","../on","../aspect","../request/watch","../request/xhr","../request/util"],function(_1,_2,_3,_4,_5,_6,_7,_8,_9,_a,_b,on,_c,_d,_e,_f){
 _1._xhrObj=_e._create;
@@ -71,7 +70,7 @@ var _1a=null;
 if(_15.form){
 var _1b=_5.byId(_15.form);
 var _1c=_1b.getAttributeNode("action");
-_19.url=_19.url||(_1c?_1c.value:(_1.doc?_1.doc.URL:null));
+_19.url=_19.url||(_1c?_1c.value:null);
 _1a=_6.toObject(_1b);
 }
 var _1d={};

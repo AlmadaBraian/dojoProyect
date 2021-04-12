@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/string",["./_base/kernel","./_base/lang"],function(_1,_2){
 var _3=/[&<>'"\/]/g;
@@ -46,19 +45,12 @@ _11=_11||_1.global;
 _10=_10?_2.hitch(_11,_10):function(v){
 return v;
 };
-return _f.replace(/\$\{([^\s\:\}]*)(?:\:([^\s\:\}]+))?\}/g,function(_12,key,_13){
-if(key==""){
-return "$";
-}
+return _f.replace(/\$\{([^\s\:\}]+)(?:\:([^\s\:\}]+))?\}/g,function(_12,key,_13){
 var _14=_2.getObject(key,false,map);
 if(_13){
 _14=_2.getObject(_13,false,_11).call(_11,_14,key);
 }
-var _15=_10(_14,key);
-if(typeof _15==="undefined"){
-throw new Error("string.substitute could not find key \""+key+"\" in template");
-}
-return _15.toString();
+return _10(_14,key).toString();
 });
 };
 _5.trim=String.prototype.trim?_2.trim:function(str){

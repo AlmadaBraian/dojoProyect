@@ -1,8 +1,7 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
-define("dojo/cldr/nls/sr/currency",{"HKD_displayName":"Хонгконшки долар","CNY_displayName":"Кинески јуан","JPY_displayName":"Јапански јен","JPY_symbol":"¥","USD_displayName":"Амерички долар","CAD_symbol":"CA$","GBP_displayName":"Британска фунта","CHF_displayName":"Швајцарски франак","CNY_symbol":"CN¥","EUR_displayName":"Евро","GBP_symbol":"£","CAD_displayName":"Канадски долар","USD_symbol":"US$","EUR_symbol":"€","AUD_displayName":"Аустралијски долар","CHF_symbol":"CHF","HKD_symbol":"HK$","AUD_symbol":"AUD"});
+define("dojo/cldr/nls/sr/currency",{"HKD_displayName":"Хонгконшки долар","CHF_displayName":"Швајцарски франак","JPY_symbol":"¥","CAD_displayName":"Канадски долар","HKD_symbol":"HK$","CNY_displayName":"Кинески јуан ренминби","AUD_displayName":"Аустралијски долар","JPY_displayName":"Јапански јен","USD_displayName":"Амерички долар","EUR_symbol":"€","CNY_symbol":"CN¥","GBP_displayName":"Британска фунта стерлинга","GBP_symbol":"£","AUD_symbol":"A$","EUR_displayName":"Евро"});

@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/domReady",["./global","./has"],function(_1,_2){
 var _3=document,_4={"loaded":1,"complete":1},_5=typeof _3.readyState!="string",_6=!!_4[_3.readyState],_7=[],_8;

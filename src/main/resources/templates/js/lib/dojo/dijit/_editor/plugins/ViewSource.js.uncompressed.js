@@ -94,6 +94,18 @@ define("dijit/_editor/plugins/ViewSource", [
 				onChange: lang.hitch(this, "_showSource")
 			});
 
+			// IE 7 has a horrible bug with zoom, so we have to create this node
+			// to cross-check later.  Sigh.
+			if(has("ie") == 7){
+				this._ieFixNode = domConstruct.create("div", {
+					style: {
+						opacity: "0",
+						zIndex: "-1000",
+						position: "absolute",
+						top: "-1000px"
+					}
+				}, editor.ownerDocumentBody);
+			}
 			// Make sure readonly mode doesn't make the wrong cursor appear over the button.
 			this.button.set("readOnly", false);
 		},
@@ -106,15 +118,6 @@ define("dijit/_editor/plugins/ViewSource", [
 			//		The editor object to attach the print capability to.
 			this.editor = editor;
 			this._initButton();
-
-			// Filter the html content when it is set and retrieved in the editor.
-			this.removeValueFilterHandles();
-			this._setValueFilterHandle = aspect.before(this.editor, "setValue", lang.hitch(this, function (html) {
-				return [this._filter(html)];
-			}));
-			this._getValueFilterHandle = aspect.after(this.editor, "getValue", lang.hitch(this, function (html) {
-				return this._filter(html);
-			}));
 
 			this.editor.addKeyHandler(keys.F12, true, true, lang.hitch(this, function(e){
 				// Move the focus before switching
@@ -161,6 +164,9 @@ define("dijit/_editor/plugins/ViewSource", [
 						return cmd.toLowerCase() === "viewsource";
 					};
 					this.editor.onDisplayChanged();
+					html = ed.get("value");
+					html = this._filter(html);
+					ed.set("value", html);
 					array.forEach(edPlugins, function(p){
 						// Turn off any plugins not controlled by queryCommandenabled.
 						if(p && !(p instanceof ViewSource) && p.isInstanceOf(_Plugin)){
@@ -176,21 +182,13 @@ define("dijit/_editor/plugins/ViewSource", [
 						};
 					}
 
-					this.sourceArea.value = ed.get("value");
+					this.sourceArea.value = html;
 
 					// Since neither iframe nor textarea have margin, border, or padding,
-					// just set sizes equal.
+					// just set sizes equal
 					this.sourceArea.style.height = ed.iframe.style.height;
 					this.sourceArea.style.width = ed.iframe.style.width;
-
-					// Hide the iframe and show the HTML source <textarea>.  But don't use display:none because
-					// that loses scroll position, and also causes weird problems on FF (see #18607).
-					ed.iframe.parentNode.style.position = "relative";
-					domStyle.set(ed.iframe, {
-						position: "absolute",
-						top: 0,
-						visibility: "hidden"
-					});
+					domStyle.set(ed.iframe, "display", "none");
 					domStyle.set(this.sourceArea, {
 						display: "block"
 					});
@@ -241,7 +239,7 @@ define("dijit/_editor/plugins/ViewSource", [
 
 					this._setListener = aspect.after(this.editor, "setValue", lang.hitch(this, function(htmlTxt){
 						htmlTxt = htmlTxt || "";
-						// htmlTxt was filtered in setValue before aspect.
+						htmlTxt = this._filter(htmlTxt);
 						this.sourceArea.value = htmlTxt;
 					}), true);
 				}else{
@@ -268,8 +266,8 @@ define("dijit/_editor/plugins/ViewSource", [
 					ed.queryCommandEnabled = ed._sourceQueryCommandEnabled;
 					if(!this._readOnly){
 						html = this.sourceArea.value;
+						html = this._filter(html);
 						ed.beginEditing();
-						// html will be filtered in setValue aspect.
 						ed.set("value", html);
 						ed.endEditing();
 					}
@@ -282,10 +280,7 @@ define("dijit/_editor/plugins/ViewSource", [
 					});
 
 					domStyle.set(this.sourceArea, "display", "none");
-					domStyle.set(ed.iframe, {
-						position: "relative",
-						visibility: "visible"
-					});
+					domStyle.set(ed.iframe, "display", "block");
 					delete ed._sourceQueryCommandEnabled;
 
 					//Trigger a check for command enablement/disablement.
@@ -338,15 +333,35 @@ define("dijit/_editor/plugins/ViewSource", [
 			// Fullscreen gets odd, so we need to check for the FS plugin and
 			// adapt.
 			if(this._fsPlugin && this._fsPlugin.isFullscreen){
-				// Okay, probably in FS, adjust.
+				//Okay, probably in FS, adjust.
 				var vp = winUtils.getBox(ed.ownerDocument);
 				edb.w = (vp.w - extents.w);
 				edb.h = (vp.h - (tbH + extents.h + fH));
 			}
 
+			if(has("ie")){
+				// IE is always off by 2px, so we have to adjust here
+				// Note that IE ZOOM is broken here.  I can't get
+				//it to scale right.
+				edb.h -= 2;
+			}
+
+			// IE has a horrible zoom bug.  So, we have to try and account for
+			// it and fix up the scaling.
+			if(this._ieFixNode){
+				var _ie7zoom = -this._ieFixNode.offsetTop / 1000;
+				edb.w = Math.floor((edb.w + 0.9) / _ie7zoom);
+				edb.h = Math.floor((edb.h + 0.9) / _ie7zoom);
+			}
+
 			domGeometry.setMarginBox(this.sourceArea, {
-				w: Math.round(edb.w - (containerPadding.w + containerMargin.w)),
-				h: Math.round(edb.h - (containerPadding.h + containerMargin.h))
+				w: edb.w - (containerPadding.w + containerMargin.w),
+				h: edb.h - (containerPadding.h + containerMargin.h)
+			});
+
+			// Scale the parent container too in this case.
+			domGeometry.setMarginBox(ed.iframe.parentNode, {
+				h: edb.h
 			});
 		},
 
@@ -405,7 +420,7 @@ define("dijit/_editor/plugins/ViewSource", [
 							ed._viewsource_oldFocus();
 						}
 					}catch(e){
-						console.log("ViewSource focus code error: " + e);
+						console.log(e);
 					}
 				}
 			};
@@ -529,17 +544,6 @@ define("dijit/_editor/plugins/ViewSource", [
 			return html;
 		},
 
-		removeValueFilterHandles: function () {
-			if (this._setValueFilterHandle) {
-				this._setValueFilterHandle.remove();
-				delete this._setValueFilterHandle;
-			}
-			if (this._getValueFilterHandle) {
-				this._getValueFilterHandle.remove();
-				delete this._getValueFilterHandle;
-			}
-		},
-
 		setSourceAreaCaret: function(){
 			// summary:
 			//		Internal function to set the caret in the sourceArea
@@ -562,6 +566,12 @@ define("dijit/_editor/plugins/ViewSource", [
 		},
 
 		destroy: function(){
+			// summary:
+			//		Over-ride to remove the node used to correct for IE's
+			//		zoom bug.
+			if(this._ieFixNode){
+				domConstruct.destroy(this._ieFixNode);
+			}
 			if(this._resizer){
 				clearTimeout(this._resizer);
 				delete this._resizer;
@@ -574,7 +584,6 @@ define("dijit/_editor/plugins/ViewSource", [
 				this._setListener.remove();
 				delete this._setListener;
 			}
-			this.removeValueFilterHandles();
 			this.inherited(arguments);
 		}
 	});

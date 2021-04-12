@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/mouse",["./_base/kernel","./on","./has","./dom","./_base/window"],function(_1,on,_2,_3,_4){
 _2.add("dom-quirks",_4.doc&&_4.doc.compatMode=="BackCompat");

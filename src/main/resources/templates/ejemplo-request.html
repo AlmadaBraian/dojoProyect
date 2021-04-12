@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
     <link rel="stylesheet" href="/src/main/resources/templates/js/lib/dojo/dijit/themes/claro/claro.css" />
     <link rel="stylesheet" href="/src/main/resources/templates/css/main.css" />
-    <link rel="stylesheet" href="/src/main/resources/templates/js/lib/dojo/dijit/themes/claro/claro.css" />
+
     <!-- Dojo Config e import -->
     <script>
         var dojoConfig = {
@@ -32,32 +32,32 @@
         <div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'">
             <div class="panel">
                 <h4>Escriba el nombre del pokemon</h4>
-                <select id="pokemonName" name="stateSelect" data-dojo-type="dijit/form/ComboBox" data-dojo-props="
+                <input id="pokemonName" name="stateSelect" data-dojo-props="
                 value: '',
                 placeHolder: 'Select a Pokemon'">
-                
-            </select>
-            <div id="cosa"></div>
 
+                </input>
+                <div id="cosa"></div>
+
+            </div>
+            <div>
+                <br/>
+            </div>
+            <div>
+                <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
+            </div>
+            <div id="tabla"></div>
         </div>
-        <div>
-            <br/>
+        <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'">
+            <div class="contenedor1">
+                <h1>Pokedex Dojo</h1>
+            </div>
         </div>
-        <div>
-            <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
-        </div>
-        <div id="tabla"></div>
-    </div>
-    <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'">
-        <div class="contenedor1">
-            <h1>Pokedex Dojo</h1>
-        </div>
-    </div>
-    <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
-        <button id="botonTest" class="btn btn-danger">boton test</button>
-        </br>
-        <div id="test"></div>
-        <select id="stateSelect" name="stateSelect" data-dojo-type="dijit/form/ComboBox" data-dojo-props="
+        <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
+            <button id="botonTest" class="btn btn-danger">boton test</button>
+            </br>
+            <div id="test"></div>
+            <select id="stateSelect" name="stateSelect" data-dojo-type="dijit/form/ComboBox" data-dojo-props="
             value: '',
             placeHolder: 'Select a State'">
                 <option value="AL">Alabama</option>
@@ -67,19 +67,24 @@
                 <option value="CA">California</option>
 
     </select>
-    </div>
-    <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">Sidebar content (right)</div>
-</div>
+        </div>
+        <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">
+            Sidebar content (right)</br>
+            <div id="input"></div>
 
-</div>
+        </div>
+
+    </div>
+
+    </div>
     <!-- Funciones Dojo -->
     <script>
         // Para hacer la solicitud a la API importar la funcion "dojo/request"
-        require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dojo/domReady!", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
-            "dijit/layout/ContentPane", "dojo/store/Memory",
-            "dijit/form/ComboBox", "dojo/parser", "dijit/form/FilteringSelect", "dijit/form/TextBox"
-        ], function(dom, on, mouse, request, Select, Memory, ComboBox, FilteringSelect) {
-            let options = document.getElementById("pokemonName");
+        require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
+            "dijit/layout/ContentPane", "dojo/store/Memory", "dojo/json",
+            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/domReady!"
+        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect) {
+
             let botonRefresh = dom.byId("botonRefresh");
             let botonTest = dom.byId("botonTest");
             let tabla = dom.byId("tabla");
@@ -92,68 +97,51 @@
             //options.innerHTML = test2;
 
 
-            function setOptions(pokeOption) {
-                console.log(pokeOption)
-                let select = document.querySelector("#stateSelect");
-                const option = document.createElement('option');
-                const valor = pokeOption;
-                option.value = valor;
-                option.text = valor;
-                select.appendChild(option);
+            function setOptions() {
+                var deferred = new Deferred();
+                let pokenombres = [];
+                return request.get(`https://pokeapi.co/api/v2/pokemon/?limit=-1`, {
+                        handleAs: "json"
+                    })
+                    .then(
+                        function(response) {
+
+                            listaPokemon = response.results;
+
+                            //listaPokemon = response.results;
+                            let cont = 1;
+                            const nombres = listaPokemon.map((pokemon) => pokemon.name).forEach(element => {
+                                pokenombres.push({
+
+                                    name: element,
+                                    value: element
+                                });
+                                cont++;
+                            });
+                            return pokenombres
+                        })
+                return pokenombres
             }
 
-            function obtenerPokemones() {
-                let pokenombres = [];
-                
-                return new Promise(resolve => {
-                request.get(`https://pokeapi.co/api/v2/pokemon/?limit=-1`, {
-                    handleAs: "json"
-                })
-                .then(
-                    function(response) {
-                        listaPokemon = response.results;
-                        let pokenombres = [];
-                        //listaPokemon = response.results;
-                        const nombres = listaPokemon.map((pokemon) => pokemon.name).forEach(element => {
-                        pokenombres.push({name:element, value:element});
-                        resolve(pokenombres);
-                        });
-                    })
-                 // create store instance referencing data from states.json
-                
-                       
+            when(setOptions(), function obtenerPokemones(pokenombres) {
+                var pokeStore = new Memory({
+                    data: pokenombres
+                });
+                var filteringSelect = new FilteringSelect({
+                    id: "pokeStore",
+                    name: "pokemons",
+                    value: "",
+                    store: pokeStore,
+                    searchAttr: "name"
+                }, "pokemonName");
+            })
 
-
-
-                         //.forEach(function(value, key) {
-                            //setOptions(value)
-                            //})
-                            //respuesta.innerHTML = JSON.stringify(response);
-                            //respuesta.innerHTML = response.name;
-
-                        //        fetch(`https://pokeapi.co/api/v2/pokemon/?limit=-1`)
-                        //          .then(res => res.json())
-                        //        .then(res => {
-                        //      let cont = 0;
-                        //        listaPokemon = res.results;
-                        //    const nombres = listaPokemon.map((pokemon) => pokemon.name).forEach(function(value, key) {
-                        //      if (cont < 3) {
-                        //        setOptions(value)
-                        //      cont++;
-                        //}
-                        //})
-
-                            //options.innerHTML = "<option>pokemon</option>"
-                    });
-                
-                }
-
-                //options.innerHTML = "<option>pokemon</option>"
-                // let opcion = "<option>" + element + "</option>";
-                //poke.innerHTML = opcion;})
+            //options.innerHTML = "<option>pokemon</option>"
+            // let opcion = "<option>" + element + "</option>";
+            //poke.innerHTML = opcion;})
 
             function searchPokemon() {
-                var pokemonId = document.getElementById('pokemonName').value;
+                var pokemonId = dom.byId("pokeStore").value;
 
                 var xmlhttp = new XMLHttpRequest();
 
@@ -213,17 +201,10 @@
                 xmlhttp.open('GET', url + pokemonId + '/', true);
                 xmlhttp.send();
             }
-            obtenerPokemones().then(result =>{
-            //Solo tendras disponible la informacion de la promesa aqui dentro de then
-            //console.log(result);
+            //dojo.destroy("dijit_form_FilteringSelect_0");
 
-                let select = document.querySelector("#stateSelect");
-                const option = document.createElement('option');
-                const valor = "pokeOption";
-                option.value = valor;
-                option.text = valor;
-                select.appendChild(option);
-            }).catch(e => console.log(e));
+
+            //obtenerPokemones()
             // Funcion de evento click izquierda
             // params (target, event, function)
             on(botonRefresh, "mousedown", function(event) {

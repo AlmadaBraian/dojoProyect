@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/_base/lang",["./kernel","../has","../sniff"],function(_1,_2){
 _2.add("bug-for-in-skips-shadowed",function(){
@@ -76,14 +75,14 @@ return !_1b?_1d:_5(_1b.split("."),_1c,_1d);
 return _f.getObject(_1e,false,obj)!==undefined;
 },isString:function(it){
 return (typeof it=="string"||it instanceof String);
-},isArray:Array.isArray||function(it){
-return _9.call(it)=="[object Array]";
+},isArray:function(it){
+return it&&(it instanceof Array||typeof it=="array");
 },isFunction:function(it){
 return _9.call(it)==="[object Function]";
 },isObject:function(it){
 return it!==undefined&&(it===null||typeof it=="object"||_f.isArray(it)||_f.isFunction(it));
 },isArrayLike:function(it){
-return !!it&&!_f.isString(it)&&!_f.isFunction(it)&&!(it.tagName&&it.tagName.toLowerCase()=="form")&&(_f.isArray(it)||isFinite(it.length));
+return it&&it!==undefined&&!_f.isString(it)&&!_f.isFunction(it)&&!(it.tagName&&it.tagName.toLowerCase()=="form")&&(_f.isArray(it)||isFinite(it.length));
 },isAlien:function(it){
 return it&&!_f.isFunction(it)&&/\{\s*\[native code\]\s*\}/.test(String(it));
 },extend:function(_1f,_20){
@@ -163,7 +162,7 @@ if(_f.isArray(src)){
 r=[];
 for(i=0,l=src.length;i<l;++i){
 if(i in src){
-r[i]=_f.clone(src[i]);
+r.push(_f.clone(src[i]));
 }
 }
 }else{

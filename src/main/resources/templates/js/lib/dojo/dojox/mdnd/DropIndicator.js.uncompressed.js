@@ -3,7 +3,7 @@ define("dojox/mdnd/DropIndicator", ["dojo/_base/kernel",
 	"dojo/dom-class",
 	"dojo/dom-construct",
 	"./AreaManager"
-], function(dojo, declare, domClass, domConstruct, AreaManager){
+], function(dojo, declare, domClass, domConstruct){
 	var di = declare(
 		"dojox.mdnd.DropIndicator",
 		null,
@@ -83,7 +83,7 @@ define("dojox/mdnd/DropIndicator", ["dojo/_base/kernel",
 		}
 	});
 
-	AreaManager.areaManager()._dropIndicator = new di();
+	dojox.mdnd.areaManager()._dropIndicator = new dojox.mdnd.DropIndicator();
 	
 	return di;
 });

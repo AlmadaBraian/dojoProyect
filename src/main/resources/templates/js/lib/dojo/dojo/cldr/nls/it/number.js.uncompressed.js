@@ -1,24 +1,23 @@
 define(
 "dojo/cldr/nls/it/number", //begin v1.x content
 {
-	"scientificFormat": "#E0",
-	"infinity": "∞",
-	"superscriptingExponent": "×",
-	"percentSign": "%",
-	"minusSign": "-",
-	"decimalFormat-short": "000 Bln",
-	"nan": "NaN",
-	"plusSign": "+",
-	"currencyFormat": "#,##0.00 ¤",
-	"perMille": "‰",
 	"group": ".",
+	"percentSign": "%",
+	"exponential": "E",
+	"scientificFormat": "#E0",
 	"percentFormat": "#,##0%",
-	"decimalFormat-long": "000 mila miliardi",
-	"decimalFormat": "#,##0.###",
-	"currencyFormat-short": "000 Bln ¤",
-	"timeSeparator": ":",
+	"list": ";",
+	"infinity": "∞",
+	"minusSign": "-",
 	"decimal": ",",
-	"exponential": "E"
+	"superscriptingExponent": "×",
+	"nan": "NaN",
+	"perMille": "‰",
+	"decimalFormat": "#,##0.###",
+	"currencyFormat": "#,##0.00 ¤",
+	"plusSign": "+",
+	"decimalFormat-long": "000 bilioni",
+	"decimalFormat-short": "000 Bln"
 }
 //end v1.x content
 );

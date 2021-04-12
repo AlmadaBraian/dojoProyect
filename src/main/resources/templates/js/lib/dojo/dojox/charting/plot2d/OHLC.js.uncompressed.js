@@ -1,6 +1,8 @@
 define("dojox/charting/plot2d/OHLC", ["dojo/_base/lang", "dojo/_base/array", "dojo/_base/declare", "dojo/has", "./CartesianBase", "./_PlotEvents", "./common",
-	"dojox/lang/functional", "dojox/lang/utils", "dojox/gfx/fx"],
-	function(lang, arr, declare, has, CartesianBase, _PlotEvents, dc, df, du, fx){
+	"dojox/lang/functional", "dojox/lang/functional/reversed", "dojox/lang/utils", "dojox/gfx/fx"],
+	function(lang, arr, declare, has, CartesianBase, _PlotEvents, dc, df, dfr, du, fx){
+
+	var purgeGroup = dfr.lambda("item.purgeGroup()");
 
 	//	Candlesticks are based on the Bars plot type; we expect the following passed
 	//	as values in a series:
@@ -62,14 +64,14 @@ define("dojox/charting/plot2d/OHLC", ["dojo/_base/lang", "dojo/_base/array", "do
 				var old_vmin = stats.vmin, old_vmax = stats.vmax;
 				if(!("ymin" in run) || !("ymax" in run)){
 					arr.forEach(run.data, function(val, idx){
-						if(!this.isNullValue(val)){
+						if(val !== null){
 							var x = val.x || idx + 1;
 							stats.hmin = Math.min(stats.hmin, x);
 							stats.hmax = Math.max(stats.hmax, x);
 							stats.vmin = Math.min(stats.vmin, val.open, val.close, val.high, val.low);
 							stats.vmax = Math.max(stats.vmax, val.open, val.close, val.high, val.low);
 						}
-					}, this);
+					});
 				}
 				if("ymin" in run){ stats.vmin = Math.min(old_vmin, run.ymin); }
 				if("ymax" in run){ stats.vmax = Math.max(old_vmax, run.ymax); }
@@ -103,7 +105,7 @@ define("dojox/charting/plot2d/OHLC", ["dojo/_base/lang", "dojo/_base/array", "do
 			this.resetEvents();
 			this.dirty = this.isDirty();
 			if(this.dirty){
-				arr.forEach(this.series, dc.purgeGroup);
+				arr.forEach(this.series, purgeGroup);
 				this._eventSeries = {};
 				this.cleanGroup();
 				var s = this.getGroup();
@@ -116,7 +118,7 @@ define("dojox/charting/plot2d/OHLC", ["dojo/_base/lang", "dojo/_base/array", "do
 			f = dc.calculateBarSize(this._hScaler.bounds.scale, this.opt);
 			gap = f.gap;
 			width = f.size;
-			for(var i = 0; i < this.series.length; i++){
+			for(var i = this.series.length - 1; i >= 0; --i){
 				var run = this.series[i];
 				if(!this.dirty && !run.dirty){
 					t.skip();
@@ -128,7 +130,7 @@ define("dojox/charting/plot2d/OHLC", ["dojo/_base/lang", "dojo/_base/array", "do
 					eventSeries = new Array(run.data.length);
 				for(var j = 0; j < run.data.length; ++j){
 					var v = run.data[j];
-					if(!this.isNullValue(v)){
+					if(v !== null){
 						var finalTheme = t.addMixin(theme, "candlestick", v, true);
 
 						//	calculate the points we need for OHLC
@@ -146,8 +148,8 @@ define("dojox/charting/plot2d/OHLC", ["dojo/_base/lang", "dojo/_base/array", "do
 
 						if(width >= 1){
 							var hl = {x1: width/2, x2: width/2, y1: y - high, y2: y - low},
-								op = {x1: 0, x2: ((width/2) + ((finalTheme.series.stroke ? finalTheme.series.stroke.width || 1 : 1)/2)), y1: y-open, y2: y-open},
-								cl = {x1: ((width/2) - ((finalTheme.series.stroke ? finalTheme.series.stroke.width || 1 : 1)/2)), x2: width, y1: y-close, y2: y-close};
+								op = {x1: 0, x2: ((width/2) + ((finalTheme.series.stroke.width||1)/2)), y1: y-open, y2: y-open},
+								cl = {x1: ((width/2) - ((finalTheme.series.stroke.width||1)/2)), x2: width, y1: y-close, y2: y-close};
 							var shape = s.createGroup();
 							shape.setTransform({dx: x, dy: 0});
 							var inner = shape.createGroup();

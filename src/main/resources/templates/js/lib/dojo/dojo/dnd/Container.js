@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/dnd/Container",["../_base/array","../_base/declare","../_base/kernel","../_base/lang","../_base/window","../dom","../dom-class","../dom-construct","../Evented","../has","../on","../query","../touch","./common"],function(_1,_2,_3,_4,_5,_6,_7,_8,_9,_a,on,_b,_c,_d){
 var _e=_2("dojo.dnd.Container",_9,{skipForm:false,allowNested:false,constructor:function(_f,_10){

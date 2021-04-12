@@ -171,10 +171,10 @@ this._pseudoLoadChildren(_2d);
 }
 this.onLoadDeferred.resolve(true);
 this.onSetStore();
-}),_9.hitch(this,function(err){
+}),function(err){
 console.error("dijit.form.Select: "+err.toString());
 this.onLoadDeferred.reject(err);
-}));
+});
 }
 return _22;
 },_setValueAttr:function(_32,_33){

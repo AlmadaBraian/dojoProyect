@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/uacss",["./dom-geometry","./_base/lang","./domReady","./sniff","./_base/window"],function(_1,_2,_3,_4,_5){
 var _6=_5.doc.documentElement,ie=_4("ie"),_7=_4("trident"),_8=_4("opera"),_9=Math.floor,ff=_4("ff"),_a=_1.boxModel.replace(/-/,""),_b={"dj_quirks":_4("quirks"),"dj_opera":_8,"dj_khtml":_4("khtml"),"dj_webkit":_4("webkit"),"dj_safari":_4("safari"),"dj_chrome":_4("chrome"),"dj_edge":_4("edge"),"dj_gecko":_4("mozilla"),"dj_ios":_4("ios"),"dj_android":_4("android")};

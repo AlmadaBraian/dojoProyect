@@ -65,10 +65,10 @@ _1f=[].concat(_1f);
 var _20=_1.indexOf(_1f,_19);
 _1f.splice(_20,1);
 this.onChildrenChange(_1a,_1f);
-d.resolve(this.store.put(_19,{overwrite:true,parent:_1b,oldParent:_1a,before:_1e,isCopy:false}));
+d.resolve(this.store.put(_19,{overwrite:true,parent:_1b,oldParent:_1a,before:_1e}));
 }));
 }else{
-d.resolve(this.store.put(_19,{overwrite:true,parent:_1b,oldParent:_1a,before:_1e,isCopy:true}));
+d.resolve(this.store.put(_19,{overwrite:true,parent:_1b,oldParent:_1a,before:_1e}));
 }
 return d;
 },onChange:function(){

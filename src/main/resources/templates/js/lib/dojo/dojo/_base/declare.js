@@ -1,18 +1,11 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/_base/declare",["./kernel","../has","./lang"],function(_1,_2,_3){
-var _4=_3.mixin,op=Object.prototype,_5=op.toString,_6,_7=0,_8="constructor";
-if(!_2("csp-restrictions")){
-_6=new Function;
-}else{
-_6=function(){
-};
-}
+var _4=_3.mixin,op=Object.prototype,_5=op.toString,_6=new Function,_7=0,_8="constructor";
 function _9(_a,_b){
 throw new Error("declare"+(_b?" "+_b:"")+": "+_a);
 };
@@ -78,35 +71,19 @@ _13=_d[0];
 _f[0]=_13?_13._meta&&_13===_f[_f.length-_13._meta.bases.length]?_13._meta.bases.length:1:0;
 return _f;
 };
-function _17(_18,a,f,g){
+function _17(_18,a,f){
 var _19,_1a,_1b,_1c,_1d,_1e,_1f,opf,pos,_20=this._inherited=this._inherited||{};
-if(typeof _18==="string"){
+if(typeof _18=="string"){
 _19=_18;
 _18=a;
 a=f;
-f=g;
 }
-if(typeof _18==="function"){
-_1c=_18;
-_18=a;
-a=f;
-}else{
-try{
+f=0;
 _1c=_18.callee;
-}
-catch(e){
-if(e instanceof TypeError){
-_9("strict mode inherited() requires the caller function to be passed before arguments",this.declaredClass);
-}else{
-throw e;
-}
-}
-}
 _19=_19||_1c.nom;
 if(!_19){
 _9("can't deduce a name to call inherited()",this.declaredClass);
 }
-f=g=0;
 _1d=this.constructor._meta;
 _1b=_1d.bases;
 pos=_20.p;
@@ -180,23 +157,16 @@ if(f){
 return a===true?f:f.apply(this,a||_18);
 }
 };
-function _21(_22,_23,a){
-if(typeof _22==="string"){
-if(typeof _23==="function"){
-return this.__inherited(_22,_23,a,true);
-}
+function _21(_22,_23){
+if(typeof _22=="string"){
 return this.__inherited(_22,_23,true);
-}else{
-if(typeof _22==="function"){
-return this.__inherited(_22,_23,true);
-}
 }
 return this.__inherited(_22,true);
 };
-function _24(_25,a1,a2,a3){
-var f=this.getInherited(_25,a1,a2);
+function _24(_25,a1,a2){
+var f=this.getInherited(_25,a1);
 if(f){
-return f.apply(this,a3||a2||a1||_25);
+return f.apply(this,a2||a1||_25);
 }
 };
 var _26=_1.config.isDebug?_24:_17;
@@ -235,7 +205,7 @@ t.nom=_31;
 _2f[_31]=t;
 }
 }
-if(_2("bug-for-in-skips-shadowed")&&_30){
+if(_2("bug-for-in-skips-shadowed")){
 for(var _32=_3._extraNames,i=_32.length;i;){
 _31=_32[--i];
 t=_30[_31];
@@ -254,7 +224,7 @@ _35.safeMixin(this.prototype,_34);
 return this;
 };
 function _36(_37,_38){
-if(!(_37 instanceof Array||typeof _37==="function")){
+if(!(_37 instanceof Array||typeof _37=="function")){
 _38=_37;
 _37=undefined;
 }
@@ -414,12 +384,7 @@ break;
 }
 t=_53[i];
 (t._meta?_29:_4)(_50,t.prototype);
-if(_2("csp-restrictions")){
-_51=function(){
-};
-}else{
 _51=new Function;
-}
 _51.superclass=_4e;
 _51.prototype=_50;
 _4e=_50.constructor=_51;

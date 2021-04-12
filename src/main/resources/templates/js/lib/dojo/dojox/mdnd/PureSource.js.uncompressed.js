@@ -8,7 +8,7 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 	"dojo/dnd/Selector",
 	"dojo/dnd/Manager"
 ],function(dojo, declare, lang, connect, array, domClass, dnd, Selector, Manager){
-	var PureSource = declare(
+	return declare(
 		"dojox.mdnd.PureSource",
 		Selector,
 	{
@@ -86,7 +86,7 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 			//		Prepares the object to be garbage-collected.
 	
 			//console.log('dojox.mdnd.PureSource ::: destroy');
-			PureSource.superclass.destroy.call(this);
+			dojox.mdnd.PureSource.superclass.destroy.call(this);
 			array.forEach(this.topics, connect.unsubscribe);
 			this.targetAnchor = null;
 		},
@@ -103,7 +103,7 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 	
 			//console.log('dojox.mdnd.PureSource ::: markupFactory');
 			params._skipStartup = true;
-			return new PureSource(node, params);
+			return new dojox.mdnd.PureSource(node, params);
 		},
 	
 		onMouseMove: function(/*Event*/e){
@@ -116,7 +116,7 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 			if(this.isDragging){
 				return;
 			}
-			PureSource.superclass.onMouseMove.call(this, e);
+			dojox.mdnd.PureSource.superclass.onMouseMove.call(this, e);
 			var m = Manager.manager();
 			if(this.mouseDown && !this.isDragging && this.isSource){
 				var nodes = this.getSelectedNodes();
@@ -140,7 +140,7 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 			if(this._legalMouseDown(e) && (!this.skipForm || !dnd.isFormElement(e))){
 				this.mouseDown = true;
 				this.mouseButton = e.button;
-				PureSource.superclass.onMouseDown.call(this, e);
+				dojox.mdnd.PureSource.superclass.onMouseDown.call(this, e);
 			}
 		},
 		
@@ -155,7 +155,7 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 			//console.log('.dnd.PureSource ::: onMouseUp');
 			if(this.mouseDown){
 				this.mouseDown = false;
-				PureSource.superclass.onMouseUp.call(this, e);
+				dojox.mdnd.PureSource.superclass.onMouseUp.call(this, e);
 			}
 		},
 	
@@ -166,7 +166,7 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 			//		callback
 	
 			//console.log('dojox.mdnd.PureSource ::: onOverEvent');
-			PureSource.superclass.onOverEvent.call(this);
+			dojox.mdnd.PureSource.superclass.onOverEvent.call(this);
 			Manager.manager().overSource(this);
 		},
 		
@@ -177,7 +177,7 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 			//		callback
 	
 			//console.log('dojox.mdnd.PureSource ::: onOutEvent');
-			PureSource.superclass.onOutEvent.call(this);
+			dojox.mdnd.PureSource.superclass.onOutEvent.call(this);
 			Manager.manager().outSource(this);
 		},
 		
@@ -211,5 +211,4 @@ define("dojox/mdnd/PureSource", ["dojo/_base/kernel",
 			return false;	// Boolean
 		}
 	});
-	return PureSource;
 });

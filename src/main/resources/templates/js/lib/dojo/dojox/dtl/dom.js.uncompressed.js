@@ -94,7 +94,7 @@ define("dojox/dtl/dom", [
 										var replacement = "";
 										for(var p = 2, pl = pair.length; p < pl; p++){
 											if(p == 2){
-												replacement += "<" + tag + ' dtlinstruction="{% ' + token[k].replace(/"/g, '\\"') + ' %}">';
+												replacement += "<" + tag + ' dtlinstruction="{% ' + token[k].replace('"', '\\"') + ' %}">';
 											}else if(tag == pair[p]) {
 												continue;
 											}else{
@@ -223,6 +223,9 @@ define("dojox/dtl/dom", [
 					value = node.className || value;
 				}else if(key == "for"){
 					value = node.htmlFor || value;
+				}else if(key == "value" && node.value == node.innerHTML){
+					// Sometimes .value is set the same as the contents of the item (button)
+					continue;
 				}else if(node.getAttribute){
 					value = node.getAttribute(key, 2) || value;
 					if(key == "href" || key == "src"){

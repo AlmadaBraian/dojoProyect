@@ -408,10 +408,10 @@ define("dijit/form/_FormSelectWidget", [
 					}
 					this.onLoadDeferred.resolve(true);
 					this.onSetStore();
-				}), lang.hitch(this, function(err){
+				}), function(err){
 					console.error('dijit.form.Select: ' + err.toString());
 					this.onLoadDeferred.reject(err);
-				}));
+				});
 			}
 			return oStore;	// dojo/data/api/Identity
 		},

@@ -190,10 +190,9 @@ function(lang, has, win, dom, declare, arr, domGeom, domAttr, Color, g, gs, path
 			s.color = g.normalizeColor(s.color);
 			// generate attributes
 			if(s){
-				var w = s.width < 0 ? 0 : s.width;
 				rn.setAttribute("stroke", s.color.toCss());
 				rn.setAttribute("stroke-opacity", s.color.a);
-				rn.setAttribute("stroke-width",   w);
+				rn.setAttribute("stroke-width",   s.width);
 				rn.setAttribute("stroke-linecap", s.cap);
 				if(typeof s.join == "number"){
 					rn.setAttribute("stroke-linejoin",   "miter");
@@ -209,15 +208,15 @@ function(lang, has, win, dom, declare, arr, domGeom, domAttr, Color, g, gs, path
 					da = lang._toArray(da);
 					var i;
 					for(i = 0; i < da.length; ++i){
-						da[i] *= w;
+						da[i] *= s.width;
 					}
 					if(s.cap != "butt"){
 						for(i = 0; i < da.length; i += 2){
-							da[i] -= w;
+							da[i] -= s.width;
 							if(da[i] < 1){ da[i] = 1; }
 						}
 						for(i = 1; i < da.length; i += 2){
-							da[i] += w;
+							da[i] += s.width;
 						}
 					}
 					da = da.join(",");
@@ -264,8 +263,8 @@ function(lang, has, win, dom, declare, arr, domGeom, domAttr, Color, g, gs, path
 				var img = _createElementNS(svgns, "image");
 				img.setAttribute("x", 0);
 				img.setAttribute("y", 0);
-				img.setAttribute("width",  (f.width < 0 ? 0 : f.width).toFixed(8));
-				img.setAttribute("height", (f.height < 0 ? 0 : f.height).toFixed(8));
+				img.setAttribute("width",  f.width .toFixed(8));
+				img.setAttribute("height", f.height.toFixed(8));
 				_setAttributeNS(img, svg.xmlns.xlink, "xlink:href", f.src);
 				fill.appendChild(img);
 			}else{
@@ -335,11 +334,7 @@ function(lang, has, win, dom, declare, arr, domGeom, domAttr, Color, g, gs, path
 			this.shape = g.makeParameters(this.shape, newShape);
 			for(var i in this.shape){
 				if(i != "type"){
-					var v = this.shape[i];
-					if(i === "width" || i === "height"){
-						v = v < 0 ? 0 : v;
-					}
-					this.rawNode.setAttribute(i, v);
+					this.rawNode.setAttribute(i, this.shape[i]);
 				}
 			}
 			this.bbox = null;
@@ -464,11 +459,7 @@ function(lang, has, win, dom, declare, arr, domGeom, domAttr, Color, g, gs, path
 			this.bbox = null;
 			for(var i in this.shape){
 				if(i != "type" && i != "r"){
-					var v = this.shape[i];
-					if(i === "width" || i === "height"){
-						v = v < 0 ? 0 : v;
-					}
-					this.rawNode.setAttribute(i, v);
+					this.rawNode.setAttribute(i, this.shape[i]);
 				}
 			}
 			if(this.shape.r != null){
@@ -530,11 +521,7 @@ function(lang, has, win, dom, declare, arr, domGeom, domAttr, Color, g, gs, path
 			var rawNode = this.rawNode;
 			for(var i in this.shape){
 				if(i != "type" && i != "src"){
-					var v = this.shape[i];
-					if(i === "width" || i === "height"){
-						v = v < 0 ? 0 : v;
-					}
-					rawNode.setAttribute(i, v);
+					rawNode.setAttribute(i, this.shape[i]);
 				}
 			}
 			rawNode.setAttribute("preserveAspectRatio", "none");
@@ -753,13 +740,11 @@ else
 			// height: String
 			//		height of surface, e.g., "100px"
 			if(!this.rawNode){ return this; }
-			var w = width < 0 ? 0 : width,
-				h = height < 0 ? 0 : height;
-			this.rawNode.setAttribute("width",  w);
-			this.rawNode.setAttribute("height", h);
+			this.rawNode.setAttribute("width",  width);
+			this.rawNode.setAttribute("height", height);
 			if(hasSvgSetAttributeBug){
-				this.rawNode.style.width =  w;
-				this.rawNode.style.height =  h;
+				this.rawNode.style.width =  width;
+				this.rawNode.style.height =  height;
 			}
 			return this;	// self
 		},
@@ -789,10 +774,10 @@ else
 		s.rawNode = _createElementNS(svg.xmlns.svg, "svg");
 		s.rawNode.setAttribute("overflow", "hidden");
 		if(width){
-			s.rawNode.setAttribute("width",  width < 0 ? 0 : width);
+			s.rawNode.setAttribute("width",  width);
 		}
 		if(height){
-			s.rawNode.setAttribute("height", height < 0 ? 0 : height);
+			s.rawNode.setAttribute("height", height);
 		}
 
 		var defNode = _createElementNS(svg.xmlns.svg, "defs");
@@ -962,9 +947,6 @@ else
 		// override createSurface()
 		svg.createSurface = function(parentNode, width, height){
 			var s = new svg.Surface();
-			
-			width = width < 0 ? 0 : width;
-			height = height < 0 ? 0 : height;
 
 			// ensure width / height
 			if(!width || !height){

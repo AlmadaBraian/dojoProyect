@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/request/registry",["require","../_base/array","./default!platform","./util"],function(_1,_2,_3,_4){
 var _5=[];
@@ -11,7 +10,7 @@ function _6(_7,_8){
 var _9=_5.slice(0),i=0,_a;
 while(_a=_9[i++]){
 if(_a(_7,_8)){
-return _a.request.apply(null,arguments);
+return _a.request.call(null,_7,_8);
 }
 }
 return _3.apply(null,arguments);

@@ -3,8 +3,6 @@ require({cache:{"url:dijit/templates/Dialog.html":"<div class=\"dijitDialog\" ro
 define("dijit/Dialog",["require","dojo/_base/array","dojo/aspect","dojo/_base/declare","dojo/Deferred","dojo/dom","dojo/dom-class","dojo/dom-geometry","dojo/dom-style","dojo/_base/fx","dojo/i18n","dojo/keys","dojo/_base/lang","dojo/on","dojo/ready","dojo/sniff","dojo/touch","dojo/window","dojo/dnd/Moveable","dojo/dnd/TimedMoveable","./focus","./_base/manager","./_Widget","./_TemplatedMixin","./_CssStateMixin","./form/_FormMixin","./_DialogMixin","./DialogUnderlay","./layout/ContentPane","./layout/utils","dojo/text!./templates/Dialog.html","./a11yclick","dojo/i18n!./nls/common"],function(_1,_2,_3,_4,_5,_6,_7,_8,_9,fx,_a,_b,_c,on,_d,_e,_f,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_1a,_1b,_1c,_1d){
 var _1e=new _5();
 _1e.resolve(true);
-function nop(){
-};
 var _1f=_4("dijit._DialogBase"+(_e("dojo-bidi")?"_NoBidi":""),[_16,_18,_19,_17],{templateString:_1d,baseClass:"dijitDialog",cssStateNodes:{closeButtonNode:"dijitDialogCloseIcon"},_setTitleAttr:{node:"titleNode",type:"innerHTML"},open:false,duration:_14.defaultDuration,refocus:true,autofocus:true,_firstFocusItem:null,_lastFocusItem:null,draggable:true,_setDraggableAttr:function(val){
 this._set("draggable",val);
 },maxRatio:0.9,closable:true,_setClosableAttr:function(val){
@@ -56,7 +54,7 @@ return s+"_underlay";
 this.resize();
 },_position:function(){
 if(!_7.contains(this.ownerDocumentBody,"dojoMove")){
-var _25=this.domNode,_26=_10.getBox(this.ownerDocument),p=this._relativePosition,bb=_8.position(_25),l=Math.floor(_26.l+(p?Math.min(p.x,_26.w-bb.w):(_26.w-bb.w)/2)),t=Math.floor(_26.t+(p?Math.min(p.y,_26.h-bb.h):(_26.h-bb.h)/2));
+var _25=this.domNode,_26=_10.getBox(this.ownerDocument),p=this._relativePosition,bb=p?null:_8.position(_25),l=Math.floor(_26.l+(p?p.x:(_26.w-bb.w)/2)),t=Math.floor(_26.t+(p?p.y:(_26.h-bb.h)/2));
 _9.set(_25,{left:l+"px",top:t+"px"});
 }
 },_onKey:function(evt){
@@ -114,7 +112,6 @@ this._fadeInDeferred=new _5(_c.hitch(this,function(){
 _28.stop();
 delete this._fadeInDeferred;
 }));
-this._fadeInDeferred.then(undefined,nop);
 var _29=this._fadeInDeferred.promise;
 _28=fx.fadeIn({node:this.domNode,duration:this.duration,beforeBegin:_c.hitch(this,function(){
 _21.show(this,this.underlayAttrs);
@@ -139,7 +136,6 @@ this._fadeOutDeferred=new _5(_c.hitch(this,function(){
 _2a.stop();
 delete this._fadeOutDeferred;
 }));
-this._fadeOutDeferred.then(undefined,nop);
 this._fadeOutDeferred.then(_c.hitch(this,"onHide"));
 var _2b=this._fadeOutDeferred.promise;
 _2a=fx.fadeOut({node:this.domNode,duration:this.duration,onEnd:_c.hitch(this,function(){
@@ -182,27 +178,11 @@ var _2d=_10.getBox(this.ownerDocument);
 _2d.w*=this.maxRatio;
 _2d.h*=this.maxRatio;
 var bb=_8.position(this.domNode);
+if(bb.w>=_2d.w||bb.h>=_2d.h){
+dim={w:Math.min(bb.w,_2d.w),h:Math.min(bb.h,_2d.h)};
+this._shrunk=true;
+}else{
 this._shrunk=false;
-if(bb.w>=_2d.w){
-dim={w:_2d.w};
-_8.setMarginBox(this.domNode,dim);
-bb=_8.position(this.domNode);
-this._shrunk=true;
-}
-if(bb.h>=_2d.h){
-if(!dim){
-dim={w:bb.w};
-}
-dim.h=_2d.h;
-this._shrunk=true;
-}
-if(dim){
-if(!dim.w){
-dim.w=bb.w;
-}
-if(!dim.h){
-dim.h=bb.h;
-}
 }
 }
 if(dim){

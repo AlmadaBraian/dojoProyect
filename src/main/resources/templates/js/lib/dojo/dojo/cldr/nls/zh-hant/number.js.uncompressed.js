@@ -1,25 +1,23 @@
 define(
 "dojo/cldr/nls/zh-hant/number", //begin v1.x content
 {
-	"scientificFormat": "#E0",
-	"infinity": "∞",
-	"superscriptingExponent": "×",
-	"list": ";",
-	"percentSign": "%",
-	"minusSign": "-",
-	"decimalFormat-short": "000兆",
-	"nan": "非數值",
-	"plusSign": "+",
-	"currencyFormat": "¤#,##0.00;(¤#,##0.00)",
-	"perMille": "‰",
 	"group": ",",
+	"percentSign": "%",
+	"exponential": "E",
+	"scientificFormat": "#E0",
 	"percentFormat": "#,##0%",
-	"decimalFormat-long": "000兆",
-	"decimalFormat": "#,##0.###",
-	"currencyFormat-short": "¤000兆",
-	"timeSeparator": ":",
+	"list": ";",
+	"infinity": "∞",
+	"minusSign": "-",
 	"decimal": ".",
-	"exponential": "E"
+	"superscriptingExponent": "×",
+	"nan": "非數值",
+	"perMille": "‰",
+	"decimalFormat": "#,##0.###",
+	"currencyFormat": "¤#,##0.00;(¤#,##0.00)",
+	"plusSign": "+",
+	"decimalFormat-long": "000兆",
+	"decimalFormat-short": "000T"
 }
 //end v1.x content
 );

@@ -44,7 +44,6 @@ define("dojox/charting/SimpleTheme", ["dojo/_base/lang", "dojo/_base/array","doj
 	//		The default theme (and structure) looks like so:
 	//	|	// all objects are structs used directly in dojox.gfx
 	//	|	chart:{
-	//	|		margins: {l: 10, t: 10, r: 10, b: 10},
 	//	|		stroke: null,
 	//	|		fill: "white",
 	//	|		pageStyle: null // suggested page style as an object suitable for dojo.style()
@@ -134,15 +133,13 @@ define("dojox/charting/SimpleTheme", ["dojo/_base/lang", "dojo/_base/array","doj
 	//	|		markerSymbol:  "m-3,0 c0,-4 6,-4 6,0 m-6,0 c0,4 6,4 6,0",	// marker symbol
 	//	|		markerStroke:  {width: 1.5, color: "#333"},		// marker stroke
 	//	|		markerOutline: {width: 0.1, color: "#ccc"},		// marker outline
-	//	|		markerShadow: null								// no marker shadow
-	//	|	},
-	//	|	pieInnerRadius: 33
+	//	|		markerShadow: null,								// no marker shadow
+	//	|	}
 	//
 	// example:
 	//		Defining a new theme is pretty simple:
 	//	|	var Grasslands = new SimpleTheme({
-	//	|		colors: [ "#70803a", "#dde574", "#788062", "#b1cc5d", "#eff2c2" ],
-	//	|		pieInnerRadius: 15
+	//	|		colors: [ "#70803a", "#dde574", "#788062", "#b1cc5d", "#eff2c2" ]
 	//	|	});
 	//	|
 	//	|	myChart.setTheme(Grasslands);
@@ -208,8 +205,7 @@ define("dojox/charting/SimpleTheme", ["dojo/_base/lang", "dojo/_base/array","doj
 			markerThemes: this.markerThemes,
 			// flags
 			noGradConv: this.noGradConv,
-			noRadialConv: this.noRadialConv,
-			pieInnerRadius: this.pieInnerRadius
+			noRadialConv: this.noRadialConv
 		});
 		// copy custom methods
 		arr.forEach(
@@ -498,8 +494,7 @@ lang.mixin(SimpleTheme, {
 			titleGap:		20,
 			titlePos:		"top",
 			titleFont:      "normal normal bold 14pt Tahoma",	// chart title
-			titleFontColor: "#333",
-			titleAlign: "middle"
+			titleFontColor: "#333"
 		},
 		plotarea:{
 			stroke: null,

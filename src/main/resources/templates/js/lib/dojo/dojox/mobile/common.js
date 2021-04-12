@@ -219,9 +219,7 @@ _24.style[_23]=_25;
 }:function(){
 };
 _a(function(){
-if(_2.mblApplyPageStyles!==false){
 _8.add(_5.body(),"mblBackground");
-}
 });
 _b(function(){
 dm.detectScreenSize(true);

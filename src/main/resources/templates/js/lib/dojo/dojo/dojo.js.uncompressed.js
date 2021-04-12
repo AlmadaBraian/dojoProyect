@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 /*
 	This is an optimized version of Dojo, built for deployment and not for
 	development. To get sources and documentation, please visit:
@@ -74,10 +73,6 @@
 	// pack: package is used internally to reference a package object (since javascript has reserved words including "package")
 	// prid: plugin resource identifier
 	// The integer constant 1 is used in place of true and 0 in place of false.
-	//
-	// The "foreign-loader" has condition is defined if another loader is being used (e.g. webpack) and this code is only
-	// needed for resolving module identifiers based on the config.  In this case, only the functions require.toUrl and 
-	// require.toAbsMid are supported.  The require and define functions are not supported.
 
 	// define global
 	var globalObject = (function(){
@@ -99,7 +94,7 @@
 	})();
 
 	// define a minimal library to help build the loader
-	var noop = function(){
+	var	noop = function(){
 		},
 
 		isEmpty = function(it){
@@ -251,7 +246,7 @@
 
 	// the loader will use these like symbols if the loader has the traceApi; otherwise
 	// define magic numbers so that modules can be provided as part of defaultConfig
-	var requested = 1,
+	var	requested = 1,
 		arrived = 2,
 		nonmodule = 3,
 		executing = 4,
@@ -381,9 +376,7 @@
 	//
 	// loader eval
 	//
-	var eval_ =  has("csp-restrictions") ?
-		// noop eval if there are csp restrictions
-		function(){} :
+	var eval_ =
 		// use the function constructor so our eval is scoped close to (but not in) in the global space with minimal pollution
 		new Function('return eval(arguments[0]);');
 
@@ -522,31 +515,27 @@
 			= 0;
 
 	if( 1 ){
-		if (!has("foreign-loader")) {
-			var consumePendingCacheInsert = function(referenceModule, clear){
-					clear = clear !== false;
-					var p, item, match, now, m;
-					for(p in pendingCacheInsert){
-						item = pendingCacheInsert[p];
-						match = p.match(/^url\:(.+)/);
-						if(match){
-							cache[urlKeyPrefix + toUrl(match[1], referenceModule)] =  item;
-						}else if(p=="*now"){
-							now = item;
-						}else if(p!="*noref"){
-							m = getModuleInfo(p, referenceModule, true);
-							cache[m.mid] = cache[urlKeyPrefix + m.url] = item;
-						}
+		var consumePendingCacheInsert = function(referenceModule){
+				var p, item, match, now, m;
+				for(p in pendingCacheInsert){
+					item = pendingCacheInsert[p];
+					match = p.match(/^url\:(.+)/);
+					if(match){
+						cache[urlKeyPrefix + toUrl(match[1], referenceModule)] =  item;
+					}else if(p=="*now"){
+						now = item;
+					}else if(p!="*noref"){
+						m = getModuleInfo(p, referenceModule, true);
+						cache[m.mid] = cache[urlKeyPrefix + m.url] = item;
 					}
-					if(now){
-						now(createRequire(referenceModule));
-					}
-					if(clear){
-						pendingCacheInsert = {};
-					}
-				};
-		}
-		var escapeString = function(s){
+				}
+				if(now){
+					now(createRequire(referenceModule));
+				}
+				pendingCacheInsert = {};
+			},
+
+			escapeString = function(s){
 				return s.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, function(c){ return "\\" + c; });
 			},
 
@@ -685,24 +674,24 @@
 				// aliases
 				computeAliases(config.aliases, aliases);
 
-				if (!has("foreign-loader")) {
-					if(booting){
-						delayedModuleConfig.push({config:config.config});
-					}else{
-						for(p in config.config){
-							var module = getModule(p, referenceModule);
-							module.config = mix(module.config || {}, config.config[p]);
-						}
-					}
-
-					// push in any new cache values
-					if(config.cache){
-						consumePendingCacheInsert();
-						pendingCacheInsert = config.cache;
-						//inject now all depencies so cache is available for mapped module
-						consumePendingCacheInsert(0, !!config.cache["*noref"]);
+				if(booting){
+					delayedModuleConfig.push({config:config.config});
+				}else{
+					for(p in config.config){
+						var module = getModule(p, referenceModule);
+						module.config = mix(module.config || {}, config.config[p]);
 					}
 				}
+
+				// push in any new cache values
+				if(config.cache){
+					consumePendingCacheInsert();
+					pendingCacheInsert = config.cache;
+					if(config.cache["*noref"]){
+						consumePendingCacheInsert();
+					}
+				}
+
 				signal("config", [config, req.rawConfig]);
 			};
 
@@ -790,184 +779,182 @@
 	}
 
 
-	if (!has("foreign-loader")) {
-		if( 0 ){
-			req.combo = req.combo || {add:noop};
-			var comboPending = 0,
-				combosPending = [],
-				comboPendingTimer = null;
-		}
-		
-
-		// build the loader machinery iaw configuration, including has feature tests
-		var injectDependencies = function(module){
-				// checkComplete!=0 holds the idle signal; we're not idle if we're injecting dependencies
-				guardCheckComplete(function(){
-					forEach(module.deps, injectModule);
-					if( 0  && comboPending && !comboPendingTimer){
-						comboPendingTimer = setTimeout(function() {
-							comboPending = 0;
-							comboPendingTimer = null;
-							req.combo.done(function(mids, url) {
-								var onLoadCallback= function(){
-									// defQ is a vector of module definitions 1-to-1, onto mids
-									runDefQ(0, mids);
-									checkComplete();
-								};
-								combosPending.push(mids);
-								injectingModule = mids;
-								req.injectUrl(url, onLoadCallback, mids);
-								injectingModule = 0;
-							}, req);
-						}, 0);
-					}
-				});
-			},
-
-			contextRequire = function(a1, a2, a3, referenceModule, contextRequire){
-				var module, syntheticMid;
-				if(isString(a1)){
-					// signature is (moduleId)
-					module = getModule(a1, referenceModule, true);
-					if(module && module.executed){
-						return module.result;
-					}
-					throw makeError("undefinedModule", a1);
-				}
-				if(!isArray(a1)){
-					// a1 is a configuration
-					config(a1, 0, referenceModule);
-
-					// juggle args; (a2, a3) may be (dependencies, callback)
-					a1 = a2;
-					a2 = a3;
-				}
-				if(isArray(a1)){
-					// signature is (requestList [,callback])
-					if(!a1.length){
-						a2 && a2();
-					}else{
-						syntheticMid = "require*" + uid();
-
-						// resolve the request list with respect to the reference module
-						for(var mid, deps = [], i = 0; i < a1.length;){
-							mid = a1[i++];
-							deps.push(getModule(mid, referenceModule));
-						}
-
-						// construct a synthetic module to control execution of the requestList, and, optionally, callback
-						module = mix(makeModuleInfo("", syntheticMid, 0, ""), {
-							injected: arrived,
-							deps: deps,
-							def: a2 || noop,
-							require: referenceModule ? referenceModule.require : req,
-							gc: 1 //garbage collect
-						});
-						modules[module.mid] = module;
-
-						// checkComplete!=0 holds the idle signal; we're not idle if we're injecting dependencies
-						injectDependencies(module);
-
-						// try to immediately execute
-						// if already traversing a factory tree, then strict causes circular dependency to abort the execution; maybe
-						// it's possible to execute this require later after the current traversal completes and avoid the circular dependency.
-						// ...but *always* insist on immediate in synch mode
-						var strict = checkCompleteGuard && legacyMode!=sync;
-						guardCheckComplete(function(){
-							execModule(module, strict);
-						});
-						if(!module.executed){
-							// some deps weren't on board or circular dependency detected and strict; therefore, push into the execQ
-							execQ.push(module);
-						}
-						checkComplete();
-					}
-				}
-				return contextRequire;
-			},
-
-			createRequire = function(module){
-				if(!module){
-					return req;
-				}
-				var result = module.require;
-				if(!result){
-					result = function(a1, a2, a3){
-						return contextRequire(a1, a2, a3, module, result);
-					};
-					module.require = mix(result, req);
-					result.module = module;
-					result.toUrl = function(name){
-						return toUrl(name, module);
-					};
-					result.toAbsMid = function(mid){
-						return toAbsMid(mid, module);
-					};
-					if( 0 ){
-						result.undef = function(mid){
-							req.undef(mid, module);
-						};
-					}
-					if( 1 ){
-						result.syncLoadNls = function(mid){
-							var nlsModuleInfo = getModuleInfo(mid, module),
-								nlsModule = modules[nlsModuleInfo.mid];
-							if(!nlsModule || !nlsModule.executed){
-								cached = cache[nlsModuleInfo.mid] || cache[urlKeyPrefix + nlsModuleInfo.url];
-								if(cached){
-									evalModuleText(cached);
-									nlsModule = modules[nlsModuleInfo.mid];
-								}
-							}
-							return nlsModule && nlsModule.executed && nlsModule.result;
-						};
-					}
-
-				}
-				return result;
-			},
-
-		  execQ =
-				// The list of modules that need to be evaluated.
-				[],
-
-			defQ =
-				// The queue of define arguments sent to loader.
-				[],
-
-			waiting =
-				// The set of modules upon which the loader is waiting for definition to arrive
-				{},
-
-			setRequested = function(module){
-				module.injected = requested;
-				waiting[module.mid] = 1;
-				if(module.url){
-					waiting[module.url] = module.pack || 1;
-				}
-				startTimer();
-			},
-
-			setArrived = function(module){
-				module.injected = arrived;
-				delete waiting[module.mid];
-				if(module.url){
-					delete waiting[module.url];
-				}
-				if(isEmpty(waiting)){
-					clearTimer();
-					 1  && legacyMode==xd && (legacyMode = sync);
-				}
-			},
-
-			execComplete = req.idle =
-				// says the loader has completed (or not) its work
-				function(){
-					return !defQ.length && isEmpty(waiting) && !execQ.length && !checkCompleteGuard;
-				};
+	if( 0 ){
+		req.combo = req.combo || {add:noop};
+		var	comboPending = 0,
+			combosPending = [],
+			comboPendingTimer = null;
 	}
 
-	var runMapProg = function(targetMid, map){
+
+	// build the loader machinery iaw configuration, including has feature tests
+	var	injectDependencies = function(module){
+			// checkComplete!=0 holds the idle signal; we're not idle if we're injecting dependencies
+			guardCheckComplete(function(){
+				forEach(module.deps, injectModule);
+				if( 0  && comboPending && !comboPendingTimer){
+					comboPendingTimer = setTimeout(function() {
+						comboPending = 0;
+						comboPendingTimer = null;
+						req.combo.done(function(mids, url) {
+							var onLoadCallback= function(){
+								// defQ is a vector of module definitions 1-to-1, onto mids
+								runDefQ(0, mids);
+								checkComplete();
+							};
+							combosPending.push(mids);
+							injectingModule = mids;
+							req.injectUrl(url, onLoadCallback, mids);
+							injectingModule = 0;
+						}, req);
+					}, 0);
+				}
+			});
+		},
+
+		contextRequire = function(a1, a2, a3, referenceModule, contextRequire){
+			var module, syntheticMid;
+			if(isString(a1)){
+				// signature is (moduleId)
+				module = getModule(a1, referenceModule, true);
+				if(module && module.executed){
+					return module.result;
+				}
+				throw makeError("undefinedModule", a1);
+			}
+			if(!isArray(a1)){
+				// a1 is a configuration
+				config(a1, 0, referenceModule);
+
+				// juggle args; (a2, a3) may be (dependencies, callback)
+				a1 = a2;
+				a2 = a3;
+			}
+			if(isArray(a1)){
+				// signature is (requestList [,callback])
+				if(!a1.length){
+					a2 && a2();
+				}else{
+					syntheticMid = "require*" + uid();
+
+					// resolve the request list with respect to the reference module
+					for(var mid, deps = [], i = 0; i < a1.length;){
+						mid = a1[i++];
+						deps.push(getModule(mid, referenceModule));
+					}
+
+					// construct a synthetic module to control execution of the requestList, and, optionally, callback
+					module = mix(makeModuleInfo("", syntheticMid, 0, ""), {
+						injected: arrived,
+						deps: deps,
+						def: a2 || noop,
+						require: referenceModule ? referenceModule.require : req,
+						gc: 1 //garbage collect
+					});
+					modules[module.mid] = module;
+
+					// checkComplete!=0 holds the idle signal; we're not idle if we're injecting dependencies
+					injectDependencies(module);
+
+					// try to immediately execute
+					// if already traversing a factory tree, then strict causes circular dependency to abort the execution; maybe
+					// it's possible to execute this require later after the current traversal completes and avoid the circular dependency.
+					// ...but *always* insist on immediate in synch mode
+					var strict = checkCompleteGuard && legacyMode!=sync;
+					guardCheckComplete(function(){
+						execModule(module, strict);
+					});
+					if(!module.executed){
+						// some deps weren't on board or circular dependency detected and strict; therefore, push into the execQ
+						execQ.push(module);
+					}
+					checkComplete();
+				}
+			}
+			return contextRequire;
+		},
+
+		createRequire = function(module){
+			if(!module){
+				return req;
+			}
+			var result = module.require;
+			if(!result){
+				result = function(a1, a2, a3){
+					return contextRequire(a1, a2, a3, module, result);
+				};
+				module.require = mix(result, req);
+				result.module = module;
+				result.toUrl = function(name){
+					return toUrl(name, module);
+				};
+				result.toAbsMid = function(mid){
+					return toAbsMid(mid, module);
+				};
+				if( 0 ){
+					result.undef = function(mid){
+						req.undef(mid, module);
+					};
+				}
+				if( 1 ){
+					result.syncLoadNls = function(mid){
+						var nlsModuleInfo = getModuleInfo(mid, module),
+							nlsModule = modules[nlsModuleInfo.mid];
+						if(!nlsModule || !nlsModule.executed){
+							cached = cache[nlsModuleInfo.mid] || cache[urlKeyPrefix + nlsModuleInfo.url];
+							if(cached){
+								evalModuleText(cached);
+								nlsModule = modules[nlsModuleInfo.mid];
+							}
+						}
+						return nlsModule && nlsModule.executed && nlsModule.result;
+					};
+				}
+
+			}
+			return result;
+		},
+
+		execQ =
+			// The list of modules that need to be evaluated.
+			[],
+
+		defQ =
+			// The queue of define arguments sent to loader.
+			[],
+
+		waiting =
+			// The set of modules upon which the loader is waiting for definition to arrive
+			{},
+
+		setRequested = function(module){
+			module.injected = requested;
+			waiting[module.mid] = 1;
+			if(module.url){
+				waiting[module.url] = module.pack || 1;
+			}
+			startTimer();
+		},
+
+		setArrived = function(module){
+			module.injected = arrived;
+			delete waiting[module.mid];
+			if(module.url){
+				delete waiting[module.url];
+			}
+			if(isEmpty(waiting)){
+				clearTimer();
+				 1  && legacyMode==xd && (legacyMode = sync);
+			}
+		},
+
+		execComplete = req.idle =
+			// says the loader has completed (or not) its work
+			function(){
+				return !defQ.length && isEmpty(waiting) && !execQ.length && !checkCompleteGuard;
+			},
+
+		runMapProg = function(targetMid, map){
 			// search for targetMid in map; return the map item if found; falsy otherwise
 			if(map){
 			for(var i = 0; i < map.length; i++){
@@ -1004,7 +991,7 @@
 			}
 		},
 
-		getModuleInfo_ = function(mid, referenceModule, packs, modules, baseUrl, mapProgs, pathsMapProg, aliases, alwaysCreate, fromPendingCache){
+		getModuleInfo_ = function(mid, referenceModule, packs, modules, baseUrl, mapProgs, pathsMapProg, aliases, alwaysCreate){
 			// arguments are passed instead of using lexical variables so that this function my be used independent of the loader (e.g., the builder)
 			// alwaysCreate is useful in this case so that getModuleInfo never returns references to real modules owned by the loader
 			var pid, pack, midInPackage, mapItem, url, result, isRelative, requestedMid;
@@ -1025,13 +1012,11 @@
 				// at this point, mid is an absolute mid
 
 				// map the mid
-				if(!fromPendingCache && !isRelative && mapProgs.star){
-					mapItem = runMapProg(mid, mapProgs.star[1]);
-				}
-				if(!mapItem && referenceModule){
+				if(referenceModule){
 					mapItem = runMapProg(referenceModule.mid, mapProgs);
-					mapItem = mapItem && runMapProg(mid, mapItem[1]);
 				}
+				mapItem = mapItem || mapProgs.star;
+				mapItem = mapItem && runMapProg(mid, mapItem[1]);
 
 				if(mapItem){
 					mid = mapItem[1] + mid.substring(mapItem[3]);
@@ -1086,63 +1071,61 @@
 		},
 
 		getModuleInfo = function(mid, referenceModule, fromPendingCache){
-			return getModuleInfo_(mid, referenceModule, packs, modules, req.baseUrl, mapProgs, pathsMapProg, aliases, undefined, fromPendingCache);
-		};
+			return getModuleInfo_(mid, referenceModule, packs, modules, req.baseUrl, fromPendingCache ? [] : mapProgs, fromPendingCache ? [] : pathsMapProg, fromPendingCache ? [] : aliases);
+		},
 
-	if (!has("foreign-loader")) {
-		var resolvePluginResourceId = function(plugin, prid, referenceModule){
-				return plugin.normalize ? plugin.normalize(prid, function(mid){return toAbsMid(mid, referenceModule);}) : toAbsMid(prid, referenceModule);
-			},
+		resolvePluginResourceId = function(plugin, prid, referenceModule){
+			return plugin.normalize ? plugin.normalize(prid, function(mid){return toAbsMid(mid, referenceModule);}) : toAbsMid(prid, referenceModule);
+		},
 
-			dynamicPluginUidGenerator = 0,
+		dynamicPluginUidGenerator = 0,
 
-			getModule = function(mid, referenceModule, immediate){
-				// compute and optionally construct (if necessary) the module implied by the mid with respect to referenceModule
-				var match, plugin, prid, result;
-				match = mid.match(/^(.+?)\!(.*)$/);
-				if(match){
-					// name was <plugin-module>!<plugin-resource-id>
-					plugin = getModule(match[1], referenceModule, immediate);
+		getModule = function(mid, referenceModule, immediate){
+			// compute and optionally construct (if necessary) the module implied by the mid with respect to referenceModule
+			var match, plugin, prid, result;
+			match = mid.match(/^(.+?)\!(.*)$/);
+			if(match){
+				// name was <plugin-module>!<plugin-resource-id>
+				plugin = getModule(match[1], referenceModule, immediate);
 
-					if( 1  && legacyMode == sync && !plugin.executed){
-						injectModule(plugin);
-						if(plugin.injected===arrived && !plugin.executed){
-							guardCheckComplete(function(){
-								execModule(plugin);
-							});
-						}
-						if(plugin.executed){
-							promoteModuleToPlugin(plugin);
-						}else{
-							// we are in xdomain mode for some reason
-							execQ.unshift(plugin);
-						}
+				if( 1  && legacyMode == sync && !plugin.executed){
+					injectModule(plugin);
+					if(plugin.injected===arrived && !plugin.executed){
+						guardCheckComplete(function(){
+							execModule(plugin);
+						});
 					}
-
-
-
-					if(plugin.executed === executed && !plugin.load){
-						// executed the module not knowing it was a plugin
+					if(plugin.executed){
 						promoteModuleToPlugin(plugin);
-					}
-
-					// if the plugin has not been loaded, then can't resolve the prid and  must assume this plugin is dynamic until we find out otherwise
-					if(plugin.load){
-						prid = resolvePluginResourceId(plugin, match[2], referenceModule);
-						mid = (plugin.mid + "!" + (plugin.dynamic ? ++dynamicPluginUidGenerator + "!" : "") + prid);
 					}else{
-						prid = match[2];
-						mid = plugin.mid + "!" + (++dynamicPluginUidGenerator) + "!waitingForPlugin";
+						// we are in xdomain mode for some reason
+						execQ.unshift(plugin);
 					}
-					result = {plugin:plugin, mid:mid, req:createRequire(referenceModule), prid:prid};
-				}else{
-					result = getModuleInfo(mid, referenceModule);
 				}
-				return modules[result.mid] || (!immediate && (modules[result.mid] = result));
-			};
-	}
 
-	var toAbsMid = req.toAbsMid = function(mid, referenceModule){
+
+
+				if(plugin.executed === executed && !plugin.load){
+					// executed the module not knowing it was a plugin
+					promoteModuleToPlugin(plugin);
+				}
+
+				// if the plugin has not been loaded, then can't resolve the prid and  must assume this plugin is dynamic until we find out otherwise
+				if(plugin.load){
+					prid = resolvePluginResourceId(plugin, match[2], referenceModule);
+					mid = (plugin.mid + "!" + (plugin.dynamic ? ++dynamicPluginUidGenerator + "!" : "") + prid);
+				}else{
+					prid = match[2];
+					mid = plugin.mid + "!" + (++dynamicPluginUidGenerator) + "!waitingForPlugin";
+				}
+				result = {plugin:plugin, mid:mid, req:createRequire(referenceModule), prid:prid};
+			}else{
+				result = getModuleInfo(mid, referenceModule);
+			}
+			return modules[result.mid] || (!immediate && (modules[result.mid] = result));
+		},
+
+		toAbsMid = req.toAbsMid = function(mid, referenceModule){
 			return getModuleInfo(mid, referenceModule).mid;
 		},
 
@@ -1155,218 +1138,216 @@
 				// "/x.js" since getModuleInfo automatically appends ".js" and we appended "/x" to make name look like a module id
 				url.substring(0, url.length-5)
 			);
-		};
+		},
 
-	if (!has("foreign-loader")) {
-		var nonModuleProps = {
-				injected: arrived,
-				executed: executed,
-				def: nonmodule,
-				result: nonmodule
-			},
+		nonModuleProps = {
+			injected: arrived,
+			executed: executed,
+			def: nonmodule,
+			result: nonmodule
+		},
 
-			makeCjs = function(mid){
-				return modules[mid] = mix({mid:mid}, nonModuleProps);
-			},
+		makeCjs = function(mid){
+			return modules[mid] = mix({mid:mid}, nonModuleProps);
+		},
 
-			cjsRequireModule = makeCjs("require"),
-			cjsExportsModule = makeCjs("exports"),
-			cjsModuleModule = makeCjs("module"),
+		cjsRequireModule = makeCjs("require"),
+		cjsExportsModule = makeCjs("exports"),
+		cjsModuleModule = makeCjs("module"),
 
-			runFactory = function(module, args){
-				req.trace("loader-run-factory", [module.mid]);
-				var factory = module.def,
-					result;
-				 1  && syncExecStack.unshift(module);
-				if(has("config-dojo-loader-catches")){
-					try{
-						result= isFunction(factory) ? factory.apply(null, args) : factory;
-					}catch(e){
-						signal(error, module.result = makeError("factoryThrew", [module, e]));
-					}
-				}else{
+		runFactory = function(module, args){
+			req.trace("loader-run-factory", [module.mid]);
+			var factory = module.def,
+				result;
+			 1  && syncExecStack.unshift(module);
+			if(has("config-dojo-loader-catches")){
+				try{
 					result= isFunction(factory) ? factory.apply(null, args) : factory;
+				}catch(e){
+					signal(error, module.result = makeError("factoryThrew", [module, e]));
 				}
-				module.result = result===undefined && module.cjs ? module.cjs.exports : result;
-				 1  && syncExecStack.shift(module);
-			},
+			}else{
+				result= isFunction(factory) ? factory.apply(null, args) : factory;
+			}
+			module.result = result===undefined && module.cjs ? module.cjs.exports : result;
+			 1  && syncExecStack.shift(module);
+		},
 
-			abortExec = {},
+		abortExec = {},
 
-			defOrder = 0,
+		defOrder = 0,
 
-			promoteModuleToPlugin = function(pluginModule){
-				var plugin = pluginModule.result;
-				pluginModule.dynamic = plugin.dynamic;
-				pluginModule.normalize = plugin.normalize;
-				pluginModule.load = plugin.load;
-				return pluginModule;
-			},
+		promoteModuleToPlugin = function(pluginModule){
+			var plugin = pluginModule.result;
+			pluginModule.dynamic = plugin.dynamic;
+			pluginModule.normalize = plugin.normalize;
+			pluginModule.load = plugin.load;
+			return pluginModule;
+		},
 
-			resolvePluginLoadQ = function(plugin){
-				// plugins is a newly executed module that has a loadQ waiting to run
+		resolvePluginLoadQ = function(plugin){
+			// plugins is a newly executed module that has a loadQ waiting to run
 
-				// step 1: traverse the loadQ and fixup the mid and prid; remember the map from original mid to new mid
-				// recall the original mid was created before the plugin was on board and therefore it was impossible to
-				// compute the final mid; accordingly, prid may or may not change, but the mid will definitely change
-				var map = {};
-				forEach(plugin.loadQ, function(pseudoPluginResource){
-					// manufacture and insert the real module in modules
-					var prid = resolvePluginResourceId(plugin, pseudoPluginResource.prid, pseudoPluginResource.req.module),
-						mid = plugin.dynamic ? pseudoPluginResource.mid.replace(/waitingForPlugin$/, prid) : (plugin.mid + "!" + prid),
-						pluginResource = mix(mix({}, pseudoPluginResource), {mid:mid, prid:prid, injected:0});
-					if(!modules[mid] || !modules[mid].injected /*for require.undef*/){
-						// create a new (the real) plugin resource and inject it normally now that the plugin is on board
-						injectPlugin(modules[mid] = pluginResource);
-					} // else this was a duplicate request for the same (plugin, rid) for a nondynamic plugin
+			// step 1: traverse the loadQ and fixup the mid and prid; remember the map from original mid to new mid
+			// recall the original mid was created before the plugin was on board and therefore it was impossible to
+			// compute the final mid; accordingly, prid may or may not change, but the mid will definitely change
+			var map = {};
+			forEach(plugin.loadQ, function(pseudoPluginResource){
+				// manufacture and insert the real module in modules
+				var prid = resolvePluginResourceId(plugin, pseudoPluginResource.prid, pseudoPluginResource.req.module),
+					mid = plugin.dynamic ? pseudoPluginResource.mid.replace(/waitingForPlugin$/, prid) : (plugin.mid + "!" + prid),
+					pluginResource = mix(mix({}, pseudoPluginResource), {mid:mid, prid:prid, injected:0});
+				if(!modules[mid]){
+					// create a new (the real) plugin resource and inject it normally now that the plugin is on board
+					injectPlugin(modules[mid] = pluginResource);
+				} // else this was a duplicate request for the same (plugin, rid) for a nondynamic plugin
 
-					// pluginResource is really just a placeholder with the wrong mid (because we couldn't calculate it until the plugin was on board)
-					// mark is as arrived and delete it from modules; the real module was requested above
-					map[pseudoPluginResource.mid] = modules[mid];
-					setArrived(pseudoPluginResource);
-					delete modules[pseudoPluginResource.mid];
-				});
-				plugin.loadQ = 0;
+				// pluginResource is really just a placeholder with the wrong mid (because we couldn't calculate it until the plugin was on board)
+				// mark is as arrived and delete it from modules; the real module was requested above
+				map[pseudoPluginResource.mid] = modules[mid];
+				setArrived(pseudoPluginResource);
+				delete modules[pseudoPluginResource.mid];
+			});
+			plugin.loadQ = 0;
 
-				// step2: replace all references to any placeholder modules with real modules
-				var substituteModules = function(module){
-					for(var replacement, deps = module.deps || [], i = 0; i<deps.length; i++){
-						replacement = map[deps[i].mid];
-						if(replacement){
-							deps[i] = replacement;
-						}
+			// step2: replace all references to any placeholder modules with real modules
+			var substituteModules = function(module){
+				for(var replacement, deps = module.deps || [], i = 0; i<deps.length; i++){
+					replacement = map[deps[i].mid];
+					if(replacement){
+						deps[i] = replacement;
 					}
-				};
-				for(var p in modules){
-					substituteModules(modules[p]);
 				}
-				forEach(execQ, substituteModules);
-			},
+			};
+			for(var p in modules){
+				substituteModules(modules[p]);
+			}
+			forEach(execQ, substituteModules);
+		},
 
-			finishExec = function(module){
-				req.trace("loader-finish-exec", [module.mid]);
-				module.executed = executed;
-				module.defOrder = defOrder++;
-				 1  && forEach(module.provides, function(cb){ cb(); });
-				if(module.loadQ){
-					// the module was a plugin
-					promoteModuleToPlugin(module);
-					resolvePluginLoadQ(module);
+		finishExec = function(module){
+			req.trace("loader-finish-exec", [module.mid]);
+			module.executed = executed;
+			module.defOrder = defOrder++;
+			 1  && forEach(module.provides, function(cb){ cb(); });
+			if(module.loadQ){
+				// the module was a plugin
+				promoteModuleToPlugin(module);
+				resolvePluginLoadQ(module);
+			}
+			// remove all occurrences of this module from the execQ
+			for(i = 0; i < execQ.length;){
+				if(execQ[i] === module){
+					execQ.splice(i, 1);
+				}else{
+					i++;
 				}
-				// remove all occurrences of this module from the execQ
-				for(i = 0; i < execQ.length;){
-					if(execQ[i] === module){
-						execQ.splice(i, 1);
+			}
+			// delete references to synthetic modules
+			if (/^require\*/.test(module.mid)) {
+				delete modules[module.mid];
+			}
+		},
+
+		circleTrace = [],
+
+		execModule = function(module, strict){
+			// run the dependency vector, then run the factory for module
+			if(module.executed === executing){
+				req.trace("loader-circular-dependency", [circleTrace.concat(module.mid).join("->")]);
+				return (!module.def || strict) ? abortExec :  (module.cjs && module.cjs.exports);
+			}
+			// at this point the module is either not executed or fully executed
+
+
+			if(!module.executed){
+				if(!module.def){
+					return abortExec;
+				}
+				var mid = module.mid,
+					deps = module.deps || [],
+					arg, argResult,
+					args = [],
+					i = 0;
+
+				if( 0 ){
+					circleTrace.push(mid);
+					req.trace("loader-exec-module", ["exec", circleTrace.length, mid]);
+				}
+
+				// for circular dependencies, assume the first module encountered was executed OK
+				// modules that circularly depend on a module that has not run its factory will get
+				// the pre-made cjs.exports===module.result. They can take a reference to this object and/or
+				// add properties to it. When the module finally runs its factory, the factory can
+				// read/write/replace this object. Notice that so long as the object isn't replaced, any
+				// reference taken earlier while walking the deps list is still valid.
+				module.executed = executing;
+				while((arg = deps[i++])){
+					argResult = ((arg === cjsRequireModule) ? createRequire(module) :
+									((arg === cjsExportsModule) ? module.cjs.exports :
+										((arg === cjsModuleModule) ? module.cjs :
+											execModule(arg, strict))));
+					if(argResult === abortExec){
+						module.executed = 0;
+						req.trace("loader-exec-module", ["abort", mid]);
+						 0  && circleTrace.pop();
+						return abortExec;
+					}
+					args.push(argResult);
+				}
+				runFactory(module, args);
+				finishExec(module);
+				 0  && circleTrace.pop();
+			}
+			// at this point the module is guaranteed fully executed
+
+			return module.result;
+		},
+
+
+		checkCompleteGuard = 0,
+
+		guardCheckComplete = function(proc){
+			try{
+				checkCompleteGuard++;
+				proc();
+			}catch(e){
+				// https://bugs.dojotoolkit.org/ticket/16617
+				throw e;
+			}finally{
+				checkCompleteGuard--;
+			}
+			if(execComplete()){
+				signal("idle", []);
+			}
+		},
+
+		checkComplete = function(){
+			// keep going through the execQ as long as at least one factory is executed
+			// plugins, recursion, cached modules all make for many execution path possibilities
+			if(checkCompleteGuard){
+				return;
+			}
+			guardCheckComplete(function(){
+				checkDojoRequirePlugin();
+				for(var currentDefOrder, module, i = 0; i < execQ.length;){
+					currentDefOrder = defOrder;
+					module = execQ[i];
+					execModule(module);
+					if(currentDefOrder!=defOrder){
+						// defOrder was bumped one or more times indicating something was executed (note, this indicates
+						// the execQ was modified, maybe a lot (for example a later module causes an earlier module to execute)
+						checkDojoRequirePlugin();
+						i = 0;
 					}else{
+						// nothing happened; check the next module in the exec queue
 						i++;
 					}
 				}
-				// delete references to synthetic modules
-				if (/^require\*/.test(module.mid)) {
-					delete modules[module.mid];
-				}
-			},
+			});
+		},
 
-			circleTrace = [],
-
-			execModule = function(module, strict){
-				// run the dependency vector, then run the factory for module
-				if(module.executed === executing){
-					req.trace("loader-circular-dependency", [circleTrace.concat(module.mid).join("->")]);
-					return (!module.def || strict) ? abortExec :  (module.cjs && module.cjs.exports);
-				}
-				// at this point the module is either not executed or fully executed
-
-
-				if(!module.executed){
-					if(!module.def){
-						return abortExec;
-					}
-					var mid = module.mid,
-						deps = module.deps || [],
-						arg, argResult,
-						args = [],
-						i = 0;
-
-					if( 0 ){
-						circleTrace.push(mid);
-						req.trace("loader-exec-module", ["exec", circleTrace.length, mid]);
-					}
-
-					// for circular dependencies, assume the first module encountered was executed OK
-					// modules that circularly depend on a module that has not run its factory will get
-					// the pre-made cjs.exports===module.result. They can take a reference to this object and/or
-					// add properties to it. When the module finally runs its factory, the factory can
-					// read/write/replace this object. Notice that so long as the object isn't replaced, any
-					// reference taken earlier while walking the deps list is still valid.
-					module.executed = executing;
-					while((arg = deps[i++])){
-						argResult = ((arg === cjsRequireModule) ? createRequire(module) :
-										((arg === cjsExportsModule) ? module.cjs.exports :
-											((arg === cjsModuleModule) ? module.cjs :
-												execModule(arg, strict))));
-						if(argResult === abortExec){
-							module.executed = 0;
-							req.trace("loader-exec-module", ["abort", mid]);
-							 0  && circleTrace.pop();
-							return abortExec;
-						}
-						args.push(argResult);
-					}
-					runFactory(module, args);
-					finishExec(module);
-					 0  && circleTrace.pop();
-				}
-				// at this point the module is guaranteed fully executed
-
-				return module.result;
-			},
-
-
-			checkCompleteGuard = 0,
-
-			guardCheckComplete = function(proc){
-				try{
-					checkCompleteGuard++;
-					proc();
-				}catch(e){
-					// https://bugs.dojotoolkit.org/ticket/16617
-					throw e;
-				}finally{
-					checkCompleteGuard--;
-				}
-				if(execComplete()){
-					signal("idle", []);
-				}
-			},
-
-			checkComplete = function(){
-				// keep going through the execQ as long as at least one factory is executed
-				// plugins, recursion, cached modules all make for many execution path possibilities
-				if(checkCompleteGuard){
-					return;
-				}
-				guardCheckComplete(function(){
-					checkDojoRequirePlugin();
-					for(var currentDefOrder, module, i = 0; i < execQ.length;){
-						currentDefOrder = defOrder;
-						module = execQ[i];
-						execModule(module);
-						if(currentDefOrder!=defOrder){
-							// defOrder was bumped one or more times indicating something was executed (note, this indicates
-							// the execQ was modified, maybe a lot (for example a later module causes an earlier module to execute)
-							checkDojoRequirePlugin();
-							i = 0;
-						}else{
-							// nothing happened; check the next module in the exec queue
-							i++;
-						}
-					}
-				});
-			};
-	}
-
-	var fixupUrl= typeof userConfig.fixupUrl == "function" ? userConfig.fixupUrl : function(url){
+		fixupUrl= typeof userConfig.fixupUrl == "function" ? userConfig.fixupUrl : function(url){
 			url += ""; // make sure url is a Javascript string (some paths may be a Java string)
 			return url + (cacheBust ? ((/\?/.test(url) ? "&" : "?") + cacheBust) : "");
 		};
@@ -1379,7 +1360,7 @@
 			// This is useful for testing frameworks (at least).
 			var module = getModule(moduleId, referenceModule);
 			setArrived(module);
-			mix(module, {def:0, executed:0, injected:0, node:0, load:0});
+			mix(module, {def:0, executed:0, injected:0, node:0});
 		};
 	}
 
@@ -1388,7 +1369,7 @@
 			has.add("dojo-loader-eval-hint-url", 1);
 		}
 
-		var injectPlugin = function(
+		var	injectPlugin = function(
 				module
 			){
 				// injects the plugin module given by module; may have to inject the plugin itself
@@ -1774,7 +1755,7 @@
 					errorDisconnector = domOn(node, "error", "onerror", function(e){
 						loadDisconnector();
 						errorDisconnector();
-						signal(error, makeError("scriptError: " + url, [url, e]));
+						signal(error, makeError("scriptError", [url, e]));
 					});
 
 				node.type = "text/javascript";
@@ -1841,98 +1822,96 @@
 	}else{
 		req.trace = noop;
 	}
-	if (!has("foreign-loader")) {
-		var def = function(
-			mid,		  //(commonjs.moduleId, optional)
-			dependencies, //(array of commonjs.moduleId, optional) list of modules to be loaded before running factory
-			factory		  //(any)
-		){
-			///
-			// Advises the loader of a module factory. //Implements http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition.
-			///
-			//note
-			// CommonJS factory scan courtesy of http://requirejs.org
 
-			var arity = arguments.length,
-				defaultDeps = ["require", "exports", "module"],
-				// the predominate signature...
-				args = [0, mid, dependencies];
-			if(arity==1){
-				args = [0, (isFunction(mid) ? defaultDeps : []), mid];
-			}else if(arity==2 && isString(mid)){
-				args = [mid, (isFunction(dependencies) ? defaultDeps : []), dependencies];
-			}else if(arity==3){
-				args = [mid, dependencies, factory];
-			}
+	var def = function(
+		mid,		  //(commonjs.moduleId, optional)
+		dependencies, //(array of commonjs.moduleId, optional) list of modules to be loaded before running factory
+		factory		  //(any)
+	){
+		///
+		// Advises the loader of a module factory. //Implements http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition.
+		///
+		//note
+		// CommonJS factory scan courtesy of http://requirejs.org
 
-			if( 0  && args[1]===defaultDeps){
-				args[2].toString()
-					.replace(/(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg, "")
-					.replace(/require\(["']([\w\!\-_\.\/]+)["']\)/g, function(match, dep){
-					args[1].push(dep);
-				});
-			}
+		var arity = arguments.length,
+			defaultDeps = ["require", "exports", "module"],
+			// the predominate signature...
+			args = [0, mid, dependencies];
+		if(arity==1){
+			args = [0, (isFunction(mid) ? defaultDeps : []), mid];
+		}else if(arity==2 && isString(mid)){
+			args = [mid, (isFunction(dependencies) ? defaultDeps : []), dependencies];
+		}else if(arity==3){
+			args = [mid, dependencies, factory];
+		}
 
-			req.trace("loader-define", args.slice(0, 2));
-			var targetModule = args[0] && getModule(args[0]),
-				module;
-			if(targetModule && !waiting[targetModule.mid]){
-				// given a mid that hasn't been requested; therefore, defined through means other than injecting
-				// consequent to a require() or define() application; examples include defining modules on-the-fly
-				// due to some code path or including a module in a script element. In any case,
-				// there is no callback waiting to finish processing and nothing to trigger the defQ and the
-				// dependencies are never requested; therefore, do it here.
-				injectDependencies(defineModule(targetModule, args[1], args[2]));
-			}else if(!has("ie-event-behavior") || ! 1  || injectingCachedModule){
-				// not IE path: anonymous module and therefore must have been injected; therefore, onLoad will fire immediately
-				// after script finishes being evaluated and the defQ can be run from that callback to detect the module id
-				defQ.push(args);
-			}else{
-				// IE path: possibly anonymous module and therefore injected; therefore, cannot depend on 1-to-1,
-				// in-order exec of onLoad with script eval (since it's IE) and must manually detect here
-				targetModule = targetModule || injectingModule;
-				if(!targetModule){
-					for(mid in waiting){
-						module = modules[mid];
-						if(module && module.node && module.node.readyState === 'interactive'){
-							targetModule = module;
+		if( 0  && args[1]===defaultDeps){
+			args[2].toString()
+				.replace(/(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg, "")
+				.replace(/require\(["']([\w\!\-_\.\/]+)["']\)/g, function(match, dep){
+				args[1].push(dep);
+			});
+		}
+
+		req.trace("loader-define", args.slice(0, 2));
+		var targetModule = args[0] && getModule(args[0]),
+			module;
+		if(targetModule && !waiting[targetModule.mid]){
+			// given a mid that hasn't been requested; therefore, defined through means other than injecting
+			// consequent to a require() or define() application; examples include defining modules on-the-fly
+			// due to some code path or including a module in a script element. In any case,
+			// there is no callback waiting to finish processing and nothing to trigger the defQ and the
+			// dependencies are never requested; therefore, do it here.
+			injectDependencies(defineModule(targetModule, args[1], args[2]));
+		}else if(!has("ie-event-behavior") || ! 1  || injectingCachedModule){
+			// not IE path: anonymous module and therefore must have been injected; therefore, onLoad will fire immediately
+			// after script finishes being evaluated and the defQ can be run from that callback to detect the module id
+			defQ.push(args);
+		}else{
+			// IE path: possibly anonymous module and therefore injected; therefore, cannot depend on 1-to-1,
+			// in-order exec of onLoad with script eval (since it's IE) and must manually detect here
+			targetModule = targetModule || injectingModule;
+			if(!targetModule){
+				for(mid in waiting){
+					module = modules[mid];
+					if(module && module.node && module.node.readyState === 'interactive'){
+						targetModule = module;
+						break;
+					}
+				}
+				if( 0  && !targetModule){
+					for(var i = 0; i<combosPending.length; i++){
+						targetModule = combosPending[i];
+						if(targetModule.node && targetModule.node.readyState === 'interactive'){
 							break;
 						}
-					}
-					if( 0  && !targetModule){
-						for(var i = 0; i<combosPending.length; i++){
-							targetModule = combosPending[i];
-							if(targetModule.node && targetModule.node.readyState === 'interactive'){
-								break;
-							}
-							targetModule= 0;
-						}
+						targetModule= 0;
 					}
 				}
-				if( 0  && isArray(targetModule)){
-					injectDependencies(defineModule(getModule(targetModule.shift()), args[1], args[2]));
-					if(!targetModule.length){
-						combosPending.splice(i, 1);
-					}
-				}else if(targetModule){
-					consumePendingCacheInsert(targetModule);
-					injectDependencies(defineModule(targetModule, args[1], args[2]));
-				}else{
-					signal(error, makeError("ieDefineFailed", args[0]));
-				}
-				checkComplete();
 			}
-		};
-		def.amd = {
-			vendor:"dojotoolkit.org"
-		};
-
-		if( 0 ){
-			req.def = def;
+			if( 0  && isArray(targetModule)){
+				injectDependencies(defineModule(getModule(targetModule.shift()), args[1], args[2]));
+				if(!targetModule.length){
+					combosPending.splice(i, 1);
+				}
+			}else if(targetModule){
+				consumePendingCacheInsert(targetModule);
+				injectDependencies(defineModule(targetModule, args[1], args[2]));
+			}else{
+				signal(error, makeError("ieDefineFailed", args[0]));
+			}
+			checkComplete();
 		}
-	} else {
-		var def = noop;
+	};
+	def.amd = {
+		vendor:"dojotoolkit.org"
+	};
+
+	if( 0 ){
+		req.def = def;
 	}
+
 	// allow config to override default implementation of named functions; this is useful for
 	// non-browser environments, e.g., overriding injectUrl, getText, log, etc. in node.js, Rhino, etc.
 	// also useful for testing and monkey patching loader
@@ -2009,7 +1988,7 @@
 		}
 	}
 
-	if( 1  && !has("foreign-loader")){
+	if( 1 ){
 		forEach(delayedModuleConfig, function(c){ config(c); });
 		var bootDeps = dojoSniffConfig.deps ||	userConfig.deps || defaultConfig.deps,
 			bootCallback = dojoSniffConfig.callback || userConfig.callback || defaultConfig.callback;
@@ -2038,10 +2017,6 @@
 				{
 					 location:"../dojox",
 					 name:"dojox"
-				},
-				{
-					 location:"../themes",
-					 name:"themes"
 				},
 				{
 					 location:".",
@@ -2907,7 +2882,7 @@ define(["../global", "../has", "./config", "require", "module"], function(global
 	dojo.isAsync = ! 1  || require.async;
 	dojo.locale = config.locale;
 
-	var rev = "$Rev:$".match(/[0-9a-f]{7,}/);
+	var rev = "$Rev: 48cb00f2 $".match(/[0-9a-f]{7,}/);
 	dojo.version = {
 		// summary:
 		//		Version number of the Dojo Toolkit
@@ -2920,7 +2895,7 @@ define(["../global", "../has", "./config", "require", "module"], function(global
 		//		- flag: String: Descriptor flag. If total version is "1.2.0beta1", will be "beta1"
 		//		- revision: Number: The Git rev from which dojo was pulled
 
-		major: 1, minor: 16, patch: 4, flag: "",
+		major: 1, minor: 10, patch: 10, flag: "",
 		revision: rev ? rev[0] : NaN,
 		toString: function(){
 			var v = dojo.version;
@@ -2934,9 +2909,8 @@ define(["../global", "../has", "./config", "require", "module"], function(global
 	// is migrated. Absent specific advice otherwise, set extend-dojo to truthy.
 	 1 || has.add("extend-dojo", 1);
 
-	if(!has("csp-restrictions")){
-		(Function("d", "d.eval = function(){return d.global.eval ? d.global.eval(arguments[0]) : eval(arguments[0]);}"))(dojo);
-	}
+
+	(Function("d", "d.eval = function(){return d.global.eval ? d.global.eval(arguments[0]) : eval(arguments[0]);}"))(dojo);
 	/*=====
 	dojo.eval = function(scriptText){
 		// summary:
@@ -3396,7 +3370,14 @@ return {
 
 	// isDebug: Boolean
 	//		Defaults to `false`. If set to `true`, ensures that Dojo provides
-	//		extended debugging feedback to the console.
+	//		extended debugging feedback via Firebug. If Firebug is not available
+	//		on your platform, setting `isDebug` to `true` will force Dojo to
+	//		pull in (and display) the version of Firebug Lite which is
+	//		integrated into the Dojo distribution, thereby always providing a
+	//		debugging/logging console when `isDebug` is enabled. Note that
+	//		Firebug's `console.*` methods are ALWAYS defined by Dojo. If
+	//		`isDebug` is false and you are on a platform without Firebug, these
+	//		methods will be defined as no-ops.
 	isDebug: false,
 
 	// locale: String
@@ -3473,6 +3454,12 @@ return {
 	//		IO operations. Publishing is done via dojo/topic.publish(). See dojo/main.__IoPublish for a list
 	//		of topics that are published.
 	ioPublish: false,
+
+	// useCustomLogger: Anything?
+	//		If set to a value that evaluates to true such as a string or array and
+	//		isDebug is true and Firebug is not available or running, then it bypasses
+	//		the creation of Firebug Lite allowing you to define your own console object.
+	useCustomLogger: undefined,
 
 	// transparentColor: Array
 	//		Array containing the r, g, b components used as transparent color in dojo.Color;
@@ -3967,12 +3954,13 @@ define(["./kernel", "../has", "../sniff"], function(dojo, has){
 			return (typeof it == "string" || it instanceof String); // Boolean
 		},
 
-		isArray: Array.isArray || function(it){
+		isArray: function(it){
 			// summary:
 			//		Return true if it is an Array.
+			//		Does not work on Arrays created in other windows.
 			// it: anything
 			//		Item to test.
-			return opts.call(it) == "[object Array]"; // Boolean
+			return it && (it instanceof Array || typeof it == "array"); // Boolean
 		},
 
 		isFunction: function(it){
@@ -4006,7 +3994,7 @@ define(["./kernel", "../has", "../sniff"], function(dojo, has){
 			//		and DOM collections will return true when passed to
 			//		isArrayLike(), but will return false when passed to
 			//		isArray().
-			return !!it && // Boolean
+			return it && it !== undefined && // Boolean
 				// keep out built-in constructors (Number, String, ...) which have length
 				// properties
 				!lang.isString(it) && !lang.isFunction(it) &&
@@ -4213,7 +4201,7 @@ define(["./kernel", "../has", "../sniff"], function(dojo, has){
 				r = [];
 				for(i = 0, l = src.length; i < l; ++i){
 					if(i in src){
-						r[i] = lang.clone(src[i]);
+						r.push(lang.clone(src[i]));
 					}
 				}
 				// we don't clone functions for performance reasons
@@ -4323,6 +4311,7 @@ define(["./kernel", "../has", "../sniff"], function(dojo, has){
 
 	return lang;
 });
+
 
 },
 'dojo/sniff':function(){
@@ -5416,6 +5405,10 @@ define(["./_base/kernel", "require", "./has", "./_base/array", "./_base/config",
 			});
 		};
 
+	if(has("dojo-unit-tests")){
+		var unitTests = thisModule.unitTests = [];
+	}
+
 	if(has("dojo-preload-i18n-Api") ||  1 ){
 		var normalizeLocale = thisModule.normalizeLocale = function(locale){
 				var result = locale ? locale.toLowerCase() : dojo.locale;
@@ -5495,7 +5488,7 @@ define(["./_base/kernel", "require", "./has", "./_base/array", "./_base/config",
 										var bundle = rollup[p],
 											match = p.match(/(.+)\/([^\/]+)$/),
 											bundleName, bundlePath;
-
+											
 											// If there is no match, the bundle is not a regular bundle from an AMD layer.
 											if (!match){continue;}
 
@@ -5548,8 +5541,8 @@ define(["./_base/kernel", "require", "./has", "./_base/array", "./_base/config",
 												if(requiredBundles.length){
 													preloadingAddLock();
 													contextRequire(requiredBundles, function(){
-														// requiredBundles was constructed by forEachLocale so it contains locales from
-														// less specific to most specific.
+														// requiredBundles was constructed by forEachLocale so it contains locales from 
+														// less specific to most specific. 
 														// the loop starts with the most specific locale, the last one.
 														for(var i = requiredBundles.length - 1; i >= 0 ; i--){
 															bundle = lang.mixin(lang.clone(bundle), arguments[i]);
@@ -5593,7 +5586,6 @@ define(["./_base/kernel", "require", "./has", "./_base/array", "./_base/config",
 	if( 1 ){
 		// this code path assumes the dojo loader and won't work with a standard AMD loader
 		var amdValue = {},
-			l10nCache = {},
 			evalBundle,
 
 			syncRequire = function(deps, callback, require){
@@ -5716,11 +5708,6 @@ define(["./_base/kernel", "require", "./has", "./_base/array", "./_base/config",
 		thisModule.getLocalization = function(moduleName, bundleName, locale){
 			var result,
 				l10nName = getBundleName(moduleName, bundleName, locale);
-
-			if (l10nCache[l10nName]) {
-				return l10nCache[l10nName];
-			}
-
 			load(
 				l10nName,
 
@@ -5729,19 +5716,39 @@ define(["./_base/kernel", "require", "./has", "./_base/array", "./_base/config",
 				// dojo/i18n module, which, itself may have been mapped.
 				(!isXd(l10nName, require) ? function(deps, callback){ syncRequire(deps, callback, require); } : require),
 
-				function(result_){
-					l10nCache[l10nName] = result_;
-					result = result_;
-				}
+				function(result_){ result = result_; }
 			);
 			return result;
 		};
-	}
-	else {
-		thisModule.getLocalization = function(moduleName, bundleName, locale){
-			var key = moduleName.replace(/\./g, '/') + '/nls/' + bundleName + '/' + (locale || config.locale);
-			return this.cache[key];
-		};
+
+		if(has("dojo-unit-tests")){
+			unitTests.push(function(doh){
+				doh.register("tests.i18n.unit", function(t){
+					var check;
+
+					check = evalBundle("{prop:1}", checkForLegacyModules, "nonsense", amdValue);
+					t.is({prop:1}, check); t.is(undefined, check[1]);
+
+					check = evalBundle("({prop:1})", checkForLegacyModules, "nonsense", amdValue);
+					t.is({prop:1}, check); t.is(undefined, check[1]);
+
+					check = evalBundle("{'prop-x':1}", checkForLegacyModules, "nonsense", amdValue);
+					t.is({'prop-x':1}, check); t.is(undefined, check[1]);
+
+					check = evalBundle("({'prop-x':1})", checkForLegacyModules, "nonsense", amdValue);
+					t.is({'prop-x':1}, check); t.is(undefined, check[1]);
+
+					check = evalBundle("define({'prop-x':1})", checkForLegacyModules, "nonsense", amdValue);
+					t.is(amdValue, check); t.is({'prop-x':1}, amdValue.result);
+
+					check = evalBundle("define('some/module', {'prop-x':1})", checkForLegacyModules, "nonsense", amdValue);
+					t.is(amdValue, check); t.is({'prop-x':1}, amdValue.result);
+
+					check = evalBundle("this is total nonsense and should throw an error", checkForLegacyModules, "nonsense", amdValue);
+					t.is(check instanceof Error, true);
+				});
+			});
+		}
 	}
 
 	return lang.mixin(thisModule, {
@@ -5878,8 +5885,8 @@ define([
 
 			if(result && has("dom-qsa2.1") && !result.querySelectorAll && has("dom-parser")){
 				// http://bugs.dojotoolkit.org/ticket/15631
-				// IE9 supports a CSS3 querySelectorAll implementation, but the DOM implementation
-				// returned by IE9 xhr.responseXML does not. Manually create the XML DOM to gain
+				// IE9 supports a CSS3 querySelectorAll implementation, but the DOM implementation 
+				// returned by IE9 xhr.responseXML does not. Manually create the XML DOM to gain 
 				// the fuller-featured implementation and avoid bugs caused by the inconsistency
 				result = new DOMParser().parseFromString(xhr.responseText, "application/xml");
 			}
@@ -6091,7 +6098,7 @@ define([
 			//IE requires going through getAttributeNode instead of just getAttribute in some form cases,
 			//so use it for all. See #2844
 			var actnNode = form.getAttributeNode("action");
-			ioArgs.url = ioArgs.url || (actnNode ? actnNode.value : (dojo.doc ? dojo.doc.URL : null));
+			ioArgs.url = ioArgs.url || (actnNode ? actnNode.value : null);
 			formObject = domForm.toObject(form);
 		}
 
@@ -6574,104 +6581,105 @@ define(["./kernel", "./lang", "../sniff"], function(dojo, lang, has){
 'dojo/io-query':function(){
 define(["./_base/lang"], function(lang){
 
-	// module:
-	//		dojo/io-query
+// module:
+//		dojo/io-query
 
-	var backstop = {};
+var backstop = {};
 
-	return {
+return {
+// summary:
+//		This module defines query string processing functions.
+
+	objectToQuery: function objectToQuery(/*Object*/ map){
 		// summary:
-		//		This module defines query string processing functions.
+        //		takes a name/value mapping object and returns a string representing
+        //		a URL-encoded version of that object.
+        // example:
+        //		this object:
+        //
+        //	|	{
+        //	|		blah: "blah",
+        //	|		multi: [
+        //	|			"thud",
+        //	|			"thonk"
+        //	|		]
+        //	|	};
+        //
+        //		yields the following query string:
+        //
+        //	|	"blah=blah&multi=thud&multi=thonk"
 
-		objectToQuery: function objectToQuery(/*Object*/ map){
-			// summary:
-			//		takes a name/value mapping object and returns a string representing
-			//		a URL-encoded version of that object.
-			// example:
-			//		this object:
-			//
-			//	|	{
-			//	|		blah: "blah",
-			//	|		multi: [
-			//	|			"thud",
-			//	|			"thonk"
-			//	|		]
-			//	|	};
-			//
-			//		yields the following query string:
-			//
-			//	|	"blah=blah&multi=thud&multi=thonk"
+        // FIXME: need to implement encodeAscii!!
+        var enc = encodeURIComponent, pairs = [];
+        for(var name in map){
+            var value = map[name];
+            if(value != backstop[name]){
+                var assign = enc(name) + "=";
+                if(lang.isArray(value)){
+                    for(var i = 0, l = value.length; i < l; ++i){
+                        pairs.push(assign + enc(value[i]));
+                    }
+                }else{
+                    pairs.push(assign + enc(value));
+                }
+            }
+        }
+        return pairs.join("&"); // String
+    },
 
-			// FIXME: need to implement encodeAscii!!
-			var enc = encodeURIComponent, pairs = [];
-			for(var name in map){
-				var value = map[name];
-				if(value != backstop[name]){
-					var assign = enc(name) + "=";
-					if(lang.isArray(value)){
-						for(var i = 0, l = value.length; i < l; ++i){
-							pairs.push(assign + enc(value[i]));
-						}
-					}else{
-						pairs.push(assign + enc(value));
-					}
-				}
-			}
-			return pairs.join("&"); // String
-		},
+	queryToObject: function queryToObject(/*String*/ str){
+        // summary:
+        //		Create an object representing a de-serialized query section of a
+        //		URL. Query keys with multiple values are returned in an array.
+        //
+        // example:
+        //		This string:
+        //
+        //	|		"foo=bar&foo=baz&thinger=%20spaces%20=blah&zonk=blarg&"
+        //
+        //		results in this object structure:
+        //
+        //	|		{
+        //	|			foo: [ "bar", "baz" ],
+        //	|			thinger: " spaces =blah",
+        //	|			zonk: "blarg"
+        //	|		}
+        //
+        //		Note that spaces and other urlencoded entities are correctly
+        //		handled.
 
-		queryToObject: function queryToObject(/*String*/ str){
-			// summary:
-			//		Create an object representing a de-serialized query section of a
-			//		URL. Query keys with multiple values are returned in an array.
-			//
-			// example:
-			//		This string:
-			//
-			//	|		"foo=bar&foo=baz&thinger=%20spaces%20=blah&zonk=blarg&"
-			//
-			//		results in this object structure:
-			//
-			//	|		{
-			//	|			foo: [ "bar", "baz" ],
-			//	|			thinger: " spaces =blah",
-			//	|			zonk: "blarg"
-			//	|		}
-			//
-			//		Note that spaces and other urlencoded entities are correctly
-			//		handled.
+        // FIXME: should we grab the URL string if we're not passed one?
+        var dec = decodeURIComponent, qp = str.split("&"), ret = {}, name, val;
+        for(var i = 0, l = qp.length, item; i < l; ++i){
+            item = qp[i];
+            if(item.length){
+                var s = item.indexOf("=");
+                if(s < 0){
+                    name = dec(item);
+                    val = "";
+                }else{
+                    name = dec(item.slice(0, s));
+                    val  = dec(item.slice(s + 1));
+                }
+                if(typeof ret[name] == "string"){ // inline'd type check
+                    ret[name] = [ret[name]];
+                }
 
-        	var dec = decodeURIComponent, qp = str.split("&"), ret = {}, name, val;
-			for(var i = 0, l = qp.length, item; i < l; ++i){
-				item = qp[i];
-				if(item.length){
-					var s = item.indexOf("=");
-					if(s < 0){
-						name = dec(item);
-						val = "";
-					}else{
-						name = dec(item.slice(0, s));
-						val = dec(item.slice(s + 1));
-					}
-					if(typeof ret[name] == "string"){ // inline'd type check
-						ret[name] = [ret[name]];
-					}
-
-					if(lang.isArray(ret[name])){
-						ret[name].push(val);
-					}else{
-						ret[name] = val;
-					}
-				}
-			}
-			return ret; // Object
-		}
-	};
+                if(lang.isArray(ret[name])){
+                    ret[name].push(val);
+                }else{
+                    ret[name] = val;
+                }
+            }
+        }
+        return ret; // Object
+    }
+};
 });
 },
 'dojo/dom':function(){
-define(["./sniff", "./_base/window", "./_base/kernel"],
-		function(has, win, kernel){
+define(["./sniff", "./_base/window"],
+		function(has, win){
 	// module:
 	//		dojo/dom
 
@@ -6698,7 +6706,7 @@ define(["./sniff", "./_base/window", "./_base/kernel"],
 	if(has("ie")){
 		dom.byId = function(id, doc){
 			if(typeof id != "string"){
-				return id || null;
+				return id;
 			}
 			var _d = doc || win.doc, te = id && _d.getElementById(id);
 			// attributes.id.value is better than just id in case the
@@ -6718,7 +6726,6 @@ define(["./sniff", "./_base/window", "./_base/kernel"],
 					}
 				}
 			}
-			return null;
 		};
 	}else{
 		dom.byId = function(id, doc){
@@ -6765,43 +6772,33 @@ define(["./sniff", "./_base/window", "./_base/kernel"],
 	 };
 	 =====*/
 
-	// Test for DOMNode.contains() method, available everywhere except FF8-
-	// and IE8-, where it's available in general, but not on document itself,
-	// and also problems when either ancestor or node are text nodes.
+	dom.isDescendant = function(/*DOMNode|String*/ node, /*DOMNode|String*/ ancestor){
+		// summary:
+		//		Returns true if node is a descendant of ancestor
+		// node: DOMNode|String
+		//		string id or node reference to test
+		// ancestor: DOMNode|String
+		//		string id or node reference of potential parent to test against
+		//
+		// example:
+		//		Test is node id="bar" is a descendant of node id="foo"
+		//	|	require(["dojo/dom"], function(dom){
+		//	|		if(dom.isDescendant("bar", "foo")){ ... }
+		//	|	});
 
-	var doc = kernel.global["document"] || null;
-	has.add("dom-contains", !!(doc && doc.contains));
-	dom.isDescendant = has("dom-contains") ?
-		// FF9+, IE9+, webkit, opera, iOS, Android, Edge, etc.
-		function(/*DOMNode|String*/ node, /*DOMNode|String*/ ancestor){
-			return !!( (ancestor = dom.byId(ancestor)) && ancestor.contains(dom.byId(node)) );
-		} :
-		function(/*DOMNode|String*/ node, /*DOMNode|String*/ ancestor){
-			// summary:
-			//		Returns true if node is a descendant of ancestor
-			// node: DOMNode|String
-			//		string id or node reference to test
-			// ancestor: DOMNode|String
-			//		string id or node reference of potential parent to test against
-			//
-			// example:
-			//		Test is node id="bar" is a descendant of node id="foo"
-			//	|	require(["dojo/dom"], function(dom){
-			//	|		if(dom.isDescendant("bar", "foo")){ ... }
-			//	|	});
-
-			try{
-				node = dom.byId(node);
-				ancestor = dom.byId(ancestor);
-				while(node){
-					if(node == ancestor){
-						return true; // Boolean
-					}
-					node = node.parentNode;
+		try{
+			node = dom.byId(node);
+			ancestor = dom.byId(ancestor);
+			while(node){
+				if(node == ancestor){
+					return true; // Boolean
 				}
-			}catch(e){ /* squelch, return false */ }
-			return false; // Boolean
-		};
+				node = node.parentNode;
+			}
+		}catch(e){ /* squelch, return false */ }
+		return false; // Boolean
+	};
+
 
 	// TODO: do we need setSelectable in the base?
 
@@ -6815,7 +6812,7 @@ define(["./sniff", "./_base/window", "./_base/kernel"],
 	has.add("css-user-select", function(global, doc, element){
 		// Avoid exception when dom.js is loaded in non-browser environments
 		if(!element){ return false; }
-
+		
 		var style = element.style;
 		var prefixes = ["Khtml", "O", "Moz", "Webkit"],
 			i = prefixes.length,
@@ -7895,7 +7892,7 @@ define(["./create"], function(create){
 	};
 	=====*/
 
-	return create("CancelError", null, null, { dojoType: "cancel", log: false });
+	return create("CancelError", null, null, { dojoType: "cancel" });
 });
 
 },
@@ -8038,49 +8035,6 @@ define([
 			throwAbstract();
 		},
 
-		"finally": function(callback) {
-			// summary:
-			//		Add a callback to the promise that will fire whether it
-			//		resolves or rejects.
-			// description:
-			//		Conforms to ES2018's `Promise.prototype.finally`.
-			//		Add a callback to the promise that will fire whether it
-			//		resolves or rejects. No value is passed to the callback.
-			//		Returns a promise that reflects the state of the original promise,
-			//		with two exceptions:
-			//		- If the callback return a promise, the outer promise will wait
-			//		until the returned promise is resolved, then it will resolve
-			//		with the original value.
-			//		- If the callback throws an exception or returns a promise that
-			//		is rejected (or rejects later), the outer promise will reject
-			//		with the inner promise's rejection reason.
-			// callback: Function?
-			//		Callback to be invoked when the promise is resolved
-			//		or rejected. Doesn't receive any value.
-			// returns: dojo/promise/Promise
-			//		Returns a new promise that reflects the state of the original promise,
-			//		with two small exceptions (see description).
-			//
-
-			return this.then(function (value){
-				var valueOrPromise = callback();
-				if (valueOrPromise && typeof valueOrPromise.then === "function"){
-					return valueOrPromise.then(function (){
-						return value;
-					});
-				}
-				return value;
-			}, function(reason) {
-				var valueOrPromise = callback();
-				if (valueOrPromise && typeof valueOrPromise.then === "function"){
-					return valueOrPromise.then(function (){
-						throw reason;
-					});
-				}
-				throw reason;
-			});
-		},
-
 		always: function(callbackOrErrback){
 			// summary:
 			//		Add a callback to be invoked when the promise is resolved
@@ -8091,17 +8045,6 @@ define([
 			//		Returns a new promise for the result of the callback/errback.
 
 			return this.then(callbackOrErrback, callbackOrErrback);
-		},
-
-		"catch": function(errback){
-		    // summary:
-		    //		Add new errbacks to the promise. Follows ECMA specification naming.
-		    // errback: Function?
-		    //		Callback to be invoked when the promise is rejected.
-		    // returns: dojo/promise/Promise
-		    //		Returns a new promise for the result of the errback.
-
-		    return this.then(null, errback);
 		},
 
 		otherwise: function(errback){
@@ -8143,9 +8086,6 @@ define([
 	has.add("config-useDeferredInstrumentation", "report-unhandled-rejections");
 
 	function logError(error, rejection, deferred){
-		if(error && error.log === false){
-			return;
-		}
 		var stack = "";
 		if(error && error.stack){
 			stack += error.stack;
@@ -8874,8 +8814,6 @@ define(["./has!dom-addeventlistener?:./aspect", "./_base/kernel", "./sniff"], fu
 				var eventTarget = select(event.target);
 				// if it matches we call the listener
 				if (eventTarget) {
-					// We save the matching target into the event, so it can be accessed even when hitching (see #18355)
-					event.selectorTarget = eventTarget;
 					return listener.call(eventTarget, event);
 				}
 			});
@@ -9198,7 +9136,7 @@ define(["./has!dom-addeventlistener?:./aspect", "./_base/kernel", "./sniff"], fu
 						event.scale = 1;
 					}
 					if (window.TouchEvent && originalEvent instanceof TouchEvent) {
-						// use event.changedTouches[0].pageX|pageY|screenX|screenY|clientX|clientY|target
+						//use event.changedTouches[0].pageX|pageY|screenX|screenY|clientX|clientY|target
 						var firstChangeTouch = event.changedTouches[0];
 						for(var i in firstChangeTouch){ // use for-in, we don't need to have dependency on dojo/_base/lang here
 							delete event[i]; // delete it first to make it mutable
@@ -9487,77 +9425,21 @@ define([
 	'../io-query',
 	'../_base/array',
 	'../_base/lang',
-	'../promise/Promise',
-	'../has'
-], function(exports, RequestError, CancelError, Deferred, ioQuery, array, lang, Promise, has){
-
-	function isArrayBuffer(value) {
-		return has('native-arraybuffer') && value instanceof ArrayBuffer
-	}
-
-	function isBlob(value) {
-		return has('native-blob') && value instanceof Blob
-	}
-	
-	function isElement(value) {
-		if(typeof Element !== 'undefined') { //all other
-			return value instanceof Element;
-		}
-
-		//IE<=7
-		return value.nodeType === 1;
-	}
-
-	function isFormData(value) {
-		return has('native-formdata') && value instanceof FormData;
-	}
-
-	function shouldDeepCopy(value) {
-		return value &&
-			typeof value === 'object' &&
-			!isFormData(value) &&
-			!isElement(value) &&
-			!isBlob(value) &&
-			!isArrayBuffer(value)
-	}
-
-	exports.deepCopy = function(target, source) {
-		for (var name in source) {
+	'../promise/Promise'
+], function(exports, RequestError, CancelError, Deferred, ioQuery, array, lang, Promise){
+	exports.deepCopy = function deepCopy(target, source){
+		for(var name in source){
 			var tval = target[name],
-  			    sval = source[name];
-			if (name !== '__proto__' && tval !== sval) {
-				if (shouldDeepCopy(sval)) {
-					if (Object.prototype.toString.call(sval) === '[object Date]') { // use this date test to handle crossing frame boundaries
-						target[name] = new Date(sval);
-					} else if (lang.isArray(sval)) {
- 						  target[name] = exports.deepCopyArray(sval);
-					} else {
-						if (tval && typeof tval === 'object') {
-							exports.deepCopy(tval, sval);
-						} else {
-							target[name] = exports.deepCopy({}, sval);
-						}
-					}
-				} else {
+				sval = source[name];
+			if(tval !== sval){
+				if(tval && typeof tval === 'object' && sval && typeof sval === 'object'){
+					exports.deepCopy(tval, sval);
+				}else{
 					target[name] = sval;
 				}
 			}
 		}
 		return target;
-	};
-
-	exports.deepCopyArray = function(source) {
-		var clonedArray = [];
-		for (var i = 0, l = source.length; i < l; i++) {
-			var svalItem = source[i];
-			if (typeof svalItem === 'object') {
-				clonedArray.push(exports.deepCopy({}, svalItem));
-			} else {
-				clonedArray.push(svalItem);
-			}
-		}
-
-		return clonedArray;
 	};
 
 	exports.deepCreate = function deepCreate(source, properties){
@@ -9656,9 +9538,9 @@ define([
 	exports.parseArgs = function parseArgs(url, options, skipData){
 		var data = options.data,
 			query = options.query;
-
+		
 		if(data && !skipData){
-			if(typeof data === 'object' && (!(has('native-xhr2')) || !(isArrayBuffer(data) || isBlob(data) ))){
+			if(typeof data === 'object'){
 				options.data = ioQuery.objectToQuery(data);
 			}
 		}
@@ -9761,16 +9643,6 @@ define([
 		return typeof FormData !== 'undefined';
 	});
 
-	has.add('native-blob', function(){
-		// if true, the environment has a native Blob implementation
-		return typeof Blob !== 'undefined';
-	});
-
-	has.add('native-arraybuffer', function(){
-		// if true, the environment has a native ArrayBuffer implementation
-		return typeof ArrayBuffer !== 'undefined';
-	});
-
 	has.add('native-response-type', function(){
 		return has('native-xhr') && typeof new XMLHttpRequest().responseType !== 'undefined';
 	});
@@ -9778,10 +9650,7 @@ define([
 	has.add('native-xhr2-blob', function(){
 		if(!has('native-response-type')){ return; }
 		var x = new XMLHttpRequest();
-		// The URL used here does not have to be reachable as the XHR's `send` method is never called.
-		// It does need to be parsable/resolvable in all cases, so it should be an absolute URL.
-		// XMLHttpRequest within a Worker created from a Blob does not support relative URL paths.
-		x.open('GET', 'https://dojotoolkit.org/', true);
+		x.open('GET', '/', true);
 		x.responseType = 'blob';
 		// will not be set if unsupported
 		var responseType = x.responseType;
@@ -9811,31 +9680,22 @@ define([
 			response.data = _xhr.responseXML;
 		}
 
-		var handleError;
-		if(error){
-			this.reject(error);
-		}else{
+		if(!error){
 			try{
 				handlers(response);
 			}catch(e){
-				handleError = e;
+				error = e;
 			}
-			if(util.checkStatus(_xhr.status)){
-				if(!handleError){
-					this.resolve(response);
-				}else{
-					this.reject(handleError);
-				}
-			}else{
-				if(!handleError){
-					error = new RequestError('Unable to load ' + response.url + ' status: ' + _xhr.status, response);
-					this.reject(error);
-				}else{
-					error = new RequestError('Unable to load ' + response.url + ' status: ' + _xhr.status +
-						' and an error in handleAs: transformation of response', response);
-					this.reject(error);
-				}
-			}
+		}
+
+		if(error){
+			this.reject(error);
+		}else if(util.checkStatus(_xhr.status)){
+			this.resolve(response);
+		}else{
+			error = new RequestError('Unable to load ' + response.url + ' status: ' + _xhr.status, response);
+
+			this.reject(error);
 		}
 	}
 
@@ -9853,7 +9713,7 @@ define([
 			//		Canceler for deferred
 			response.xhr.abort();
 		};
-		addListeners = function(_xhr, dfd, response, uploadProgress){
+		addListeners = function(_xhr, dfd, response){
 			// summary:
 			//		Adds event listeners to the XMLHttpRequest object
 			function onLoad(evt){
@@ -9865,8 +9725,7 @@ define([
 				dfd.handleResponse(response, error);
 			}
 
-			function onProgress(transferType, evt){
-				response.transferType = transferType;
+			function onProgress(evt){
 				if(evt.lengthComputable){
 					response.loaded = evt.loaded;
 					response.total = evt.total;
@@ -9877,27 +9736,14 @@ define([
 				}
 			}
 
-			function onDownloadProgress(evt) {
-				return onProgress('download', evt);
-			}
-
-			function onUploadProgress(evt) {
-				return onProgress('upload', evt);
-			}
-
 			_xhr.addEventListener('load', onLoad, false);
 			_xhr.addEventListener('error', onError, false);
-			_xhr.addEventListener('progress', onDownloadProgress, false);
-
-			if (uploadProgress && _xhr.upload) {
-				_xhr.upload.addEventListener('progress', onUploadProgress, false);
-			}
+			_xhr.addEventListener('progress', onProgress, false);
 
 			return function(){
 				_xhr.removeEventListener('load', onLoad, false);
 				_xhr.removeEventListener('error', onError, false);
-				_xhr.removeEventListener('progress', onDownloadProgress, false);
-				_xhr.upload.removeEventListener('progress', onUploadProgress, false);
+				_xhr.removeEventListener('progress', onProgress, false);
 				_xhr = null;
 			};
 		};
@@ -9939,12 +9785,6 @@ define([
 		);
 		url = response.url;
 		options = response.options;
-		var hasNoData = !options.data && options.method !== 'POST' && options.method !== 'PUT';
-
-		if(has('ie') <= 10){
-			// older IE breaks point 9 in http://www.w3.org/TR/XMLHttpRequest/#the-open()-method and sends fragment, so strip it
-			url = url.split('#')[0];
-		}
 
 		var remover,
 			last = function(){
@@ -9972,7 +9812,7 @@ define([
 		response.getHeader = getHeader;
 
 		if(addListeners){
-			remover = addListeners(_xhr, dfd, response, options.uploadProgress);
+			remover = addListeners(_xhr, dfd, response);
 		}
 
 		// IE11 treats data: undefined different than other browsers
@@ -9993,7 +9833,7 @@ define([
 			}
 
 			var headers = options.headers,
-				contentType = (isFormData || hasNoData) ? false : 'application/x-www-form-urlencoded';
+				contentType = isFormData ? false : 'application/x-www-form-urlencoded';
 			if(headers){
 				for(var hdr in headers){
 					if(hdr.toLowerCase() === 'content-type'){
@@ -10053,10 +9893,6 @@ define([
 		// withCredentials: Boolean?
 		//		For cross-site requests, whether to send credentials
 		//		or not.
-		// uploadProgress: Boolean?
-		//		Upload progress events cause preflighted requests. This
-		//		option enables upload progress event support but also
-		//		causes all requests to be preflighted.
 	});
 	xhr.__MethodOptions = declare(null, {
 		// method: String?
@@ -10320,7 +10156,11 @@ define([
 	// summary:
 	//		This is the package main module for the dojo package; it loads dojo base appropriate for the execution environment.
 
-	// Load code to fix IE's console
+	// the preferred way to load the dojo firebug console is by setting has("dojo-firebug") true in dojoConfig
+	// the isDebug config switch is for backcompat and will work fine in sync loading mode; it works in
+	// async mode too, but there's no guarantee when the module is loaded; therefore, if you need a firebug
+	// console guaranteed at a particular spot in an app, either set config.has["dojo-firebug"] true before
+	// loading dojo.js or explicitly include dojo/_firebug/firebug in a dependency list.
 	if(config.isDebug){
 		require(["./_firebug/firebug"]);
 	}
@@ -10635,14 +10475,7 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 	//		dojo/_base/declare
 
 	var mix = lang.mixin, op = Object.prototype, opts = op.toString,
-		xtor, counter = 0, cname = "constructor";
-
-	if(!has("csp-restrictions")){
-		// 'new Function()' is preferable when available since it does not create a closure
-		xtor = new Function;
-	}else{
-		xtor = function(){};
-	}
+		xtor = new Function, counter = 0, cname = "constructor";
 
 	function err(msg, cls){ throw new Error("declare" + (cls ? " " + cls : "") + ": " + msg); }
 
@@ -10722,41 +10555,23 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 		return result;
 	}
 
-	function inherited(args, a, f, g){
+	function inherited(args, a, f){
 		var name, chains, bases, caller, meta, base, proto, opf, pos,
 			cache = this._inherited = this._inherited || {};
 
 		// crack arguments
-		if(typeof args === "string"){
+		if(typeof args == "string"){
 			name = args;
 			args = a;
 			a = f;
-			f = g;
 		}
+		f = 0;
 
-		if(typeof args === "function"){
-			// support strict mode
-			caller = args;
-			args = a;
-			a = f;
-		}else{
-			try{
-				caller = args.callee;
-			}catch (e){
-				if(e instanceof TypeError){
-					// caller was defined in a strict-mode context
-					err("strict mode inherited() requires the caller function to be passed before arguments", this.declaredClass);
-				}else{
-					throw e;
-				}
-			}
-		}
-
+		caller = args.callee;
 		name = name || caller.nom;
 		if(!name){
 			err("can't deduce a name to call inherited()", this.declaredClass);
 		}
-		f = g = 0;
 
 		meta = this.constructor._meta;
 		bases = meta.bases;
@@ -10848,24 +10663,16 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 		// intentionally no return if a super method was not found
 	}
 
-	function getInherited(name, args, a){
-		if(typeof name === "string"){
-			if (typeof args === "function") {
-				return this.__inherited(name, args, a, true);
-			}
-			return this.__inherited(name, args, true);
-		}
-		else if (typeof name === "function") {
+	function getInherited(name, args){
+		if(typeof name == "string"){
 			return this.__inherited(name, args, true);
 		}
 		return this.__inherited(name, true);
 	}
 
-	function inherited__debug(args, a1, a2, a3){
-		var f = this.getInherited(args, a1, a2);
-		if(f){
-			return f.apply(this, a3 || a2 || a1 || args);
-		}
+	function inherited__debug(args, a1, a2){
+		var f = this.getInherited(args, a1);
+		if(f){ return f.apply(this, a2 || a1 || args); }
 		// intentionally no return if a super method was not found
 	}
 
@@ -10970,7 +10777,7 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 				target[name] = t;
 			}
 		}
-		if(has("bug-for-in-skips-shadowed") && source){
+		if(has("bug-for-in-skips-shadowed")){
 			for(var extraNames= lang._extraNames, i= extraNames.length; i;){
 				name = extraNames[--i];
 				t = source[name];
@@ -10991,18 +10798,18 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 		return this;
 	}
 
-	function createSubclass(mixins, props){
-		// crack parameters
-		if(!(mixins instanceof Array || typeof mixins === 'function')){
-			props = mixins;
-			mixins = undefined;
-		}
+    function createSubclass(mixins, props){
+        // crack parameters
+        if(!(mixins instanceof Array || typeof mixins == 'function')){
+            props = mixins;
+            mixins = undefined;
+        }
 
-		props = props || {};
-		mixins = mixins || [];
+        props = props || {};
+        mixins = mixins || [];
 
-		return declare([this].concat(mixins), props);
-	}
+        return declare([this].concat(mixins), props);
+    }
 
 	// chained constructor compatible with the legacy declare()
 	function chainedConstructor(bases, ctorSpecial){
@@ -11440,12 +11247,7 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 				t = bases[i];
 				(t._meta ? mixOwn : mix)(proto, t.prototype);
 				// chain in new constructor
-				if (has("csp-restrictions")) {
-					ctor = function () {};
-				}
-				else {
-					ctor = new Function;
-				}
+				ctor = new Function;
 				ctor.superclass = superclass;
 				ctor.prototype = proto;
 				superclass = proto.constructor = ctor;
@@ -11524,7 +11326,7 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 		//		dojo/_base/declare() returns a constructor `C`.   `new C()` returns an Object with the following
 		//		methods, in addition to the methods and properties specified via the arguments passed to declare().
 
-		inherited: function(name, caller, args, newArgs){
+		inherited: function(name, args, newArgs){
 			// summary:
 			//		Calls a super method.
 			// name: String?
@@ -11532,18 +11334,6 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 			//		name. Usually "name" is specified in complex dynamic cases, when
 			//		the calling method was dynamically added, undecorated by
 			//		declare(), and it cannot be determined.
-			// caller: Function?
-			//		The reference to the calling function. Required only if the
-			//		call to "this.inherited" occurs from within strict-mode code.
-			//		If the caller is omitted within strict-mode code, an error will
-			//		be thrown.
-			//		The best way to obtain a reference to the calling function is to
-			//		use a named function expression (i.e. place a function name
-			//		after the "function" keyword and before the open paren, as in
-			//		"function fn(a, b)"). If the function is parsed as an expression
-			//		and not a statement (i.e. it's not by itself on its own line),
-			//		the function name will only be accessible as an identifier from
-			//		within the body of the function.
 			// args: Arguments
 			//		The caller supply this argument, which should be the original
 			//		"arguments".
@@ -11607,20 +11397,10 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 			//	|			return super.apply(this, arguments);
 			//	|		}
 			//	|	});
-			// example:
-			//	|	"use strict";
-			//	|	// class is defined in strict-mode code,
-			//	|	// so caller must be passed before arguments.
-			//	|	var B = declare(A, {
-			//	|		// using a named function expression with "fn" as the name.
-			//	|		method: function fn(a, b) {
-			//	|			this.inherited(fn, arguments);
-			//	|		}
-			//	|	});
 			return	{};	// Object
 		},
 
-		getInherited: function(name, caller, args){
+		getInherited: function(name, args){
 			// summary:
 			//		Returns a super method.
 			// name: String?
@@ -11628,11 +11408,6 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 			//		name. Usually "name" is specified in complex dynamic cases, when
 			//		the calling method was dynamically added, undecorated by
 			//		declare(), and it cannot be determined.
-			// caller: Function?
-			//		The caller function. This is required when running in
-			//		strict-mode code. A reference to the caller function
-			//		can be obtained by using a named function expression
-			//		(e.g. function fn(a,b) {...}).
 			// args: Arguments
 			//		The caller supply this argument, which should be the original
 			//		"arguments".
@@ -11653,19 +11428,6 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 			//	|				return 0;
 			//	|			}
 			//	|			return super.apply(this, arguments);
-			//	|		}
-			//	|	});
-			// example:
-			//	|	"use strict;" // first line of function or file
-			//	|	//...
-			//	|	var B = declare(A, {
-			//	|		// Using a named function expression with "fn" as the name,
-			//	|		// since we're in strict mode.
-			//	|		method: function fn(a, b){
-			//	|			var super = this.getInherited(fn, arguments);
-			//	|			if(super){
-			//	|				return super.apply(this, arguments);
-			//	|			}
 			//	|		}
 			//	|	});
 			return	{};	// Object
@@ -12480,9 +12242,29 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 		node = dom.byId(node);
 		var s = computedStyle || style.getComputedStyle(node), me = geom.getMarginExtents(node, s),
 			l = node.offsetLeft - me.l, t = node.offsetTop - me.t, p = node.parentNode, px = style.toPixelValue, pcs;
-
-		if((has("ie") == 8 && !has("quirks"))){
-			// IE 8 offsetLeft/Top includes the parent's border
+		if(has("mozilla")){
+			// Mozilla:
+			// If offsetParent has a computed overflow != visible, the offsetLeft is decreased
+			// by the parent's border.
+			// We don't want to compute the parent's style, so instead we examine node's
+			// computed left/top which is more stable.
+			var sl = parseFloat(s.left), st = parseFloat(s.top);
+			if(!isNaN(sl) && !isNaN(st)){
+				l = sl;
+				t = st;
+			}else{
+				// If child's computed left/top are not parseable as a number (e.g. "auto"), we
+				// have no choice but to examine the parent's computed style.
+				if(p && p.style){
+					pcs = style.getComputedStyle(p);
+					if(pcs.overflow != "visible"){
+						l += pcs.borderLeftStyle != none ? px(node, pcs.borderLeftWidth) : 0;
+						t += pcs.borderTopStyle != none ? px(node, pcs.borderTopWidth) : 0;
+					}
+				}
+			}
+		}else if(has("opera") || (has("ie") == 8 && !has("quirks"))){
+			// On Opera and IE 8, offsetLeft/Top includes the parent's border
 			if(p){
 				pcs = style.getComputedStyle(p);
 				l -= pcs.borderLeftStyle != none ? px(node, pcs.borderLeftWidth) : 0;
@@ -12510,26 +12292,20 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 		// fallback to offsetWidth/Height for special cases (see #3378)
 		node = dom.byId(node);
 		var s = computedStyle || style.getComputedStyle(node), w = node.clientWidth, h,
-			pe = geom.getPadExtents(node, s), be = geom.getBorderExtents(node, s), l = node.offsetLeft + pe.l + be.l,
-			t = node.offsetTop + pe.t + be.t;
+			pe = geom.getPadExtents(node, s), be = geom.getBorderExtents(node, s);
 		if(!w){
-			w = node.offsetWidth - be.w;
-			h = node.offsetHeight - be.h;
+			w = node.offsetWidth;
+			h = node.offsetHeight;
 		}else{
 			h = node.clientHeight;
+			be.w = be.h = 0;
 		}
-
-		if((has("ie") == 8 && !has("quirks"))){
-			// IE 8 offsetLeft/Top includes the parent's border
-			var p = node.parentNode, px = style.toPixelValue, pcs;
-			if(p){
-				pcs = style.getComputedStyle(p);
-				l -= pcs.borderLeftStyle != none ? px(node, pcs.borderLeftWidth) : 0;
-				t -= pcs.borderTopStyle != none ? px(node, pcs.borderTopWidth) : 0;
-			}
+		// On Opera, offsetLeft includes the parent's border
+		if(has("opera")){
+			pe.l += be.l;
+			pe.t += be.t;
 		}
-
-		return {l: l, t: t, w: w - pe.w, h: h - pe.h};
+		return {l: pe.l, t: pe.t, w: w - pe.w - be.w, h: h - pe.h - be.h};
 	};
 
 	// Box setters depend on box context because interpretation of width/height styles
@@ -12601,31 +12377,6 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 		// box functions will break.
 
 		return geom.boxModel == "border-box" || node.tagName.toLowerCase() == "table" || isButtonTag(node); // boolean
-	}
-
-	function getBoundingClientRect(/*DomNode*/ node) {
-		// summary:
-		//		Gets the bounding client rectangle for a dom node.
-		// node: DOMNode
-
-		// This will return the result of node.getBoundingClientRect if node is in the dom, and
-		// {x:0, y:0, width:0, height:0, top:0, right:0, bottom:0, left:0} if it throws an error or the node is not on the dom
-		// This will handle when IE throws an error or Edge returns an empty object when node is not on the dom
-
-		var retEmpty = { x: 0, y: 0, width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0 },
-			ret;
-
-		try {
-			ret = node.getBoundingClientRect();
-		} catch (e) {
-			// IE throws an Unspecified Error if the node is not in the dom. Handle this by returning an object with 0 values
-			return retEmpty;
-		}
-
-		// Edge returns an empty object if the node is not in the dom. Handle this by returning an object with 0 values
-		if (typeof ret.left === "undefined") { return retEmpty; }
-
-		return ret;
 	}
 
 	geom.setContentSize = function setContentSize(/*DomNode*/ node, /*Object*/ box, /*Object*/ computedStyle){
@@ -12731,19 +12482,53 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 		// returns: Object
 
 		doc = doc || win.doc;
-		var node = doc.parentWindow || doc.defaultView;   // use UI window, not dojo.global window.   TODO: use dojo/window::get() except for circular dependency problem
+		var node = win.doc.parentWindow || win.doc.defaultView;   // use UI window, not dojo.global window.   TODO: use dojo/window::get() except for circular dependency problem
 		return "pageXOffset" in node ? {x: node.pageXOffset, y: node.pageYOffset } :
 			(node = has("quirks") ? win.body(doc) : doc.documentElement) &&
 				{x: geom.fixIeBiDiScrollLeft(node.scrollLeft || 0, doc), y: node.scrollTop || 0 };
 	};
 
-	geom.getIeDocumentElementOffset = function(/*Document?*/ doc){
+	geom.getIeDocumentElementOffset = function getIeDocumentElementOffset(/*Document?*/ doc){
 		// summary:
-		//		Deprecated method previously used for IE6-IE7.  Now, just returns `{x:0, y:0}`.
-		return {
-			x: 0,
-			y: 0
-		};
+		//		returns the offset in x and y from the document body to the
+		//		visual edge of the page for IE
+		// doc: Document?
+		//		Optional document to query.   If unspecified, use win.doc.
+		// description:
+		//		The following values in IE contain an offset:
+		//	|		event.clientX
+		//	|		event.clientY
+		//	|		node.getBoundingClientRect().left
+		//	|		node.getBoundingClientRect().top
+		//		But other position related values do not contain this offset,
+		//		such as node.offsetLeft, node.offsetTop, node.style.left and
+		//		node.style.top. The offset is always (2, 2) in LTR direction.
+		//		When the body is in RTL direction, the offset counts the width
+		//		of left scroll bar's width.  This function computes the actual
+		//		offset.
+
+		//NOTE: assumes we're being called in an IE browser
+
+		doc = doc || win.doc;
+		var de = doc.documentElement; // only deal with HTML element here, position() handles body/quirks
+
+		if(has("ie") < 8){
+			var r = de.getBoundingClientRect(), // works well for IE6+
+				l = r.left, t = r.top;
+			if(has("ie") < 7){
+				l += de.clientLeft;	// scrollbar size in strict/RTL, or,
+				t += de.clientTop;	// HTML border size in strict
+			}
+			return {
+				x: l < 0 ? 0 : l, // FRAME element border size can lead to inaccurate negative values
+				y: t < 0 ? 0 : t
+			};
+		}else{
+			return {
+				x: 0,
+				y: 0
+			};
+		}
 	};
 
 	geom.fixIeBiDiScrollLeft = function fixIeBiDiScrollLeft(/*Integer*/ scrollLeft, /*Document?*/ doc){
@@ -12796,13 +12581,16 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 
 		node = dom.byId(node);
 		var	db = win.body(node.ownerDocument),
-			ret= getBoundingClientRect(node);
+			ret = node.getBoundingClientRect();
 		ret = {x: ret.left, y: ret.top, w: ret.right - ret.left, h: ret.bottom - ret.top};
 
 		if(has("ie") < 9){
+			// On IE<9 there's a 2px offset that we need to adjust for, see dojo.getIeDocumentElementOffset()
+			var offset = geom.getIeDocumentElementOffset(node.ownerDocument);
+
 			// fixes the position in IE, quirks mode
-			ret.x -= (has("quirks") ? db.clientLeft + db.offsetLeft : 0);
-			ret.y -= (has("quirks") ? db.clientTop + db.offsetTop : 0);
+			ret.x -= offset.x + (has("quirks") ? db.clientLeft + db.offsetLeft : 0);
+			ret.y -= offset.y + (has("quirks") ? db.clientTop + db.offsetTop : 0);
 		}
 
 		// account for document scrolling
@@ -12834,7 +12622,7 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 
 		node = dom.byId(node);
 		var me = geom.getMarginExtents(node, computedStyle || style.getComputedStyle(node));
-		var size = getBoundingClientRect(node);
+		var size = node.getBoundingClientRect();
 		return {
 			w: (size.right - size.left) + me.w,
 			h: (size.bottom - size.top) + me.h
@@ -12850,8 +12638,8 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 			event.layerX = event.offsetX;
 			event.layerY = event.offsetY;
 		}
-
-		if(!("pageX" in event)){
+		if(!has("dom-addeventlistener")){
+			// old IE version
 			// FIXME: scroll position query is duped from dojo/_base/html to
 			// avoid dependency on that entire module. Now that HTML is in
 			// Base, we should convert back to something similar there.
@@ -12860,8 +12648,9 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 			// DO NOT replace the following to use dojo/_base/window.body(), in IE, document.documentElement should be used
 			// here rather than document.body
 			var docBody = has("quirks") ? doc.body : doc.documentElement;
-			event.pageX = event.clientX + geom.fixIeBiDiScrollLeft(docBody.scrollLeft || 0, doc);
-			event.pageY = event.clientY + (docBody.scrollTop || 0);
+			var offset = geom.getIeDocumentElementOffset(doc);
+			event.pageX = event.clientX + geom.fixIeBiDiScrollLeft(docBody.scrollLeft || 0, doc) - offset.x;
+			event.pageY = event.clientY + (docBody.scrollTop || 0) - offset.y;
 		}
 	};
 
@@ -12872,7 +12661,7 @@ define(["./sniff", "./_base/window","./dom", "./dom-style"],
 
 },
 'dojo/dom-style':function(){
-define(["./sniff", "./dom", "./_base/window"], function(has, dom, win){
+define(["./sniff", "./dom"], function(has, dom){
 	// module:
 	//		dojo/dom-style
 
@@ -12919,12 +12708,8 @@ define(["./sniff", "./dom", "./_base/window"], function(has, dom, win){
 		};
 	}else{
 		getComputedStyle = function(node){
-			if(node.nodeType === 1 /* ELEMENT_NODE*/){
-				var dv = node.ownerDocument.defaultView,
-					w = dv.opener ? dv : win.global.window;
-				return w.getComputedStyle(node, null);
-			}
-			return {};
+			return node.nodeType == 1 /* ELEMENT_NODE*/ ?
+				node.ownerDocument.defaultView.getComputedStyle(node, null) : {};
 		};
 	}
 	style.getComputedStyle = getComputedStyle;
@@ -14241,7 +14026,7 @@ define(["exports", "./sniff", "./_base/lang", "./dom", "./dom-style", "./dom-pro
 			innerHTML:	1,
 			textContent:1,
 			className:	1,
-			htmlFor:	has("ie") ? 1 : 0,
+			htmlFor:	has("ie"),
 			value:		1
 		},
 		attrNames = {
@@ -14276,7 +14061,7 @@ define(["exports", "./sniff", "./_base/lang", "./dom", "./dom-style", "./dom-pro
 		//		given element, and false otherwise
 
 		var lc = name.toLowerCase();
-		return !!forcePropNames[prop.names[lc] || name] || _hasAttr(dom.byId(node), attrNames[lc] || name);	// Boolean
+		return forcePropNames[prop.names[lc] || name] || _hasAttr(dom.byId(node), attrNames[lc] || name);	// Boolean
 	};
 
 	exports.get = function getAttr(/*DOMNode|String*/ node, /*String*/ name){
@@ -14440,7 +14225,7 @@ define(["exports", "./_base/kernel", "./sniff", "./_base/lang", "./dom", "./dom-
 	// =============================
 
 	// helper to connect events
-	var _evtHdlrMap = {}, _ctr = 1, _attrId = dojo._scopeName + "attrid";
+	var _evtHdlrMap = {}, _ctr = 0, _attrId = dojo._scopeName + "attrid";
 	has.add('dom-textContent', function (global, doc, element) { return 'textContent' in element; });
 
 	exports.names = {
@@ -16977,37 +16762,11 @@ define([
 	};
 
 	// get an array of child *elements*, skipping text and comment nodes
-	var _childElements = function(filterFunc, recursive){
-
-		var _toArray = function (iterable) {
-			var result = [];
-
-			try {
-				result = Array.prototype.slice.call(iterable);
-			} catch(e) {
-				// IE8- throws an error when we try convert HTMLCollection
-				// to array using Array.prototype.slice.call
-				for(var i = 0, len = iterable.length; i < len; i++) {
-					result.push(iterable[i]);
-				}
-			}
-
-			return result;
-		};
-
+	var _childElements = function(filterFunc){
 		filterFunc = filterFunc||yesman;
 		return function(root, ret, bag){
 			// get an array of child elements, skipping text and comment nodes
-			var te, x = 0, tret = []; tret = _toArray(root.children || root.childNodes);
-
-			if(recursive) {
-				array.forEach(tret, function (node) {
-					if(node.nodeType === 1) {
-						tret = tret.concat(_toArray(node.getElementsByTagName("*")));
-					}
-				});
-			}
-
+			var te, x = 0, tret = root.children || root.childNodes;
 			while(te = tret[x++]){
 				if(
 					_simpleNodeTest(te) &&
@@ -17115,26 +16874,6 @@ define([
 
 				retFunc = function(root, arr){
 					var te = dom.byId(query.id, (root.ownerDocument||root));
-
-					// We can't look for ID inside a detached dom.
-					// loop over all elements searching for specified id.
-					if(root.ownerDocument && !_isDescendant(root, root.ownerDocument)) {
-
-						// document-fragment or regular HTMLElement
-						var roots = root.nodeType === 11? root.childNodes: [root];
-
-						array.some(roots, function (currentRoot) {
-							var elems = _childElements(function (node) {
-								return node.id === query.id;
-							}, true)(currentRoot, []);
-
-							if(elems.length) {
-								te = elems[0];
-								return false;
-							}
-						});
-					}
-
 					if(!te || !filterFunc(te)){ return; }
 					if(9 == root.nodeType){ // if root's a doc, we just return directly
 						return getArr(te, arr);
@@ -17395,28 +17134,26 @@ define([
 			var tq = (specials.indexOf(query.charAt(query.length-1)) >= 0) ?
 						(query + " *") : query;
 			return _queryFuncCacheQSA[query] = function(root){
-				// the QSA system contains an egregious spec bug which
-				// limits us, effectively, to only running QSA queries over
-				// entire documents.  See:
-				//		http://ejohn.org/blog/thoughts-on-queryselectorall/
-				//	despite this, we can also handle QSA runs on simple
-				//	selectors, but we don't want detection to be expensive
-				//	so we're just checking for the presence of a space char
-				//	right now. Not elegant, but it's cheaper than running
-				//	the query parser when we might not need to
-				if(9 == root.nodeType || nospace){
-					try{
-						var r = root[qsa](tq);
-						// skip expensive duplication checks and just wrap in a NodeList
-						r[noZip] = true;
-						return r;
-					}catch(e){
-						// if root[qsa](tq), fall through to getQueryFunc() branch below
-					}
+				try{
+					// the QSA system contains an egregious spec bug which
+					// limits us, effectively, to only running QSA queries over
+					// entire documents.  See:
+					//		http://ejohn.org/blog/thoughts-on-queryselectorall/
+					//	despite this, we can also handle QSA runs on simple
+					//	selectors, but we don't want detection to be expensive
+					//	so we're just checking for the presence of a space char
+					//	right now. Not elegant, but it's cheaper than running
+					//	the query parser when we might not need to
+					if(!((9 == root.nodeType) || nospace)){ throw ""; }
+					var r = root[qsa](tq);
+					// skip expensive duplication checks and just wrap in a NodeList
+					r[noZip] = true;
+					return r;
+				}catch(e){
+					// else run the DOM branch on this query, ensuring that we
+					// default that way in the future
+					return getQueryFunc(query, true)(root);
 				}
-				// else run the DOM branch on this query, ensuring that we
-				// default that way in the future
-				return getQueryFunc(query, true)(root);
 			};
 		}else{
 			// DOM branch

@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/rpc/RpcService",["../_base/array","../_base/declare","../_base/Deferred","../_base/kernel","../_base/lang","../_base/url","../_base/xhr"],function(_1,_2,_3,_4,_5,_6,_7){
 return _2("dojo.rpc.RpcService",null,{constructor:function(_8){
@@ -38,7 +37,7 @@ this.processSmd(_8);
 return _b;
 },errorCallback:function(_c){
 return function(_d){
-_c.errback(_d);
+_c.errback(_d.message);
 };
 },resultCallback:function(_e){
 return _5.hitch(this,function(_f){

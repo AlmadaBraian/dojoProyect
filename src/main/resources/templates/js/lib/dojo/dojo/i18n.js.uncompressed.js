@@ -300,6 +300,10 @@ define("dojo/i18n", ["./_base/kernel", "require", "./has", "./_base/array", "./_
 			});
 		};
 
+	if(has("dojo-unit-tests")){
+		var unitTests = thisModule.unitTests = [];
+	}
+
 	if(has("dojo-preload-i18n-Api") ||  1 ){
 		var normalizeLocale = thisModule.normalizeLocale = function(locale){
 				var result = locale ? locale.toLowerCase() : dojo.locale;
@@ -379,7 +383,7 @@ define("dojo/i18n", ["./_base/kernel", "require", "./has", "./_base/array", "./_
 										var bundle = rollup[p],
 											match = p.match(/(.+)\/([^\/]+)$/),
 											bundleName, bundlePath;
-
+											
 											// If there is no match, the bundle is not a regular bundle from an AMD layer.
 											if (!match){continue;}
 
@@ -432,8 +436,8 @@ define("dojo/i18n", ["./_base/kernel", "require", "./has", "./_base/array", "./_
 												if(requiredBundles.length){
 													preloadingAddLock();
 													contextRequire(requiredBundles, function(){
-														// requiredBundles was constructed by forEachLocale so it contains locales from
-														// less specific to most specific.
+														// requiredBundles was constructed by forEachLocale so it contains locales from 
+														// less specific to most specific. 
 														// the loop starts with the most specific locale, the last one.
 														for(var i = requiredBundles.length - 1; i >= 0 ; i--){
 															bundle = lang.mixin(lang.clone(bundle), arguments[i]);
@@ -477,7 +481,6 @@ define("dojo/i18n", ["./_base/kernel", "require", "./has", "./_base/array", "./_
 	if( 1 ){
 		// this code path assumes the dojo loader and won't work with a standard AMD loader
 		var amdValue = {},
-			l10nCache = {},
 			evalBundle,
 
 			syncRequire = function(deps, callback, require){
@@ -600,11 +603,6 @@ define("dojo/i18n", ["./_base/kernel", "require", "./has", "./_base/array", "./_
 		thisModule.getLocalization = function(moduleName, bundleName, locale){
 			var result,
 				l10nName = getBundleName(moduleName, bundleName, locale);
-
-			if (l10nCache[l10nName]) {
-				return l10nCache[l10nName];
-			}
-
 			load(
 				l10nName,
 
@@ -613,19 +611,39 @@ define("dojo/i18n", ["./_base/kernel", "require", "./has", "./_base/array", "./_
 				// dojo/i18n module, which, itself may have been mapped.
 				(!isXd(l10nName, require) ? function(deps, callback){ syncRequire(deps, callback, require); } : require),
 
-				function(result_){
-					l10nCache[l10nName] = result_;
-					result = result_;
-				}
+				function(result_){ result = result_; }
 			);
 			return result;
 		};
-	}
-	else {
-		thisModule.getLocalization = function(moduleName, bundleName, locale){
-			var key = moduleName.replace(/\./g, '/') + '/nls/' + bundleName + '/' + (locale || config.locale);
-			return this.cache[key];
-		};
+
+		if(has("dojo-unit-tests")){
+			unitTests.push(function(doh){
+				doh.register("tests.i18n.unit", function(t){
+					var check;
+
+					check = evalBundle("{prop:1}", checkForLegacyModules, "nonsense", amdValue);
+					t.is({prop:1}, check); t.is(undefined, check[1]);
+
+					check = evalBundle("({prop:1})", checkForLegacyModules, "nonsense", amdValue);
+					t.is({prop:1}, check); t.is(undefined, check[1]);
+
+					check = evalBundle("{'prop-x':1}", checkForLegacyModules, "nonsense", amdValue);
+					t.is({'prop-x':1}, check); t.is(undefined, check[1]);
+
+					check = evalBundle("({'prop-x':1})", checkForLegacyModules, "nonsense", amdValue);
+					t.is({'prop-x':1}, check); t.is(undefined, check[1]);
+
+					check = evalBundle("define({'prop-x':1})", checkForLegacyModules, "nonsense", amdValue);
+					t.is(amdValue, check); t.is({'prop-x':1}, amdValue.result);
+
+					check = evalBundle("define('some/module', {'prop-x':1})", checkForLegacyModules, "nonsense", amdValue);
+					t.is(amdValue, check); t.is({'prop-x':1}, amdValue.result);
+
+					check = evalBundle("this is total nonsense and should throw an error", checkForLegacyModules, "nonsense", amdValue);
+					t.is(check instanceof Error, true);
+				});
+			});
+		}
 	}
 
 	return lang.mixin(thisModule, {

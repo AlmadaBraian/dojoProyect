@@ -2928,7 +2928,7 @@ define([
 			//		True if widget is LTR, false if widget is RTL.   Affects the behavior of "above" and "below"
 			//		positions slightly.
 			// example:
-			//	|	placeAroundNode(node, aroundNode, ['below', 'above-alt']);
+			//	|	placeAroundNode(node, aroundNode, {'BL':'TL', 'TR':'BR'});
 			//		This will try to position node such that node's top-left corner is at the same position
 			//		as the bottom left corner of the aroundNode (ie, put node below
 			//		aroundNode, with left edges aligned).	If that fails it will try to put
@@ -2981,7 +2981,7 @@ define([
 					}
 					parent = parent.parentNode;
 				}
-			}
+			}			
 
 			var x = aroundNodePos.x,
 				y = aroundNodePos.y,
@@ -3996,29 +3996,16 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 						// sent shortly after ours, similar to what is done in dualEvent.
 						// The INPUT.dijitOffScreen test is for offscreen inputs used in dijit/form/Button, on which
 						// we call click() explicitly, we don't want to stop this event.
-						var target = e.target;
 						if(clickTracker && !e._dojo_click &&
 								(new Date()).getTime() <= clickTime + 1000 &&
-								!(target.tagName == "INPUT" && domClass.contains(target, "dijitOffScreen"))){
+								!(e.target.tagName == "INPUT" && domClass.contains(e.target, "dijitOffScreen"))){
 							e.stopPropagation();
 							e.stopImmediatePropagation && e.stopImmediatePropagation();
-							if(type == "click" &&
-								(target.tagName != "INPUT" ||
-								(target.type == "radio" &&
-									// #18352 Do not preventDefault for radios that are not dijit or
-									// dojox/mobile widgets.
-									// (The CSS class dijitCheckBoxInput holds for both checkboxes and radio buttons.)
-									(domClass.contains(target, "dijitCheckBoxInput") ||
-										domClass.contains(target, "mblRadioButton"))) ||
-								(target.type == "checkbox" &&
-									// #18352 Do not preventDefault for checkboxes that are not dijit or
-									// dojox/mobile widgets.
-									(domClass.contains(target, "dijitCheckBoxInput") ||
-										domClass.contains(target, "mblCheckBox")))) &&
-								target.tagName != "TEXTAREA" && target.tagName != "AUDIO" && target.tagName != "VIDEO"){
-								// preventDefault() breaks textual <input>s on android, keyboard doesn't popup,
-								// but it is still needed for checkboxes and radio buttons, otherwise in some cases
-								// the checked state becomes inconsistent with the widget's state
+							if(type == "click" && (e.target.tagName != "INPUT" || e.target.type == "radio" || e.target.type == "checkbox")
+								&& e.target.tagName != "TEXTAREA" && e.target.tagName != "AUDIO" && e.target.tagName != "VIDEO"){
+								 // preventDefault() breaks textual <input>s on android, keyboard doesn't popup,
+								 // but it is still needed for checkboxes and radio buttons, otherwise in some cases
+								 // the checked state becomes inconsistent with the widget's state
 								e.preventDefault();
 							}
 						}
@@ -4799,25 +4786,22 @@ define([
 	has.add("highcontrast", function(){
 		// note: if multiple documents, doesn't matter which one we use
 		var div = win.doc.createElement("div");
-		try{
-			div.style.cssText = "border: 1px solid; border-color:red green; position: absolute; height: 5px; top: -999px;" +
-				"background-image: url(\"" + (config.blankGif || require.toUrl("./resources/blank.gif")) + "\");";
-			win.body().appendChild(div);
+		div.style.cssText = "border: 1px solid; border-color:red green; position: absolute; height: 5px; top: -999px;" +
+			"background-image: url(\"" + (config.blankGif || require.toUrl("./resources/blank.gif")) + "\");";
+		win.body().appendChild(div);
 
-			var cs = domStyle.getComputedStyle(div),
-				bkImg = cs.backgroundImage;
-			return cs.borderTopColor == cs.borderRightColor ||
+		var cs = domStyle.getComputedStyle(div),
+			bkImg = cs.backgroundImage,
+			hc = (cs.borderTopColor == cs.borderRightColor) ||
 				(bkImg && (bkImg == "none" || bkImg == "url(invalid-url:)" ));
-		}catch(e){
-			console.warn("hccss: exception detecting high-contrast mode, document is likely hidden: " + e.toString());
-			return false;
-		}finally{
-			if(has("ie") <= 8){
-				div.outerHTML = "";		// prevent mixed-content warning, see http://support.microsoft.com/kb/925014
-			}else{
-				win.body().removeChild(div);
-			}
+
+		if(has("ie") <= 8){
+			div.outerHTML = "";		// prevent mixed-content warning, see http://support.microsoft.com/kb/925014
+		}else{
+			win.body().removeChild(div);
 		}
+
+		return hc;
 	});
 
 	domReady(function(){
@@ -4962,10 +4946,6 @@ define([
 		//		- DOM node CSS class
 		// |		_setMyClassAttr: { node: "domNode", type: "class" }
 		//		Maps this.myClass to this.domNode.className
-		//
-		//		- Toggle DOM node CSS class
-		// |		_setMyClassAttr: { node: "domNode", type: "toggleClass" }
-		//		Toggles myClass on this.domNode by this.myClass
 		//
 		//		If the value of _setXXXAttr is an array, then each element in the array matches one of the
 		//		formats of the above list.
@@ -5137,21 +5117,6 @@ define([
 		//		Used by `<img>` nodes in templates that really get their image via CSS background-image.
 		_blankGif: config.blankGif || require.toUrl("dojo/resources/blank.gif"),
 
-		// textDir: String
-		//		Bi-directional support,	the main variable which is responsible for the direction of the text.
-		//		The text direction can be different than the GUI direction by using this parameter in creation
-		//		of a widget.
-		//
-		//		This property is only effective when `has("dojo-bidi")` is defined to be true.
-		//
-		//		Allowed values:
-		//
-		//		1. "" - default value; text is same direction as widget
-		//		2. "ltr"
-		//		3. "rtl"
-		//		4. "auto" - contextual the direction of a text defined by first strong letter.
-		textDir: "",
-
 		//////////// INITIALIZATION METHODS ///////////////////////////////////////
 
 		/*=====
@@ -5254,7 +5219,7 @@ define([
 			this._supportingWidgets = [];
 
 			// this is here for back-compat, remove in 2.0 (but check NodeList-instantiate.html test)
-			if(this.srcNodeRef && this.srcNodeRef.id  && (typeof this.srcNodeRef.id == "string")){
+			if(this.srcNodeRef && (typeof this.srcNodeRef.id == "string")){
 				this.id = this.srcNodeRef.id;
 			}
 
@@ -5622,21 +5587,14 @@ define([
 						}
 						break;
 					case "innerText":
-						// Deprecated, use "textContent" instead.
 						mapNode.innerHTML = "";
 						mapNode.appendChild(this.ownerDocument.createTextNode(value));
-						break;
-					case "textContent":
-						mapNode.textContent = value;
 						break;
 					case "innerHTML":
 						mapNode.innerHTML = value;
 						break;
 					case "class":
 						domClass.replace(mapNode, value, this[attr]);
-						break;
-					case "toggleClass":
-						domClass.toggle(mapNode, command.className || attr, value);
 						break;
 				}
 			}, this);
@@ -6555,9 +6513,7 @@ define([
 	// Set the background style using dojo/domReady, not dojo/ready, to ensure it is already
 	// set at widget initialization time. (#17418) 
 	domReady(function(){
-		if(config.mblApplyPageStyles !== false){
-			domClass.add(win.body(), "mblBackground");
-		}
+		domClass.add(win.body(), "mblBackground");
 	});
 
 	ready(function(){
@@ -10628,13 +10584,12 @@ define([
 			this._hasMaskImage = true;
 			if(!(has("mask-image"))){ return; }
 			var rDef = domStyle.get(this.left, "borderTopLeftRadius");
-			if(!rDef || rDef == "0px"){ return; }
+			if(rDef == "0px"){ return; }
 			var rDefs = rDef.split(" ");
 			var rx = parseFloat(rDefs[0]), ry = (rDefs.length == 1) ? rx : parseFloat(rDefs[1]);
+			var id = (this.shape+"Mask"+w+h+rx+ry).replace(/\./,"_");
 
-			if(rx && ry){
-				maskUtils.createRoundMask(this.switchNode, 0, 0, 0, 0, w, h, rx, ry, 1);
-			}
+			maskUtils.createRoundMask(this.switchNode, 0, 0, 0, 0, w, h, rx, ry, 1);
 		},
 
 		_onClick: function(e){
@@ -11289,16 +11244,12 @@ define([
 			this._set("label", content);
 			var labelNode = this.containerNode || this.focusNode;
 			labelNode.innerHTML = content;
-			this.onLabelSet();
-		},
-
-		onLabelSet: function(){
 		}
 	});
 
 	if(has("dojo-bidi")){
 		ButtonMixin = declare("dijit.form._ButtonMixin", ButtonMixin, {
-			onLabelSet: function(){
+			_setLabelAttr: function(){
 				this.inherited(arguments);
 				var labelNode = this.containerNode || this.focusNode;
 				this.applyTextDir(labelNode);
@@ -13034,7 +12985,6 @@ string.substitute = function(	/*String*/		template,
 	// template:
 	//		a string with expressions in the form `${key}` to be replaced or
 	//		`${key:format}` which specifies a format function. keys are case-sensitive.
-	//		The special sequence `${}` can be used escape `$`.
 	// map:
 	//		hash to search for substitutions
 	// transform:
@@ -13086,22 +13036,13 @@ string.substitute = function(	/*String*/		template,
 	transform = transform ?
 		lang.hitch(thisObject, transform) : function(v){ return v; };
 
-	return template.replace(/\$\{([^\s\:\}]*)(?:\:([^\s\:\}]+))?\}/g,
+	return template.replace(/\$\{([^\s\:\}]+)(?:\:([^\s\:\}]+))?\}/g,
 		function(match, key, format){
-			if (key == ''){
-				return '$';
-			}
 			var value = lang.getObject(key, false, map);
 			if(format){
 				value = lang.getObject(format, false, thisObject).call(thisObject, value, key);
 			}
-			var result = transform(value, key);
-
-			if (typeof result === 'undefined') {
-				throw new Error('string.substitute could not find key "' + key + '" in template');
-			}
-
-			return result.toString();
+			return transform(value, key).toString();
 		}); // String
 };
 
@@ -13380,7 +13321,7 @@ define([
 
 	// module:
 	//		dojo/fx
-
+	
 	// For back-compat, remove in 2.0.
 	if(!dojo.isAsync){
 		ready(0, function(){
@@ -13542,7 +13483,7 @@ define([
 		//	|		]).play();
 		//	|	});
 		//
-		return new _chain(lang.isArray(animations) ? animations : Array.prototype.slice.call(animations, 0)); // dojo/_base/fx.Animation
+		return new _chain(animations); // dojo/_base/fx.Animation
 	};
 
 	var _combine = function(animations){
@@ -13625,9 +13566,8 @@ define([
 		//		Combine a list of `dojo/_base/fx.Animation`s to run in parallel
 		//
 		// description:
-		//		Combine an array of `dojo/_base/fx.Animation`s or N
-		//		`dojo/_base/fx.Animation`s  to run in parallel, providing
-		//		a new `dojo/_base/fx.Animation` instance encompassing each
+		//		Combine an array of `dojo/_base/fx.Animation`s to run in parallel,
+		//		providing a new `dojo/_base/fx.Animation` instance encompasing each
 		//		animation, firing standard animation events.
 		//
 		// example:
@@ -13652,7 +13592,7 @@ define([
 		//	|		anim.play(); // play the animation
 		//	|	});
 		//
-		return new _combine(lang.isArray(animations) ? animations : Array.prototype.slice.call(animations, 0)); // dojo/_base/fx.Animation
+		return new _combine(animations); // dojo/_base/fx.Animation
 	};
 
 	coreFx.wipeIn = function(/*Object*/ args){

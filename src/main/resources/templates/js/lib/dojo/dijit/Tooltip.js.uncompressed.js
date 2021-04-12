@@ -397,7 +397,7 @@ define("dijit/Tooltip", [
 			this._set("connectId", newId);
 		},
 
-		addTarget: function(/*DomNode|String*/ node){
+		addTarget: function(/*OomNode|String*/ node){
 			// summary:
 			//		Attach tooltip to specified node if it's not already connected
 

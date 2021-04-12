@@ -1,26 +1,23 @@
 define(
 "dojo/cldr/nls/fi/number", //begin v1.x content
 {
-	"scientificFormat": "#E0",
-	"infinity": "∞",
-	"superscriptingExponent": "×",
-	"list": ";",
-	"percentSign": "%",
-	"minusSign": "−",
-	"decimalFormat-short": "000 bilj'.'",
-	"nan": "epäluku",
-	"plusSign": "+",
-	"currencyFormat": "#,##0.00 ¤",
-	"perMille": "‰",
-	"approximatelySign": "~",
 	"group": " ",
+	"percentSign": "%",
+	"exponential": "E",
+	"scientificFormat": "#E0",
 	"percentFormat": "#,##0 %",
-	"decimalFormat-long": "000 biljoonaa",
-	"decimalFormat": "#,##0.###",
-	"currencyFormat-short": "000 bilj'.' ¤",
-	"timeSeparator": ".",
+	"list": ";",
+	"infinity": "∞",
+	"minusSign": "−",
 	"decimal": ",",
-	"exponential": "E"
+	"superscriptingExponent": "×",
+	"nan": "epäluku",
+	"perMille": "‰",
+	"decimalFormat": "#,##0.###",
+	"currencyFormat": "#,##0.00 ¤",
+	"plusSign": "+",
+	"decimalFormat-long": "000 biljoonaa",
+	"decimalFormat-short": "000 bilj'.'"
 }
 //end v1.x content
 );

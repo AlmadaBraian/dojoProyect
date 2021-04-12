@@ -1,24 +1,23 @@
 define(
 "dojo/cldr/nls/sk/currency", //begin v1.x content
 {
-	"HKD_displayName": "hongkonský dolár",
-	"CNY_displayName": "čínsky jüan",
-	"JPY_displayName": "japonský jen",
+	"HKD_displayName": "Hongkonský dolár",
+	"CHF_displayName": "Švajčiarsky frank",
 	"JPY_symbol": "JPY",
-	"USD_displayName": "americký dolár",
-	"CAD_symbol": "CAD",
-	"GBP_displayName": "britská libra",
-	"CHF_displayName": "švajčiarsky frank",
-	"CNY_symbol": "CNY",
-	"EUR_displayName": "euro",
-	"GBP_symbol": "GBP",
-	"CAD_displayName": "kanadský dolár",
-	"USD_symbol": "USD",
-	"EUR_symbol": "€",
-	"AUD_displayName": "austrálsky dolár",
-	"CHF_symbol": "CHF",
+	"CAD_displayName": "Kanadský dolár",
 	"HKD_symbol": "HKD",
-	"AUD_symbol": "AUD"
+	"CNY_displayName": "Čínsky jüan",
+	"USD_symbol": "USD",
+	"AUD_displayName": "Austrálsky dolár",
+	"JPY_displayName": "Japonský jen",
+	"CAD_symbol": "CAD",
+	"USD_displayName": "Americký dolár",
+	"EUR_symbol": "€",
+	"CNY_symbol": "CNY",
+	"GBP_displayName": "Britská libra",
+	"GBP_symbol": "GBP",
+	"AUD_symbol": "AUD",
+	"EUR_displayName": "Euro"
 }
 //end v1.x content
 );

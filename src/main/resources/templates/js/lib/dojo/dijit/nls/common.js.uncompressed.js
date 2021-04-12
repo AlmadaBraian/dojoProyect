@@ -45,6 +45,5 @@ define("dijit/nls/common", { root:
 "ca": true,
 "bg": true,
 "az": true,
-"ar": true,
-"al": true
+"ar": true
 });

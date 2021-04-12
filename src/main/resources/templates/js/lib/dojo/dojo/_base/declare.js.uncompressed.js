@@ -3,14 +3,7 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 	//		dojo/_base/declare
 
 	var mix = lang.mixin, op = Object.prototype, opts = op.toString,
-		xtor, counter = 0, cname = "constructor";
-
-	if(!has("csp-restrictions")){
-		// 'new Function()' is preferable when available since it does not create a closure
-		xtor = new Function;
-	}else{
-		xtor = function(){};
-	}
+		xtor = new Function, counter = 0, cname = "constructor";
 
 	function err(msg, cls){ throw new Error("declare" + (cls ? " " + cls : "") + ": " + msg); }
 
@@ -90,41 +83,23 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 		return result;
 	}
 
-	function inherited(args, a, f, g){
+	function inherited(args, a, f){
 		var name, chains, bases, caller, meta, base, proto, opf, pos,
 			cache = this._inherited = this._inherited || {};
 
 		// crack arguments
-		if(typeof args === "string"){
+		if(typeof args == "string"){
 			name = args;
 			args = a;
 			a = f;
-			f = g;
 		}
+		f = 0;
 
-		if(typeof args === "function"){
-			// support strict mode
-			caller = args;
-			args = a;
-			a = f;
-		}else{
-			try{
-				caller = args.callee;
-			}catch (e){
-				if(e instanceof TypeError){
-					// caller was defined in a strict-mode context
-					err("strict mode inherited() requires the caller function to be passed before arguments", this.declaredClass);
-				}else{
-					throw e;
-				}
-			}
-		}
-
+		caller = args.callee;
 		name = name || caller.nom;
 		if(!name){
 			err("can't deduce a name to call inherited()", this.declaredClass);
 		}
-		f = g = 0;
 
 		meta = this.constructor._meta;
 		bases = meta.bases;
@@ -216,24 +191,16 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 		// intentionally no return if a super method was not found
 	}
 
-	function getInherited(name, args, a){
-		if(typeof name === "string"){
-			if (typeof args === "function") {
-				return this.__inherited(name, args, a, true);
-			}
-			return this.__inherited(name, args, true);
-		}
-		else if (typeof name === "function") {
+	function getInherited(name, args){
+		if(typeof name == "string"){
 			return this.__inherited(name, args, true);
 		}
 		return this.__inherited(name, true);
 	}
 
-	function inherited__debug(args, a1, a2, a3){
-		var f = this.getInherited(args, a1, a2);
-		if(f){
-			return f.apply(this, a3 || a2 || a1 || args);
-		}
+	function inherited__debug(args, a1, a2){
+		var f = this.getInherited(args, a1);
+		if(f){ return f.apply(this, a2 || a1 || args); }
 		// intentionally no return if a super method was not found
 	}
 
@@ -338,7 +305,7 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 				target[name] = t;
 			}
 		}
-		if(has("bug-for-in-skips-shadowed") && source){
+		if(has("bug-for-in-skips-shadowed")){
 			for(var extraNames= lang._extraNames, i= extraNames.length; i;){
 				name = extraNames[--i];
 				t = source[name];
@@ -359,18 +326,18 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 		return this;
 	}
 
-	function createSubclass(mixins, props){
-		// crack parameters
-		if(!(mixins instanceof Array || typeof mixins === 'function')){
-			props = mixins;
-			mixins = undefined;
-		}
+    function createSubclass(mixins, props){
+        // crack parameters
+        if(!(mixins instanceof Array || typeof mixins == 'function')){
+            props = mixins;
+            mixins = undefined;
+        }
 
-		props = props || {};
-		mixins = mixins || [];
+        props = props || {};
+        mixins = mixins || [];
 
-		return declare([this].concat(mixins), props);
-	}
+        return declare([this].concat(mixins), props);
+    }
 
 	// chained constructor compatible with the legacy declare()
 	function chainedConstructor(bases, ctorSpecial){
@@ -808,12 +775,7 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 				t = bases[i];
 				(t._meta ? mixOwn : mix)(proto, t.prototype);
 				// chain in new constructor
-				if (has("csp-restrictions")) {
-					ctor = function () {};
-				}
-				else {
-					ctor = new Function;
-				}
+				ctor = new Function;
 				ctor.superclass = superclass;
 				ctor.prototype = proto;
 				superclass = proto.constructor = ctor;
@@ -892,7 +854,7 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 		//		dojo/_base/declare() returns a constructor `C`.   `new C()` returns an Object with the following
 		//		methods, in addition to the methods and properties specified via the arguments passed to declare().
 
-		inherited: function(name, caller, args, newArgs){
+		inherited: function(name, args, newArgs){
 			// summary:
 			//		Calls a super method.
 			// name: String?
@@ -900,18 +862,6 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 			//		name. Usually "name" is specified in complex dynamic cases, when
 			//		the calling method was dynamically added, undecorated by
 			//		declare(), and it cannot be determined.
-			// caller: Function?
-			//		The reference to the calling function. Required only if the
-			//		call to "this.inherited" occurs from within strict-mode code.
-			//		If the caller is omitted within strict-mode code, an error will
-			//		be thrown.
-			//		The best way to obtain a reference to the calling function is to
-			//		use a named function expression (i.e. place a function name
-			//		after the "function" keyword and before the open paren, as in
-			//		"function fn(a, b)"). If the function is parsed as an expression
-			//		and not a statement (i.e. it's not by itself on its own line),
-			//		the function name will only be accessible as an identifier from
-			//		within the body of the function.
 			// args: Arguments
 			//		The caller supply this argument, which should be the original
 			//		"arguments".
@@ -975,20 +925,10 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 			//	|			return super.apply(this, arguments);
 			//	|		}
 			//	|	});
-			// example:
-			//	|	"use strict";
-			//	|	// class is defined in strict-mode code,
-			//	|	// so caller must be passed before arguments.
-			//	|	var B = declare(A, {
-			//	|		// using a named function expression with "fn" as the name.
-			//	|		method: function fn(a, b) {
-			//	|			this.inherited(fn, arguments);
-			//	|		}
-			//	|	});
 			return	{};	// Object
 		},
 
-		getInherited: function(name, caller, args){
+		getInherited: function(name, args){
 			// summary:
 			//		Returns a super method.
 			// name: String?
@@ -996,11 +936,6 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 			//		name. Usually "name" is specified in complex dynamic cases, when
 			//		the calling method was dynamically added, undecorated by
 			//		declare(), and it cannot be determined.
-			// caller: Function?
-			//		The caller function. This is required when running in
-			//		strict-mode code. A reference to the caller function
-			//		can be obtained by using a named function expression
-			//		(e.g. function fn(a,b) {...}).
 			// args: Arguments
 			//		The caller supply this argument, which should be the original
 			//		"arguments".
@@ -1021,19 +956,6 @@ define("dojo/_base/declare", ["./kernel", "../has", "./lang"], function(dojo, ha
 			//	|				return 0;
 			//	|			}
 			//	|			return super.apply(this, arguments);
-			//	|		}
-			//	|	});
-			// example:
-			//	|	"use strict;" // first line of function or file
-			//	|	//...
-			//	|	var B = declare(A, {
-			//	|		// Using a named function expression with "fn" as the name,
-			//	|		// since we're in strict mode.
-			//	|		method: function fn(a, b){
-			//	|			var super = this.getInherited(fn, arguments);
-			//	|			if(super){
-			//	|				return super.apply(this, arguments);
-			//	|			}
 			//	|		}
 			//	|	});
 			return	{};	// Object

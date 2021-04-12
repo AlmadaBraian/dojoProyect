@@ -45,8 +45,6 @@ define("dijit/Dialog", [
 	var resolvedDeferred = new Deferred();
 	resolvedDeferred.resolve(true);
 
-	function nop(){}
-
 	var _DialogBase = declare("dijit._DialogBase" + (has("dojo-bidi") ? "_NoBidi" : ""), [_TemplatedMixin, _FormMixin, _DialogMixin, _CssStateMixin], {
 		templateString: template,
 
@@ -212,17 +210,15 @@ define("dijit/Dialog", [
 			//		Position the dialog in the viewport.  If no relative offset
 			//		in the viewport has been determined (by dragging, for instance),
 			//		center the dialog.  Otherwise, use the Dialog's stored relative offset,
-			//		clipped to fit inside the viewport (which may have been shrunk).
-			//		Finally, adjust position according to viewport's scroll.
-
+			//		adjusted by the viewport's scroll.
 			if(!domClass.contains(this.ownerDocumentBody, "dojoMove")){    // don't do anything if called during auto-scroll
 				var node = this.domNode,
 					viewport = winUtils.getBox(this.ownerDocument),
 					p = this._relativePosition,
-					bb = domGeometry.position(node),
-					l = Math.floor(viewport.l + (p ? Math.min(p.x, viewport.w - bb.w) : (viewport.w - bb.w) / 2)),
-					t = Math.floor(viewport.t + (p ? Math.min(p.y, viewport.h - bb.h) : (viewport.h - bb.h) / 2));
-
+					bb = p ? null : domGeometry.position(node),
+					l = Math.floor(viewport.l + (p ? p.x : (viewport.w - bb.w) / 2)),
+					t = Math.floor(viewport.t + (p ? p.y : (viewport.h - bb.h) / 2))
+					;
 				domStyle.set(node, {
 					left: l + "px",
 					top: t + "px"
@@ -314,7 +310,6 @@ define("dijit/Dialog", [
 				fadeIn.stop();
 				delete this._fadeInDeferred;
 			}));
-			this._fadeInDeferred.then(undefined, nop);	// avoid spurious CancelError message to console
 
 			// If delay is 0, code below will delete this._fadeInDeferred instantly, so grab promise while we can.
 			var promise = this._fadeInDeferred.promise;
@@ -362,7 +357,6 @@ define("dijit/Dialog", [
 				fadeOut.stop();
 				delete this._fadeOutDeferred;
 			}));
-			this._fadeOutDeferred.then(undefined, nop);	// avoid spurious CancelError message to console
 
 			// fire onHide when the promise resolves.
 			this._fadeOutDeferred.then(lang.hitch(this, 'onHide'));
@@ -439,33 +433,14 @@ define("dijit/Dialog", [
 					viewport.h *= this.maxRatio;
 
 					var bb = domGeometry.position(this.domNode);
-					this._shrunk = false;
-					// First check and limit width, because limiting the width may increase the height due to word wrapping.
-					if(bb.w >= viewport.w){
+					if(bb.w >= viewport.w || bb.h >= viewport.h){
 						dim = {
-							w: viewport.w
+							w: Math.min(bb.w, viewport.w),
+							h: Math.min(bb.h, viewport.h)
 						};
-						domGeometry.setMarginBox(this.domNode, dim);
-						bb = domGeometry.position(this.domNode);
 						this._shrunk = true;
-					}
-					// Now check and limit the height
-					if(bb.h >= viewport.h){
-						if(!dim){
-							dim = {
-								w: bb.w
-							};
-						}
-						dim.h = viewport.h;
-						this._shrunk = true;
-					}
-					if(dim){
-						if(!dim.w){
-							dim.w = bb.w;
-						}
-						if(!dim.h){
-							dim.h = bb.h;
-						}
+					}else{
+						this._shrunk = false;
 					}
 				}
 

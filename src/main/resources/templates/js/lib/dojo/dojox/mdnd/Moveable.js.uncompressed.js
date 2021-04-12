@@ -1,15 +1,15 @@
 define("dojox/mdnd/Moveable", [
+	"dojo/_base/kernel",
 	"dojo/_base/declare",
 	"dojo/_base/array",
 	"dojo/_base/connect",
 	"dojo/_base/event",
 	"dojo/_base/sniff",
-	"dojo/touch",
 	"dojo/dom",
 	"dojo/dom-geometry",
 	"dojo/dom-style",
-	"./AutoScroll"
-],function(declare, array, connect, event, sniff, touch, dom, geom, domStyle, AutoScroll){
+	"dojo/_base/window"
+],function(dojo, declare, array, connect, event, sniff, dom, geom, domStyle){
 	return declare(
 		"dojox.mdnd.Moveable",
 		null,
@@ -50,10 +50,10 @@ define("dojox/mdnd/Moveable", [
 			if(!this.handle){ this.handle = this.node; }
 			this.skip = params.skip;
 			this.events = [
-				connect.connect(this.handle, touch.press, this, "onMouseDown")
+				connect.connect(this.handle, "onmousedown", this, "onMouseDown")
 			];
-			if(AutoScroll.autoScroll){
-				this.autoScroll = AutoScroll.autoScroll;
+			if(dojox.mdnd.autoScroll){
+				this.autoScroll = dojox.mdnd.autoScroll;
 			}
 			
 		},
@@ -95,8 +95,8 @@ define("dojox/mdnd/Moveable", [
 				this.autoScroll.setAutoScrollNode(this.node);
 				this.autoScroll.setAutoScrollMaxPage();
 			}
-			this.events.push(connect.connect(this.d, touch.release, this, "onMouseUp"));
-			this.events.push(connect.connect(this.d, touch.move, this, "onFirstMove"));
+			this.events.push(connect.connect(this.d, "onmouseup", this, "onMouseUp"));
+			this.events.push(connect.connect(this.d, "onmousemove", this, "onFirstMove"));
 			this._selectStart = connect.connect(dojo.body(), "onselectstart", event.stop);
 			this._firstX = e.clientX;
 			this._firstY = e.clientY;
@@ -123,7 +123,7 @@ define("dojox/mdnd/Moveable", [
 				connect.disconnect(this.events.pop());
 				domStyle.set(this.node, "width", geom.getContentBox(this.node).w + "px");
 				this.initOffsetDrag(e);
-				this.events.push(connect.connect(this.d, touch.move, this, "onMove"));
+				this.events.push(connect.connect(this.d, "onmousemove", this, "onMove"));
 			}
 		},
 		
@@ -207,8 +207,6 @@ define("dojox/mdnd/Moveable", [
 			}
 			connect.disconnect(this.events.pop());
 			connect.disconnect(this.events.pop());
-			connect.disconnect(this._selectStart);
-			this._selectStart = null;
 		},
 		
 		onDragStart: function(/*DOMNode*/node, /*Object*/coords, /*Object*/size){

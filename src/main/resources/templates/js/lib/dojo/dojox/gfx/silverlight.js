@@ -379,8 +379,7 @@ sl.TextPath=_3("dojox.gfx.silverlight.TextPath",[sl.Shape,_9.TextPath],{_updateW
 },_setText:function(){
 }});
 sl.TextPath.nodeType="text";
-var _37={},_38=function(){
-};
+var _37={},_38=new Function;
 sl.Surface=_3("dojox.gfx.silverlight.Surface",gs.Surface,{constructor:function(){
 gs.Container._init.call(this);
 },destroy:function(){

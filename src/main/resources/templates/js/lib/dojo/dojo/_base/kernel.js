@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/_base/kernel",["../global","../has","./config","require","module"],function(_1,_2,_3,_4,_5){
 var i,p,_6={},_7={},_8={config:_3,global:_1,dijit:_6,dojox:_7};
@@ -26,15 +25,13 @@ _8.scopeMap=_9;
 _8.baseUrl=_8.config.baseUrl=_4.baseUrl;
 _8.isAsync=!1||_4.async;
 _8.locale=_3.locale;
-var _c="$Rev:$".match(/[0-9a-f]{7,}/);
-_8.version={major:1,minor:16,patch:4,flag:"",revision:_c?_c[0]:NaN,toString:function(){
+var _c="$Rev: 48cb00f2 $".match(/[0-9a-f]{7,}/);
+_8.version={major:1,minor:10,patch:10,flag:"",revision:_c?_c[0]:NaN,toString:function(){
 var v=_8.version;
 return v.major+"."+v.minor+"."+v.patch+v.flag+" ("+v.revision+")";
 }};
 1||_2.add("extend-dojo",1);
-if(!_2("csp-restrictions")){
 (Function("d","d.eval = function(){return d.global.eval ? d.global.eval(arguments[0]) : eval(arguments[0]);}"))(_8);
-}
 if(0){
 _8.exit=function(_d){
 quit(_d);

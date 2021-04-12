@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/i18n",["./_base/kernel","require","./has","./_base/array","./_base/config","./_base/lang","./_base/xhr","./json","module"],function(_1,_2,_3,_4,_5,_6,_7,_8,_9){
 _3.add("dojo-preload-i18n-Api",1);
@@ -54,11 +53,11 @@ if(_3("dojo-preload-i18n-Api")){
 if(_3b){
 if(!_14[id]){
 _14[id]=1;
-_46(_3a[2],_8.parse(_3a[3]),1,_2e);
+_47(_3a[2],_8.parse(_3a[3]),1,_2e);
 }
 _2f(1);
 }
-if(_3b||(_67(id,_2e,_2f)&&!_14[_36])){
+if(_3b||(_68(id,_2e,_2f)&&!_14[_36])){
 return;
 }
 }else{
@@ -79,115 +78,118 @@ _39();
 }
 });
 };
+if(_3("dojo-unit-tests")){
+var _3f=_a.unitTests=[];
+}
 if(_3("dojo-preload-i18n-Api")||1){
-var _3f=_a.normalizeLocale=function(_40){
-var _41=_40?_40.toLowerCase():_1.locale;
-return _41=="root"?"ROOT":_41;
-},_42=function(mid,_43){
-return (1&&1)?_43.isXdUrl(_2.toUrl(mid+".js")):true;
-},_44=0,_45=[],_46=_a._preloadLocalizations=function(_47,_48,_49,_4a){
-_4a=_4a||_2;
-function _4b(mid,_4c){
-if(_42(mid,_4a)||_49){
-_4a([mid],_4c);
+var _40=_a.normalizeLocale=function(_41){
+var _42=_41?_41.toLowerCase():_1.locale;
+return _42=="root"?"ROOT":_42;
+},_43=function(mid,_44){
+return (1&&1)?_44.isXdUrl(_2.toUrl(mid+".js")):true;
+},_45=0,_46=[],_47=_a._preloadLocalizations=function(_48,_49,_4a,_4b){
+_4b=_4b||_2;
+function _4c(mid,_4d){
+if(_43(mid,_4b)||_4a){
+_4b([mid],_4d);
 }else{
-_6d([mid],_4c,_4a);
+_6d([mid],_4d,_4b);
 }
 };
-function _4d(_4e,_4f){
-var _50=_4e.split("-");
-while(_50.length){
-if(_4f(_50.join("-"))){
+function _4e(_4f,_50){
+var _51=_4f.split("-");
+while(_51.length){
+if(_50(_51.join("-"))){
 return;
 }
-_50.pop();
+_51.pop();
 }
-_4f("ROOT");
-};
-function _51(){
-_44++;
+_50("ROOT");
 };
 function _52(){
---_44;
-while(!_44&&_45.length){
-_2d.apply(null,_45.shift());
+_45++;
+};
+function _53(){
+--_45;
+while(!_45&&_46.length){
+_2d.apply(null,_46.shift());
 }
 };
-function _53(_54,_55,loc,_56){
-return _56.toAbsMid(_54+_55+"/"+loc);
+function _54(_55,_56,loc,_57){
+return _57.toAbsMid(_55+_56+"/"+loc);
 };
-function _57(_58){
-_58=_3f(_58);
-_4d(_58,function(loc){
-if(_4.indexOf(_48,loc)>=0){
-var mid=_47.replace(/\./g,"/")+"_"+loc;
-_51();
-_4b(mid,function(_59){
-for(var p in _59){
-var _5a=_59[p],_5b=p.match(/(.+)\/([^\/]+)$/),_5c,_5d;
-if(!_5b){
+function _58(_59){
+_59=_40(_59);
+_4e(_59,function(loc){
+if(_4.indexOf(_49,loc)>=0){
+var mid=_48.replace(/\./g,"/")+"_"+loc;
+_52();
+_4c(mid,function(_5a){
+for(var p in _5a){
+var _5b=_5a[p],_5c=p.match(/(.+)\/([^\/]+)$/),_5d,_5e;
+if(!_5c){
 continue;
 }
-_5c=_5b[2];
-_5d=_5b[1]+"/";
-if(!_5a._localized){
+_5d=_5c[2];
+_5e=_5c[1]+"/";
+if(!_5b._localized){
 continue;
 }
-var _5e;
+var _5f;
 if(loc==="ROOT"){
-var _5f=_5e=_5a._localized;
-delete _5a._localized;
-_5f.root=_5a;
-_14[_2.toAbsMid(p)]=_5f;
+var _60=_5f=_5b._localized;
+delete _5b._localized;
+_60.root=_5b;
+_14[_2.toAbsMid(p)]=_60;
 }else{
-_5e=_5a._localized;
-_14[_53(_5d,_5c,loc,_2)]=_5a;
+_5f=_5b._localized;
+_14[_54(_5e,_5d,loc,_2)]=_5b;
 }
-if(loc!==_58){
-function _60(_61,_62,_63,_64){
-var _65=[],_66=[];
-_4d(_58,function(loc){
-if(_64[loc]){
-_65.push(_2.toAbsMid(_61+loc+"/"+_62));
-_66.push(_53(_61,_62,loc,_2));
+if(loc!==_59){
+function _61(_62,_63,_64,_65){
+var _66=[],_67=[];
+_4e(_59,function(loc){
+if(_65[loc]){
+_66.push(_2.toAbsMid(_62+loc+"/"+_63));
+_67.push(_54(_62,_63,loc,_2));
 }
 });
-if(_65.length){
-_51();
-_4a(_65,function(){
-for(var i=_65.length-1;i>=0;i--){
-_63=_6.mixin(_6.clone(_63),arguments[i]);
-_14[_66[i]]=_63;
-}
-_14[_53(_61,_62,_58,_2)]=_6.clone(_63);
+if(_66.length){
 _52();
+_4b(_66,function(){
+for(var i=_66.length-1;i>=0;i--){
+_64=_6.mixin(_6.clone(_64),arguments[i]);
+_14[_67[i]]=_64;
+}
+_14[_54(_62,_63,_59,_2)]=_6.clone(_64);
+_53();
 });
 }else{
-_14[_53(_61,_62,_58,_2)]=_63;
+_14[_54(_62,_63,_59,_2)]=_64;
 }
 };
-_60(_5d,_5c,_5a,_5e);
+_61(_5e,_5d,_5b,_5f);
 }
 }
-_52();
+_53();
 });
 return true;
 }
 return false;
 });
 };
-_57();
-_4.forEach(_1.config.extraLocale,_57);
-},_67=function(id,_68,_69){
-if(_44){
-_45.push([id,_68,_69]);
+_58();
+_4.forEach(_1.config.extraLocale,_58);
+},_68=function(id,_69,_6a){
+if(_45){
+_46.push([id,_69,_6a]);
 }
-return _44;
+return _45;
 },_3e=function(){
 };
 }
 if(1){
-var _6a={},_6b={},_6c,_6d=function(_6e,_6f,_70){
+var _6b={},_6c,_6d=function(_6e,_6f,_70){
 var _71=[];
 _4.forEach(_6e,function(mid){
 var url=_70.toUrl(mid+".js");
@@ -195,9 +197,9 @@ function _2d(_72){
 if(!_6c){
 _6c=new Function("__bundle","__checkForLegacyModules","__mid","__amdValue","var define = function(mid, factory){define.called = 1; __amdValue.result = factory || mid;},"+"\t   require = function(){define.called = 1;};"+"try{"+"define.called = 0;"+"eval(__bundle);"+"if(define.called==1)"+"return __amdValue;"+"if((__checkForLegacyModules = __checkForLegacyModules(__mid)))"+"return __checkForLegacyModules;"+"}catch(e){}"+"try{"+"return eval('('+__bundle+')');"+"}catch(e){"+"return e;"+"}");
 }
-var _73=_6c(_72,_3e,mid,_6a);
-if(_73===_6a){
-_71.push(_14[url]=_6a.result);
+var _73=_6c(_72,_3e,mid,_6b);
+if(_73===_6b){
+_71.push(_14[url]=_6b.result);
 }else{
 if(_73 instanceof Error){
 console.error("failed to evaluate i18n bundle; url="+url,_73);
@@ -249,22 +251,40 @@ return _76;
 };
 _a.getLocalization=function(_79,_7a,_7b){
 var _7c,_7d=_15(_79,_7a,_7b);
-if(_6b[_7d]){
-return _6b[_7d];
-}
-_2d(_7d,(!_42(_7d,_2)?function(_7e,_7f){
+_2d(_7d,(!_43(_7d,_2)?function(_7e,_7f){
 _6d(_7e,_7f,_2);
 }:_2),function(_80){
-_6b[_7d]=_80;
 _7c=_80;
 });
 return _7c;
 };
-}else{
-_a.getLocalization=function(_81,_82,_83){
-var key=_81.replace(/\./g,"/")+"/nls/"+_82+"/"+(_83||_5.locale);
-return this.cache[key];
-};
+if(_3("dojo-unit-tests")){
+_3f.push(function(doh){
+doh.register("tests.i18n.unit",function(t){
+var _81;
+_81=_6c("{prop:1}",_3e,"nonsense",_6b);
+t.is({prop:1},_81);
+t.is(undefined,_81[1]);
+_81=_6c("({prop:1})",_3e,"nonsense",_6b);
+t.is({prop:1},_81);
+t.is(undefined,_81[1]);
+_81=_6c("{'prop-x':1}",_3e,"nonsense",_6b);
+t.is({"prop-x":1},_81);
+t.is(undefined,_81[1]);
+_81=_6c("({'prop-x':1})",_3e,"nonsense",_6b);
+t.is({"prop-x":1},_81);
+t.is(undefined,_81[1]);
+_81=_6c("define({'prop-x':1})",_3e,"nonsense",_6b);
+t.is(_6b,_81);
+t.is({"prop-x":1},_6b.result);
+_81=_6c("define('some/module', {'prop-x':1})",_3e,"nonsense",_6b);
+t.is(_6b,_81);
+t.is({"prop-x":1},_6b.result);
+_81=_6c("this is total nonsense and should throw an error",_3e,"nonsense",_6b);
+t.is(_81 instanceof Error,true);
+});
+});
+}
 }
 return _6.mixin(_a,{dynamic:true,normalize:_28,load:_2d,cache:_14,getL10nName:_19});
 });

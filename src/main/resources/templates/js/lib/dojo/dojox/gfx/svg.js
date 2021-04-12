@@ -115,10 +115,9 @@ _23={color:_23};
 var s=this.strokeStyle=g.makeParameters(g.defaultStroke,_23);
 s.color=g.normalizeColor(s.color);
 if(s){
-var w=s.width<0?0:s.width;
 rn.setAttribute("stroke",s.color.toCss());
 rn.setAttribute("stroke-opacity",s.color.a);
-rn.setAttribute("stroke-width",w);
+rn.setAttribute("stroke-width",s.width);
 rn.setAttribute("stroke-linecap",s.cap);
 if(typeof s.join=="number"){
 rn.setAttribute("stroke-linejoin","miter");
@@ -134,17 +133,17 @@ if(da instanceof Array){
 da=_1._toArray(da);
 var i;
 for(i=0;i<da.length;++i){
-da[i]*=w;
+da[i]*=s.width;
 }
 if(s.cap!="butt"){
 for(i=0;i<da.length;i+=2){
-da[i]-=w;
+da[i]-=s.width;
 if(da[i]<1){
 da[i]=1;
 }
 }
 for(i=1;i<da.length;i+=2){
-da[i]+=w;
+da[i]+=s.width;
 }
 }
 da=da.join(",");
@@ -185,8 +184,8 @@ _29.setAttribute("patternUnits","userSpaceOnUse");
 var img=_10(_26,"image");
 img.setAttribute("x",0);
 img.setAttribute("y",0);
-img.setAttribute("width",(f.width<0?0:f.width).toFixed(8));
-img.setAttribute("height",(f.height<0?0:f.height).toFixed(8));
+img.setAttribute("width",f.width.toFixed(8));
+img.setAttribute("height",f.height.toFixed(8));
 _12(img,_b.xmlns.xlink,"xlink:href",f.src);
 _29.appendChild(img);
 }else{
@@ -229,11 +228,7 @@ r.__gfxObject__=this;
 this.shape=g.makeParameters(this.shape,_2c);
 for(var i in this.shape){
 if(i!="type"){
-var v=this.shape[i];
-if(i==="width"||i==="height"){
-v=v<0?0:v;
-}
-this.rawNode.setAttribute(i,v);
+this.rawNode.setAttribute(i,this.shape[i]);
 }
 }
 this.bbox=null;
@@ -309,11 +304,7 @@ this.shape=g.makeParameters(this.shape,_38);
 this.bbox=null;
 for(var i in this.shape){
 if(i!="type"&&i!="r"){
-var v=this.shape[i];
-if(i==="width"||i==="height"){
-v=v<0?0:v;
-}
-this.rawNode.setAttribute(i,v);
+this.rawNode.setAttribute(i,this.shape[i]);
 }
 }
 if(this.shape.r!=null){
@@ -354,11 +345,7 @@ this.bbox=null;
 var _3d=this.rawNode;
 for(var i in this.shape){
 if(i!="type"&&i!="src"){
-var v=this.shape[i];
-if(i==="width"||i==="height"){
-v=v<0?0:v;
-}
-_3d.setAttribute(i,v);
+_3d.setAttribute(i,this.shape[i]);
 }
 }
 _3d.setAttribute("preserveAspectRatio","none");
@@ -505,12 +492,11 @@ this.inherited(arguments);
 if(!this.rawNode){
 return this;
 }
-var w=_4e<0?0:_4e,h=_4f<0?0:_4f;
-this.rawNode.setAttribute("width",w);
-this.rawNode.setAttribute("height",h);
+this.rawNode.setAttribute("width",_4e);
+this.rawNode.setAttribute("height",_4f);
 if(_4c){
-this.rawNode.style.width=w;
-this.rawNode.style.height=h;
+this.rawNode.style.width=_4e;
+this.rawNode.style.height=_4f;
 }
 return this;
 },getDimensions:function(){
@@ -522,10 +508,10 @@ var s=new _b.Surface();
 s.rawNode=_10(_b.xmlns.svg,"svg");
 s.rawNode.setAttribute("overflow","hidden");
 if(_51){
-s.rawNode.setAttribute("width",_51<0?0:_51);
+s.rawNode.setAttribute("width",_51);
 }
 if(_52){
-s.rawNode.setAttribute("height",_52<0?0:_52);
+s.rawNode.setAttribute("height",_52);
 }
 var _53=_10(_b.xmlns.svg,"defs");
 s.rawNode.appendChild(_53);
@@ -625,8 +611,6 @@ return true;
 if(_b.useSvgWeb){
 _b.createSurface=function(_61,_62,_63){
 var s=new _b.Surface();
-_62=_62<0?0:_62;
-_63=_63<0?0:_63;
 if(!_62||!_63){
 var pos=_7.position(_61);
 _62=_62||pos.w;

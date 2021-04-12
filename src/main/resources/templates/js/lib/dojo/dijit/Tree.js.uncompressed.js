@@ -1044,7 +1044,7 @@ define("dijit/Tree", [
 				return all(array.map(paths, function(path){
 					// normalize path to use identity
 					path = array.map(path, function(item){
-						return item && lang.isObject(item) ? tree.model.getIdentity(item) : item;
+						return lang.isString(item) ? item : tree.model.getIdentity(item);
 					});
 
 					if(path.length){
@@ -1574,23 +1574,10 @@ define("dijit/Tree", [
 			//		Focus on the specified node (which must be visible)
 			// tags:
 			//		protected
-                        var tmp = [];
-                        for(var domNode = this.domNode; 
-                            domNode && domNode.tagName && domNode.tagName.toUpperCase() !== 'IFRAME';
-                            domNode = domNode.parentNode) {
-                            tmp.push({
-                                domNode: domNode.contentWindow || domNode,
-                                scrollLeft: domNode.scrollLeft || 0,
-                                scrollTop: domNode.scrollTop || 0
-                            });
-                        }
+
+			var scrollLeft = this.domNode.scrollLeft;
 			this.focusChild(node);
-			this.defer(function() {
-                            for (var i = 0, max = tmp.length; i < max; i++) {
-                                tmp[i].domNode.scrollLeft = tmp[i].scrollLeft;
-                                tmp[i].domNode.scrollTop = tmp[i].scrollTop;
-                            }
-			}, 0);
+			this.domNode.scrollLeft = scrollLeft;
 		},
 
 		_onNodeMouseEnter: function(/*dijit/_WidgetBase*/ /*===== node =====*/){

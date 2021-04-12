@@ -227,8 +227,13 @@ s="javascript:document.open();try{parent.window;}catch(e){document.domain=\""+do
 }else{
 s="javascript: '"+src+"'";
 }
+if(has("ie")==9){
 this.editingArea.appendChild(ifr);
 ifr.src=s;
+}else{
+ifr.setAttribute("src",s);
+this.editingArea.appendChild(ifr);
+}
 if(dn.nodeName==="LI"){
 dn.lastChild.style.marginTop="-1.2em";
 }

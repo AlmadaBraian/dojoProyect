@@ -245,8 +245,7 @@ define("dijit/tree/ObjectStoreModel", [
 						overwrite: true,
 						parent: newParentItem,
 						oldParent: oldParentItem,
-						before: before,
-						isCopy: false
+						before: before
 					}));
 				}));
 			}else{
@@ -254,8 +253,7 @@ define("dijit/tree/ObjectStoreModel", [
 					overwrite: true,
 					parent: newParentItem,
 					oldParent: oldParentItem,
-					before: before,
-					isCopy: true
+					before: before
 				}));
 			}
 

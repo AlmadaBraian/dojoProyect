@@ -25,7 +25,7 @@ define("dojox/layout/GridContainerLite", [
 	"dojo/_base/NodeList",
 	"dojox/mdnd/AreaManager", "dojox/mdnd/DropIndicator",
 	"dojox/mdnd/dropMode/OverDropMode","dojox/mdnd/AutoScroll"
-],function(dojo, template, declare, query, has, domClass, domStyle, geom, domConstruct, domAttr, array, lang, events, keys, topic, registry, focus, baseFocus, _WidgetBase, _TemplatedMixin, _LayoutWidget, NodeList, AreaManager){
+],function(dojo, template, declare, query, has, domClass, domStyle, geom, domConstruct, domAttr, array, lang, events, keys, topic, registry, focus, baseFocus, _WidgetBase, _TemplatedMixin, _LayoutWidget, NodeList){
 
 	var gcl = declare(
 		"dojox.layout.GridContainerLite",
@@ -124,7 +124,7 @@ define("dojox/layout/GridContainerLite", [
 			this.subscribe("/dojox/mdnd/drop", "resizeChildAfterDrop");
 			this.subscribe("/dojox/mdnd/drag/start", "resizeChildAfterDragStart");
 
-			this._dragManager = AreaManager.areaManager();
+			this._dragManager = dojox.mdnd.areaManager();
 			// console.info("autorefresh ::: ", this.autoRefresh);
 			this._dragManager.autoRefresh = this.autoRefresh;
 
@@ -378,7 +378,7 @@ define("dojox/layout/GridContainerLite", [
 			//		List all zones and insert child into columns.
 
 			//console.log("dojox.layout.GridContainerLite ::: _organizeChildren");
-			var children = gcl.superclass.getChildren.call(this);
+			var children = dojox.layout.GridContainerLite.superclass.getChildren.call(this);
 			var numZones = this.nbZones,
 				numPerZone = Math.floor(children.length / numZones),
 				mod = children.length % numZones,
@@ -410,7 +410,7 @@ define("dojox/layout/GridContainerLite", [
 			//		Organize children by column property of widget.
 
 			//console.log("dojox.layout.GridContainerLite ::: _organizeChildrenManually");
-			var children = gcl.superclass.getChildren.call(this),
+			var children = dojox.layout.GridContainerLite.superclass.getChildren.call(this),
 				length = children.length,
 				child;
 			for(var i = 0; i < length; i++){
@@ -487,7 +487,7 @@ define("dojox/layout/GridContainerLite", [
 
 			//console.log("dojox.layout.GridContainerLite ::: addChild");
 			child.domNode.id = child.id;
-			gcl.superclass.addChild.call(this, child, 0);
+			dojox.layout.GridContainerLite.superclass.addChild.call(this, child, 0);
 			if(column < 0 || column === undefined){ column = 0; }
 			if(p <= 0){ p = 0; }
 			try{

@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/DeferredList",["./_base/kernel","./_base/Deferred","./_base/array"],function(_1,_2,_3){
 _1.DeferredList=function(_4,_5,_6,_7,_8){

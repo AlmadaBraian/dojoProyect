@@ -1,5 +1,6 @@
-define("dojox/lang/functional/zip", ["dojo/_base/lang", "./lambda"],
-	function(lang, df){
+// wrapped by build app
+define("dojox/lang/functional/zip", ["dojo","dijit","dojox"], function(dojo,dijit,dojox){
+dojo.provide("dojox.lang.functional.zip");
 
 // This module adds high-level functions and related constructs:
 //	- zip combiners
@@ -7,7 +8,10 @@ define("dojox/lang/functional/zip", ["dojo/_base/lang", "./lambda"],
 // Defined methods:
 //	- operate on dense arrays
 
-	lang.mixin(df, {
+(function(){
+	var df = dojox.lang.functional;
+
+	dojo.mixin(df, {
 		// combiners
 		zip: function(){
 			// summary:
@@ -39,4 +43,6 @@ define("dojox/lang/functional/zip", ["dojo/_base/lang", "./lambda"],
 			return df.zip.apply(null, a);	// Array
 		}
 	});
+})();
+
 });

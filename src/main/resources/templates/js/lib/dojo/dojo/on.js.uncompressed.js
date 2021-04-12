@@ -258,8 +258,6 @@ define("dojo/on", ["./has!dom-addeventlistener?:./aspect", "./_base/kernel", "./
 				var eventTarget = select(event.target);
 				// if it matches we call the listener
 				if (eventTarget) {
-					// We save the matching target into the event, so it can be accessed even when hitching (see #18355)
-					event.selectorTarget = eventTarget;
 					return listener.call(eventTarget, event);
 				}
 			});
@@ -582,7 +580,7 @@ define("dojo/on", ["./has!dom-addeventlistener?:./aspect", "./_base/kernel", "./
 						event.scale = 1;
 					}
 					if (window.TouchEvent && originalEvent instanceof TouchEvent) {
-						// use event.changedTouches[0].pageX|pageY|screenX|screenY|clientX|clientY|target
+						//use event.changedTouches[0].pageX|pageY|screenX|screenY|clientX|clientY|target
 						var firstChangeTouch = event.changedTouches[0];
 						for(var i in firstChangeTouch){ // use for-in, we don't need to have dependency on dojo/_base/lang here
 							delete event[i]; // delete it first to make it mutable

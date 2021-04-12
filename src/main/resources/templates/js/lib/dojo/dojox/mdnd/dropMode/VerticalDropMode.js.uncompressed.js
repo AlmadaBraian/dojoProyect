@@ -4,7 +4,7 @@ define("dojox/mdnd/dropMode/VerticalDropMode", [
 	"dojo/_base/array",
 	"dojo/dom-geometry",
 	"dojox/mdnd/AreaManager"
-],function(dojo, declare, array, geom, AreaManager){
+],function(dojo, declare, array, geom){
 	var vdm = declare(
 		"dojox.mdnd.dropMode.VerticalDropMode",
 		null,
@@ -343,6 +343,6 @@ define("dojox/mdnd/dropMode/VerticalDropMode", [
 	//------------
 	//Singleton
 	//------------
-	AreaManager.areaManager()._dropMode = new vdm();
+	dojox.mdnd.areaManager()._dropMode = new dojox.mdnd.dropMode.VerticalDropMode();
 	return vdm;
 });

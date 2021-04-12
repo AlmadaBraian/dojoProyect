@@ -51,6 +51,5 @@ define("dijit/_editor/nls/LinkDialog", { root:
 "ca": true,
 "bg": true,
 "az": true,
-"ar": true,
-"al": true
+"ar": true
 });

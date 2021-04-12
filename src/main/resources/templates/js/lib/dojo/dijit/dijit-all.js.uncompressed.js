@@ -882,16 +882,18 @@ define([
 		//		'true' to re-enable to previous, arguably broken, behavior.
 		_earlyTemplatedStartup: false,
 
+		// widgetsInTemplate: [protected] Boolean
+		//		Should we parse the template to find widgets that might be
+		//		declared in markup inside it?  (Remove for 2.0 and assume true)
+		widgetsInTemplate: true,
+
 		// contextRequire: Function
 		//		Used to provide a context require to the dojo/parser in order to be
 		//		able to use relative MIDs (e.g. `./Widget`) in the widget's template.
 		contextRequire: null,
 
 		_beforeFillContent: function(){
-			// Short circuit the parser when the template doesn't contain any widgets.  Note that checking against
-			// this.templateString is insufficient because the data-dojo-type=... may appear through a substitution
-			// variable, like in ConfirmDialog, where the widget is hidden inside of the ${!actionBarTemplate}.
-			if(/dojoType|data-dojo-type/i.test(this.domNode.innerHTML)){
+			if(this.widgetsInTemplate){
 				// Before copying over content, instantiate widgets in template
 				var node = this.domNode;
 
@@ -1013,8 +1015,6 @@ define([
 
 	var resolvedDeferred = new Deferred();
 	resolvedDeferred.resolve(true);
-
-	function nop(){}
 
 	var _DialogBase = declare("dijit._DialogBase" + (has("dojo-bidi") ? "_NoBidi" : ""), [_TemplatedMixin, _FormMixin, _DialogMixin, _CssStateMixin], {
 		templateString: template,
@@ -1181,17 +1181,15 @@ define([
 			//		Position the dialog in the viewport.  If no relative offset
 			//		in the viewport has been determined (by dragging, for instance),
 			//		center the dialog.  Otherwise, use the Dialog's stored relative offset,
-			//		clipped to fit inside the viewport (which may have been shrunk).
-			//		Finally, adjust position according to viewport's scroll.
-
+			//		adjusted by the viewport's scroll.
 			if(!domClass.contains(this.ownerDocumentBody, "dojoMove")){    // don't do anything if called during auto-scroll
 				var node = this.domNode,
 					viewport = winUtils.getBox(this.ownerDocument),
 					p = this._relativePosition,
-					bb = domGeometry.position(node),
-					l = Math.floor(viewport.l + (p ? Math.min(p.x, viewport.w - bb.w) : (viewport.w - bb.w) / 2)),
-					t = Math.floor(viewport.t + (p ? Math.min(p.y, viewport.h - bb.h) : (viewport.h - bb.h) / 2));
-
+					bb = p ? null : domGeometry.position(node),
+					l = Math.floor(viewport.l + (p ? p.x : (viewport.w - bb.w) / 2)),
+					t = Math.floor(viewport.t + (p ? p.y : (viewport.h - bb.h) / 2))
+					;
 				domStyle.set(node, {
 					left: l + "px",
 					top: t + "px"
@@ -1283,7 +1281,6 @@ define([
 				fadeIn.stop();
 				delete this._fadeInDeferred;
 			}));
-			this._fadeInDeferred.then(undefined, nop);	// avoid spurious CancelError message to console
 
 			// If delay is 0, code below will delete this._fadeInDeferred instantly, so grab promise while we can.
 			var promise = this._fadeInDeferred.promise;
@@ -1331,7 +1328,6 @@ define([
 				fadeOut.stop();
 				delete this._fadeOutDeferred;
 			}));
-			this._fadeOutDeferred.then(undefined, nop);	// avoid spurious CancelError message to console
 
 			// fire onHide when the promise resolves.
 			this._fadeOutDeferred.then(lang.hitch(this, 'onHide'));
@@ -1408,33 +1404,14 @@ define([
 					viewport.h *= this.maxRatio;
 
 					var bb = domGeometry.position(this.domNode);
-					this._shrunk = false;
-					// First check and limit width, because limiting the width may increase the height due to word wrapping.
-					if(bb.w >= viewport.w){
+					if(bb.w >= viewport.w || bb.h >= viewport.h){
 						dim = {
-							w: viewport.w
+							w: Math.min(bb.w, viewport.w),
+							h: Math.min(bb.h, viewport.h)
 						};
-						domGeometry.setMarginBox(this.domNode, dim);
-						bb = domGeometry.position(this.domNode);
 						this._shrunk = true;
-					}
-					// Now check and limit the height
-					if(bb.h >= viewport.h){
-						if(!dim){
-							dim = {
-								w: bb.w
-							};
-						}
-						dim.h = viewport.h;
-						this._shrunk = true;
-					}
-					if(dim){
-						if(!dim.w){
-							dim.w = bb.w;
-						}
-						if(!dim.h){
-							dim.h = bb.h;
-						}
+					}else{
+						this._shrunk = false;
 					}
 				}
 
@@ -1780,7 +1757,7 @@ var Moveable = declare("dojo.dnd.Moveable", [Evented], {
 		if(this.delay){
 			this.events.push(
 				on(this.handle, touch.move, lang.hitch(this, "onMouseMove")),
-				on(this.handle.ownerDocument, touch.release, lang.hitch(this, "onMouseUp"))
+				on(this.handle, touch.release, lang.hitch(this, "onMouseUp"))
 			);
 			this._lastX = e.pageX;
 			this._lastY = e.pageY;
@@ -3028,6 +3005,7 @@ define([
 	"./_ContentPaneResizeMixin",
 	"dojo/string", // string.substitute
 	"dojo/html", // html._ContentSetter
+	"dojo/i18n!../nls/loading",
 	"dojo/_base/array", // array.forEach
 	"dojo/_base/declare", // declare
 	"dojo/_base/Deferred", // Deferred
@@ -3036,9 +3014,8 @@ define([
 	"dojo/dom-construct", // empty()
 	"dojo/_base/xhr", // xhr.get
 	"dojo/i18n", // i18n.getLocalization
-	"dojo/when",
-	"dojo/i18n!../nls/loading"
-], function(kernel, lang, _Widget, _Container, _ContentPaneResizeMixin, string, html, array, declare,
+	"dojo/when"
+], function(kernel, lang, _Widget, _Container, _ContentPaneResizeMixin, string, html, nlsLoading, array, declare,
 			Deferred, dom, domAttr, domConstruct, xhr, i18n, when){
 
 	// module:
@@ -3535,7 +3512,6 @@ define([
 			// returns:
 			//		Returns a Deferred promise that is resolved when the content is parsed.
 
-			cont = this.preprocessContent(cont);
 			// first get rid of child widgets
 			this.destroyDescendants();
 
@@ -3597,17 +3573,6 @@ define([
 					self._onLoadHandler(cont);
 				}
 			});
-		},
-
-		preprocessContent: function(/*String|DocumentFragment*/ content){
-			// summary:
-			//		Hook, called after content has loaded, before being processed.
-			// description:
-			//		A subclass should preprocess the content and return the preprocessed content.
-			//		See https://bugs.dojotoolkit.org/ticket/9622
-			// returns:
-			//		Returns preprocessed content, either a String or DocumentFragment
-			return content;
 		},
 
 		_onError: function(type, err, consoleText){
@@ -4123,9 +4088,6 @@ define(["./_base/kernel", "./_base/lang", "./_base/array", "./_base/declare", ".
 			domConstruct.empty(node);
 
 			if(cont){
-				if(typeof cont == "number"){
-					cont = cont.toString();
-				}
 				if(typeof cont == "string"){
 					cont = domConstruct.toDom(cont, node.ownerDocument);
 				}
@@ -4212,9 +4174,6 @@ define(["./_base/kernel", "./_base/lang", "./_base/array", "./_base/declare", ".
 				//		If not provided, the object's content property will be used
 				if(undefined !== cont){
 					this.content = cont;
-				}
-				if(typeof cont == 'number'){
-					cont = cont.toString();
 				}
 				// in the re-use scenario, set needs to be able to mixin new configuration
 				if(params){
@@ -4438,9 +4397,6 @@ define(["./_base/kernel", "./_base/lang", "./_base/array", "./_base/declare", ".
 			if(undefined == cont){
 				console.warn("dojo.html.set: no cont argument provided, using empty string");
 				cont = "";
-			}
-			if (typeof cont == 'number'){
-				cont = cont.toString();
 			}
 			if(!params){
 				// simple and fast
@@ -6339,18 +6295,16 @@ define([
 			}
 		},
 
-		postCreate: function(){
-			this.inherited(arguments);
-			this._setLabelFromContainer();
-		},
-
-		_setLabelFromContainer: function(){
-			if(this.containerNode && !this.label){
-				// When markup was set as srcNodeRef.innerHTML, copy it to this.label, in case someone tries to
-				// reference that variable.  Alternately, could have a _getLabelAttr() method to return
-				// this.containerNode.innerHTML.
-				this.label = lang.trim(this.containerNode.innerHTML);
-				this.onLabelSet();		// set this.titleNode.title etc. according to label
+		_fillContent: function(/*DomNode*/ source){
+			// Overrides _Templated._fillContent().
+			// If button label is specified as srcNodeRef.innerHTML rather than
+			// this.params.label, handle it here.
+			// TODO: remove the method in 2.0, parser will do it all for me
+			if(source && (!this.params || !("label" in this.params))){
+				var sourceLabel = lang.trim(source.innerHTML);
+				if(sourceLabel){
+					this.label = sourceLabel; // _applyAttributes will be called after buildRendering completes to update the DOM
+				}
 			}
 		},
 
@@ -6368,7 +6322,13 @@ define([
 			this.set("label", content);
 		},
 
-		onLabelSet: function(){
+		_setLabelAttr: function(/*String*/ content){
+			// summary:
+			//		Hook for set('label', ...) to work.
+			// description:
+			//		Set the label (text) of the button; takes an HTML string.
+			//		If the label is hidden (showLabel=false) then and no title has
+			//		been specified, then label is also set as title attribute of icon.
 			this.inherited(arguments);
 			if(!this.showLabel && !("title" in this.params)){
 				this.titleNode.title = lang.trim(this.containerNode.innerText || this.containerNode.textContent || '');
@@ -6378,7 +6338,7 @@ define([
 
 	if(has("dojo-bidi")){
 		Button = declare("dijit.form.Button", Button, {
-			onLabelSet: function(){
+			_setLabelAttr: function(/*String*/ content){
 				this.inherited(arguments);
 				if(this.titleNode.title){
 					this.applyTextDir(this.titleNode, this.titleNode.title);
@@ -6500,16 +6460,12 @@ define([
 			this._set("label", content);
 			var labelNode = this.containerNode || this.focusNode;
 			labelNode.innerHTML = content;
-			this.onLabelSet();
-		},
-
-		onLabelSet: function(){
 		}
 	});
 
 	if(has("dojo-bidi")){
 		ButtonMixin = declare("dijit.form._ButtonMixin", ButtonMixin, {
-			onLabelSet: function(){
+			_setLabelAttr: function(){
 				this.inherited(arguments);
 				var labelNode = this.containerNode || this.focusNode;
 				this.applyTextDir(labelNode);
@@ -8070,10 +8026,17 @@ define([
 				s = "javascript: '" + src + "'";
 			}
 
-			// Attach to document before setting the content, to avoid problem w/iframe running in
-			// wrong security context (IE9 and IE11), see #16633.
-			this.editingArea.appendChild(ifr);
-			ifr.src = s;
+			if(has("ie") == 9){
+				// On IE9, attach to document before setting the content, to avoid problem w/iframe running in
+				// wrong security context, see #16633.
+				this.editingArea.appendChild(ifr);
+				ifr.src = s;
+			}else{
+				// For other browsers, set src first, especially for IE6/7 where attaching first gives a warning on
+				// https:// about "this page contains secure and insecure items, do you want to view both?"
+				ifr.setAttribute('src', s);
+				this.editingArea.appendChild(ifr);
+			}
 
 			// TODO: this is a guess at the default line-height, kinda works
 			if(dn.nodeName === "LI"){
@@ -14116,7 +14079,7 @@ define([
 			this._set("connectId", newId);
 		},
 
-		addTarget: function(/*DomNode|String*/ node){
+		addTarget: function(/*OomNode|String*/ node){
 			// summary:
 			//		Attach tooltip to specified node if it's not already connected
 
@@ -15358,19 +15321,31 @@ define([
 			if(this.disabled || this.readOnly){ return; }
 			var key = evt.charOrCode;
 
+			var doSearch = false;
 			this._prev_key_backspace = false;
 
-			if (key === keys.DELETE || key === keys.BACKSPACE) {
-				this._prev_key_backspace = true;
-				this._maskValidSubsetError = true;
-			}
+			switch(key){
+				case keys.DELETE:
+				case keys.BACKSPACE:
+					this._prev_key_backspace = true;
+					this._maskValidSubsetError = true;
+					doSearch = true;
+					break;
 
-			// need to wait a tad before start search so that the event
-			// bubbles through DOM and we have value visible
-			if(!this.store){
-				this.onSearch();
-			}else{
-				this.searchTimer = this.defer("_startSearchFromInput", 1);
+				default:
+					// Non char keys (F1-F12 etc..) shouldn't start a search..
+					// Ascii characters and IME input (Chinese, Japanese etc.) should.
+					//IME input produces keycode == 229.
+					doSearch = typeof key == 'string' || key == 229;
+			}
+			if(doSearch){
+				// need to wait a tad before start search so that the event
+				// bubbles through DOM and we have value visible
+				if(!this.store){
+					this.onSearch();
+				}else{
+					this.searchTimer = this.defer("_startSearchFromInput", 1);
+				}
 			}
 		},
 
@@ -16563,7 +16538,6 @@ define([
 'dijit/_editor/plugins/LinkDialog':function(){
 define([
 	"require",
-	"dojo/_base/array",
 	"dojo/_base/declare", // declare
 	"dojo/dom-attr", // domAttr.get
 	"dojo/keys", // keys.ENTER
@@ -16575,7 +16549,7 @@ define([
 	"../_Plugin",
 	"../../form/DropDownButton",
 	"../range"
-], function(require, array, declare, domAttr, keys, lang, on, has, query, string,
+], function(require, declare, domAttr, keys, lang, on, has, query, string,
 	_Plugin, DropDownButton, rangeapi){
 
 	// module:
@@ -16589,21 +16563,6 @@ define([
 		//		The command provided by this plugin is:
 		//
 		//		- createLink
-
-		// allowUnsafeHtml: boolean
-		//		If false (default), the link description will be filtered to prevent HTML content.
-		//		If true no filtering is done, allowing for HTML content within the link element.
-		//		The filter can be specified with the 'linkFilter' option.
-		allowUnsafeHtml: false,
-
-		// linkFilter: function or array of replacement pairs
-		//		If 'allowUnsafeHtml' is false then this filter will be applied to the link Description value.
-		//		function: the function will be invoked with the string value of the Description field and its
-		//			return value will be used
-		//		array: each array item should be an array of two values to pass to String#replace
-		linkFilter: [
-			[/</g, "&lt;"]
-		],
 
 		// Override _Plugin.buttonClass.   This plugin is controlled by a DropDownButton
 		// (which triggers a TooltipDialog).
@@ -16830,16 +16789,6 @@ define([
 			//		protected
 			if(args && args.urlInput){
 				args.urlInput = args.urlInput.replace(/"/g, "&quot;");
-			}
-			if(!this.allowUnsafeHtml && args && args.textInput){
-				if(typeof this.linkFilter === 'function'){
-					args.textInput = this.linkFilter(args.textInput);
-				}
-				else{
-					array.forEach(this.linkFilter, function (currentFilter) {
-						args.textInput = args.textInput.replace(currentFilter[0], currentFilter[1]);
-					});
-				}
 			}
 			return args;
 		},
@@ -17218,15 +17167,8 @@ define([
 	});
 
 	// Register these plugins
-	_Plugin.registry["createLink"] = function(args){
-		var pluginOptions = {
-			command: "createLink",
-			allowUnsafeHtml: ("allowUnsafeHtml" in args) ? args.allowUnsafeHtml : false
-		};
-		if("linkFilter" in args){
-			pluginOptions.linkFilter = args.linkFilter;
-		}
-		return new LinkDialog(pluginOptions);
+	_Plugin.registry["createLink"] = function(){
+		return new LinkDialog({command: "createLink"});
 	};
 	_Plugin.registry["insertImage"] = function(){
 		return new ImgLinkDialog({command: "insertImage"});
@@ -17244,7 +17186,6 @@ define([
 'dijit/form/DropDownButton':function(){
 define([
 	"dojo/_base/declare", // declare
-	"dojo/_base/kernel",
 	"dojo/_base/lang", // hitch
 	"dojo/query", // query
 	"../registry", // registry.byNode
@@ -17254,7 +17195,7 @@ define([
 	"../_HasDropDown",
 	"dojo/text!./templates/DropDownButton.html",
 	"../a11yclick"	// template uses ondijitclick
-], function(declare, kernel, lang, query, registry, popup, Button, _Container, _HasDropDown, template){
+], function(declare, lang, query, registry, popup, Button, _Container, _HasDropDown, template){
 
 	// module:
 	//		dijit/form/DropDownButton
@@ -17279,26 +17220,20 @@ define([
 		templateString: template,
 
 		_fillContent: function(){
-			// Overrides _TemplatedMixin#_fillContent().
-			// My inner HTML possibly contains both the button label and/or a drop down widget, like
+			// Overrides Button._fillContent().
+			//
+			// My inner HTML contains both the button contents and a drop down widget, like
 			// <DropDownButton>  <span>push me</span>  <Menu> ... </Menu> </DropDownButton>
+			// The first node is assumed to be the button content. The widget is the popup.
 
-			var source = this.srcNodeRef;
-			var dest = this.containerNode;
-			if(source && dest){
-				while(source.hasChildNodes()){
-					var child = source.firstChild;
-					if(child.hasAttribute && (child.hasAttribute("data-dojo-type") || child.hasAttribute("dojoType") ||
-							child.hasAttribute("data-" + kernel._scopeName + "-type") ||
-							child.hasAttribute(kernel._scopeName + "Type"))){
-						// The parser hasn't gotten to this node yet, so save it in a wrapper <div>
-						// and then grab the instantiated widget in startup().
-						this.dropDownContainer = this.ownerDocument.createElement("div");
-						this.dropDownContainer.appendChild(child);
-					}else{
-						dest.appendChild(child);
-					}
-				}
+			if(this.srcNodeRef){ // programatically created buttons might not define srcNodeRef
+				//FIXME: figure out how to filter out the widget and use all remaining nodes as button
+				//	content, not just nodes[0]
+				var nodes = query("*", this.srcNodeRef);
+				this.inherited(arguments, [nodes[0]]);
+
+				// save pointer to srcNode so we can grab the drop down widget after it's instantiated
+				this.dropDownContainer = this.srcNodeRef;
 			}
 		},
 
@@ -17310,7 +17245,10 @@ define([
 			// the child widget from srcNodeRef is the dropdown widget.  Insert it in the page DOM,
 			// make it invisible, and store a reference to pass to the popup code.
 			if(!this.dropDown && this.dropDownContainer){
-				this.dropDown = registry.byNode(this.dropDownContainer.firstChild);
+				var dropDownNode = query("[widgetId]", this.dropDownContainer)[0];
+				if(dropDownNode){
+					this.dropDown = registry.byNode(dropDownNode);
+				}
 				delete this.dropDownContainer;
 			}
 			if(this.dropDown){
@@ -19039,7 +18977,7 @@ number._applyPattern = function(/*Number*/ value, /*String*/ pattern, /*number._
 	}else if(pattern.indexOf('\u00a4') != -1){
 		group = options.customs.currencyGroup || group;//mixins instead?
 		decimal = options.customs.currencyDecimal || decimal;// Should these be mixins instead?
-		pattern = pattern.replace(/([\s\xa0\u202f]*)(\u00a4{1,3})([\s\xa0\u202f]*)/, function(match, before, target, after){
+		pattern = pattern.replace(/([\s\xa0]*)(\u00a4{1,3})([\s\xa0]*)/, function(match, before, target, after){
 			var prop = ["symbol", "currency", "displayName"][target.length-1],
 				symbol = options[prop] || options.currency || "";
 			// if there is no symbol, also remove surrounding whitespaces
@@ -19305,7 +19243,7 @@ number._parseInfo = function(/*Object?*/ options){
 
 	if(isCurrency){
 		// substitute the currency symbol for the placeholder in the pattern
-		re = re.replace(/([\s\xa0\u202f]*)(\u00a4{1,3})([\s\xa0\u202f]*)/g, function(match, before, target, after){
+		re = re.replace(/([\s\xa0]*)(\u00a4{1,3})([\s\xa0]*)/g, function(match, before, target, after){
 			var prop = ["symbol", "currency", "displayName"][target.length-1],
 				symbol = dregexp.escapeString(options[prop] || options.currency || "");
 
@@ -19314,8 +19252,8 @@ number._parseInfo = function(/*Object?*/ options){
 				return "";
 			}
 
-			before = before ? "[\\s\\xa0\\u202f]" : "";
-			after = after ? "[\\s\\xa0\\u202f]" : "";
+			before = before ? "[\\s\\xa0]" : "";
+			after = after ? "[\\s\\xa0]" : "";
 			if(!options.strict){
 				if(before){before += "*";}
 				if(after){after += "*";}
@@ -19328,7 +19266,7 @@ number._parseInfo = function(/*Object?*/ options){
 //TODO: substitute localized sign/percent/permille/etc.?
 
 	// normalize whitespace and return
-	return {regexp: re.replace(/[\xa0\u202f ]/g, "[\\s\\xa0\\u202f]"), group: group, decimal: decimal, factor: factor}; // Object
+	return {regexp: re.replace(/[\xa0 ]/g, "[\\s\\xa0]"), group: group, decimal: decimal, factor: factor}; // Object
 };
 
 /*=====
@@ -19380,7 +19318,7 @@ number.parse = function(/*String*/ expression, /*number.__ParseOptions?*/ option
 	// Transform it to something Javascript can parse as a number.  Normalize
 	// decimal point and strip out group separators or alternate forms of whitespace
 	absoluteMatch = absoluteMatch.
-		replace(new RegExp("["+info.group + "\\s\\xa0\\u202f"+"]", "g"), "").
+		replace(new RegExp("["+info.group + "\\s\\xa0"+"]", "g"), "").
 		replace(info.decimal, ".");
 	// Adjust for negative sign, percent, etc. as necessary
 	return absoluteMatch * info.factor; //Number
@@ -19498,7 +19436,6 @@ number._integerRegexp = function(/*number.__IntegerRegexpFlags?*/ flags){
 			sep = dregexp.escapeString(sep);
 			if(sep == " "){ sep = "\\s"; }
 			else if(sep == "\xa0"){ sep = "\\s\\xa0"; }
-			else if(sep == "\u202f"){ sep = "\\s\\u202f"; }
 
 			var grp = flags.groupSize, grp2 = flags.groupSize2;
 			//TODO: should we continue to enforce that numbers with separators begin with 1-9?  See #6933
@@ -19830,7 +19767,7 @@ define([
 
 	// module:
 	//		dojo/fx
-
+	
 	// For back-compat, remove in 2.0.
 	if(!dojo.isAsync){
 		ready(0, function(){
@@ -19992,7 +19929,7 @@ define([
 		//	|		]).play();
 		//	|	});
 		//
-		return new _chain(lang.isArray(animations) ? animations : Array.prototype.slice.call(animations, 0)); // dojo/_base/fx.Animation
+		return new _chain(animations); // dojo/_base/fx.Animation
 	};
 
 	var _combine = function(animations){
@@ -20075,9 +20012,8 @@ define([
 		//		Combine a list of `dojo/_base/fx.Animation`s to run in parallel
 		//
 		// description:
-		//		Combine an array of `dojo/_base/fx.Animation`s or N
-		//		`dojo/_base/fx.Animation`s  to run in parallel, providing
-		//		a new `dojo/_base/fx.Animation` instance encompassing each
+		//		Combine an array of `dojo/_base/fx.Animation`s to run in parallel,
+		//		providing a new `dojo/_base/fx.Animation` instance encompasing each
 		//		animation, firing standard animation events.
 		//
 		// example:
@@ -20102,7 +20038,7 @@ define([
 		//	|		anim.play(); // play the animation
 		//	|	});
 		//
-		return new _combine(lang.isArray(animations) ? animations : Array.prototype.slice.call(animations, 0)); // dojo/_base/fx.Animation
+		return new _combine(animations); // dojo/_base/fx.Animation
 	};
 
 	coreFx.wipeIn = function(/*Object*/ args){
@@ -21304,7 +21240,7 @@ define([
 				return all(array.map(paths, function(path){
 					// normalize path to use identity
 					path = array.map(path, function(item){
-						return item && lang.isObject(item) ? tree.model.getIdentity(item) : item;
+						return lang.isString(item) ? item : tree.model.getIdentity(item);
 					});
 
 					if(path.length){
@@ -21834,23 +21770,10 @@ define([
 			//		Focus on the specified node (which must be visible)
 			// tags:
 			//		protected
-                        var tmp = [];
-                        for(var domNode = this.domNode; 
-                            domNode && domNode.tagName && domNode.tagName.toUpperCase() !== 'IFRAME';
-                            domNode = domNode.parentNode) {
-                            tmp.push({
-                                domNode: domNode.contentWindow || domNode,
-                                scrollLeft: domNode.scrollLeft || 0,
-                                scrollTop: domNode.scrollTop || 0
-                            });
-                        }
+
+			var scrollLeft = this.domNode.scrollLeft;
 			this.focusChild(node);
-			this.defer(function() {
-                            for (var i = 0, max = tmp.length; i < max; i++) {
-                                tmp[i].domNode.scrollLeft = tmp[i].scrollLeft;
-                                tmp[i].domNode.scrollTop = tmp[i].scrollTop;
-                            }
-			}, 0);
+			this.domNode.scrollLeft = scrollLeft;
 		},
 
 		_onNodeMouseEnter: function(/*dijit/_WidgetBase*/ /*===== node =====*/){
@@ -24618,7 +24541,6 @@ define([
 				e.preventDefault();
 				return false;
 			}
-
 			if(this.readOnly){ // ignored by some browsers so we have to resync the DOM elements with widget values
 				e.stopPropagation();
 				e.preventDefault();
@@ -24627,44 +24549,7 @@ define([
 				}));
 				return false;
 			}
-
-			// RadioButton has some unique logic since it must enforce only a single button being checked at once
-			// For this reason the "_onClick" method does not call this.inherited
-
-			var canceled = false;
-			var previouslyCheckedButton;
-
-			array.some(this._getRelatedWidgets(), function(radioButton){
-				if(radioButton.checked){
-					previouslyCheckedButton = radioButton;
-					return true;
-				}
-				return false;
-			});
-
-			// We want to set the post-click values correctly for any event handlers, but since
-			// the event handlers could revert them, we don't want to fully update the widget state
-			// yet and trigger notifications
-			this.checked = true;
-			previouslyCheckedButton && (previouslyCheckedButton.checked = false);
-
-			// Call event handlers
-			// If event handler prevents it, the clicked radio button will not be checked
-			if(this.onClick(e) === false || e.defaultPrevented){
-				canceled = true;
-			}
-
-			// Reset internal state to how it was before the click
-			this.checked = false;
-			previouslyCheckedButton && (previouslyCheckedButton.checked = true);
-
-			if(canceled){
-				e.preventDefault();
-			}else{
-				this.set('checked', true);
-			}
-
-			return !canceled;
+			return this.inherited(arguments);
 		}
 	});
 });
@@ -24909,7 +24794,7 @@ monetary.getData = function(/*String*/ code){
 
 	var placesData = {
 		ADP:0,AFN:0,ALL:0,AMD:0,BHD:3,BIF:0,BYR:0,CLF:0,CLP:0,
-		COP:2,CRC:0,DJF:0,ESP:0,GNF:0,GYD:0,HUF:0,IDR:0,IQD:0,
+		COP:0,CRC:0,DJF:0,ESP:0,GNF:0,GYD:0,HUF:0,IDR:0,IQD:0,
 		IRR:3,ISK:0,ITL:0,JOD:3,JPY:0,KMF:0,KPW:0,KRW:0,KWD:3,
 		LAK:0,LBP:0,LUF:0,LYD:3,MGA:0,MGF:0,MMK:0,MNT:0,MRO:0,
 		MUR:0,OMR:3,PKR:2,PYG:0,RSD:0,RWF:0,SLL:0,SOS:0,STD:0,
@@ -25068,19 +24953,13 @@ define([
 			this._decimalInfo = getDecimalInfo(constraints);
 		},
 
-		_onFocus: function(/*String*/ by){
+		_onFocus: function(){
 			if(this.disabled || this.readOnly){ return; }
 			var val = this.get('value');
 			if(typeof val == "number" && !isNaN(val)){
 				var formattedValue = this.format(val, this.constraints);
 				if(formattedValue !== undefined){
 					this.textbox.value = formattedValue;
-					// when NumberTextBox or descendants (i.e. CurrencyTextBox) format textbox.value when focused
-					// all browsers except Chrome will select textbox contents when tabbed to by keyboard
-					// force selection if not focused by mouse
-					if (by !== "mouse") {
-						this.textbox.select();
-					}
 				}
 			}
 			this.inherited(arguments);
@@ -25126,13 +25005,8 @@ define([
 			//		Replaceable function to convert a formatted string to a number value
 			// tags:
 			//		protected extension
-			var parserOptions = lang.mixin({}, constraints, (this.editOptions && this.focused) ? this.editOptions : {})
-			if(this.focused && parserOptions.places != null /* or undefined */){
-				var places = parserOptions.places;
-				var maxPlaces = typeof places === "number" ? places : Number(places.split(",").pop()); // handle number and range
-				parserOptions.places = "0," + maxPlaces;
-			}
-			var v = this._parser(value, parserOptions);
+
+			var v = this._parser(value, lang.mixin({}, constraints, (this.editOptions && this.focused) ? this.editOptions : {}));
 			if(this.editOptions && this.focused && isNaN(v)){
 				v = this._parser(value, constraints); // parse w/o editOptions: not technically needed but is nice for the user
 			}
@@ -27021,7 +26895,6 @@ define([
 	"dojo/date/stamp", // stamp.fromISOString
 	"dojo/dom", // dom.setSelectable
 	"dojo/dom-class", // domClass.contains
-	"dojo/dom-attr",
 	"dojo/_base/lang", // lang.getObject, lang.hitch
 	"dojo/on",
 	"dojo/sniff", // has("ie") has("webkit")
@@ -27031,7 +26904,7 @@ define([
 	"dojo/text!./templates/Calendar.html",
 	"./a11yclick",	// not used directly, but template has ondijitclick in it
 	"./hccss"    // not used directly, but sets CSS class on <body>
-], function(array, declare, cldrSupplemental, date, locale, stamp, dom, domClass, domAttr, lang, on, has, string, _WidgetBase, _TemplatedMixin, template){
+], function(array, declare, cldrSupplemental, date, locale, stamp, dom, domClass, lang, on, has, string, _WidgetBase, _TemplatedMixin, template){
 
 
 	// module:
@@ -27087,12 +26960,6 @@ define([
 		// tabIndex: String
 		//		Order fields are traversed when user hits the tab key
 		tabIndex: "0",
-
-		// dayOffset: Integer
-		//		(Optional) The first day of week override. By default the first day of week is determined
-		//		for the current locale (extracted from the CLDR).
-		//		Special value -1 (default value), means use locale dependent value.
-		dayOffset: -1,
 
 		// currentFocus: Date
 		//		Date object containing the currently focused date, or the date which would be focused
@@ -27209,7 +27076,7 @@ define([
 				daysInMonth = this.dateModule.getDaysInMonth(month),
 				daysInPreviousMonth = this.dateModule.getDaysInMonth(this.dateModule.add(month, "month", -1)),
 				today = new this.dateClassObj(),
-				dayOffset = this.dayOffset >= 0 ? this.dayOffset : cldrSupplemental.getFirstDayOfWeek(this.lang);
+				dayOffset = cldrSupplemental.getFirstDayOfWeek(this.lang);
 			if(dayOffset > firstDay){
 				dayOffset -= 7;
 			}
@@ -27273,13 +27140,7 @@ define([
 				template.dijitDateValue = dateVal;
 
 				// Set Date string (ex: "13").
-
-				var localizedDate = date.getDateLocalized ? date.getDateLocalized(this.lang) : date.getDate()
-				this._setText(this.dateLabels[idx], localizedDate);
-				domAttr.set(template, 'aria-label', locale.format(date, {
-					selector: 'date',
-					formatLength: 'long'
-				}));
+				this._setText(this.dateLabels[idx], date.getDateLocalized ? date.getDateLocalized(this.lang) : date.getDate());
 			}, this);
 		},
 
@@ -27340,7 +27201,7 @@ define([
 			// Markup for days of the week (referenced from template)
 			var d = this.dowTemplateString,
 				dayNames = this.dateLocaleModule.getNames('days', this.dayWidth, 'standAlone', this.lang),
-				dayOffset = this.dayOffset >= 0 ? this.dayOffset : cldrSupplemental.getFirstDayOfWeek(this.lang);
+				dayOffset = cldrSupplemental.getFirstDayOfWeek(this.lang);
 			this.dayCellsHtml = string.substitute([d, d, d, d, d, d, d].join(""), {d: ""}, function(){
 				return dayNames[dayOffset++ % 7];
 			});
@@ -27761,10 +27622,7 @@ define([
 			if(this.value instanceof Date){
 				this.filterString = "";
 			}
-
-			// Set the dropdown's value to match, unless we are being updated due to the user navigating the TimeTextBox
-			// dropdown via up/down arrow keys.
-			if(priorityChange !== false && this.dropDown){
+			if(this.dropDown){
 				this.dropDown.set('value', value, false);
 			}
 		},
@@ -27852,11 +27710,10 @@ define([
 define([
 	"dojo/_base/declare", // declare
 	"dojo/keys", // keys.DOWN_ARROW keys.ENTER keys.ESCAPE keys.TAB keys.UP_ARROW
-	"dojo/query",
 	"dojo/_base/lang", // lang.hitch
 	"../_TimePicker",
 	"./_DateTimeTextBox"
-], function(declare, keys, query, lang, _TimePicker, _DateTimeTextBox){
+], function(declare, keys, lang, _TimePicker, _DateTimeTextBox){
 
 	// module:
 	//		dijit/form/TimeTextBox
@@ -27894,27 +27751,6 @@ define([
 
 		// Add scrollbars if necessary so that dropdown doesn't cover the <input>
 		maxHeight: -1,
-
-		openDropDown: function(/*Function*/ callback){
-			this.inherited(arguments);
-
-			// Fix #18683
-			var selectedNode = query(".dijitTimePickerItemSelected", this.dropDown.domNode),
-				parentNode=this.dropDown.domNode.parentNode;
-			if(selectedNode[0]){
-				// Center the selected node in the client area of the popup.
-				parentNode.scrollTop=selectedNode[0].offsetTop-(parentNode.clientHeight-selectedNode[0].clientHeight)/2;
-			}else{
-				// There is no currently selected value. Position the list so that the median
-				// node is visible.
-				parentNode.scrollTop=(parentNode.scrollHeight-parentNode.clientHeight)/2;
-            }
-
-			// For screen readers, as user arrows through values, populate <input> with latest value.
-			this.dropDown.on("input", lang.hitch(this, function(){
-				this.set('value', this.dropDown.get("value"), false);
-			}));
-		},
 
 		_onInput: function(){
 			this.inherited(arguments);
@@ -28096,22 +27932,21 @@ define([
 
 		_getFilteredNodes: function(/*number*/ start, /*number*/ maxNum, /*Boolean*/ before, /*DOMNode*/ lastNode){
 			// summary:
-			//		Returns a DocumentFragment of nodes with the filter applied.  At most maxNum nodes
+			//		Returns an array of nodes with the filter applied.  At most maxNum nodes
 			//		will be returned - but fewer may be returned as well.  If the
 			//		before parameter is set to true, then it will return the elements
 			//		before the given index
 			// tags:
 			//		private
 
-			var nodes = this.ownerDocument.createDocumentFragment();
+			var nodes = [];
 
 			for(var i = 0 ; i < this._maxIncrement; i++){
 				var n = this._createOption(i);
 				if(n){
-					nodes.appendChild(n);
+					nodes.push(n);
 				}
 			}
-
 			return nodes;
 		},
 
@@ -28151,14 +27986,15 @@ define([
 			var visibleRange = (endDate.getTime() - this._refDate.getTime()) * 0.001;
 			this._maxIncrement = Math.ceil((visibleRange + 1) / clickableIncrementSeconds);
 
-			var nodes = this._getFilteredNodes();
+			var nodes  = this._getFilteredNodes();
+			array.forEach(nodes, function(n){
+				this.domNode.appendChild(n);
+			}, this);
 
 			// never show empty due to a bad filter
-			if(!nodes.firstChild && this.filterString){
+			if(!nodes.length && this.filterString){
 				this.filterString = '';
 				this._showText();
-			}else{
-				this.domNode.appendChild(nodes);
 			}
 		},
 
@@ -28223,26 +28059,24 @@ define([
 				innerHTML: dateString
 			}, div);
 
-			var marker = index % this._visibleIncrement < 1 && index % this._visibleIncrement > -1,
-				tick = !marker && !(index % this._clickableIncrement);
-			if(marker){
-				div.className += " " + this.baseClass + "Marker";
-			}else if(tick){
-				div.className += " " + this.baseClass + "Tick";
+			if(index % this._visibleIncrement < 1 && index % this._visibleIncrement > -1){
+				domClass.add(div, this.baseClass + "Marker");
+			}else if(!(index % this._clickableIncrement)){
+				domClass.add(div, this.baseClass + "Tick");
 			}
 
 			if(this.isDisabledDate(date)){
 				// set disabled
-				div.className += " " + this.baseClass + "ItemDisabled";
+				domClass.add(div, this.baseClass + "ItemDisabled");
 			}
 			if(this.value && !ddate.compare(this.value, date, this.constraints.selector)){
 				div.selected = true;
-				div.className += " " + this.baseClass + "ItemSelected";
+				domClass.add(div, this.baseClass + "ItemSelected");
 				this._selectedDiv = div;
-				if(marker){
-					div.className += " " + this.baseClass + "MarkerSelected";
-				}else if(tick){
-					div.className += " " + this.baseClass + "TickSelected";
+				if(domClass.contains(div, this.baseClass + "Marker")){
+					domClass.add(div, this.baseClass + "MarkerSelected");
+				}else{
+					domClass.add(div, this.baseClass + "TickSelected");
 				}
 
 				// Initially highlight the current value.   User can change highlight by up/down arrow keys
@@ -28259,26 +28093,18 @@ define([
 			this.set("selected", this._selectedDiv);
 		},
 
-		_onOptionSelected: function(/*Object*/ tgt, /*Boolean*/ change){
+		_onOptionSelected: function(/*Object*/ tgt){
 			// summary:
-			//		Called when user clicks or keys to an option in the drop down list
-			// tgt: Object
-			//		tgt.target specifies the node that was clicked
-			// change: Boolean
-			//		If true, fire "change" event, otherwise just fire "input" event.
+			//		Called when user clicks an option in the drop down list
 			// tags:
 			//		private
 			var tdate = tgt.target.date || tgt.target.parentNode.date;
 			if(!tdate || this.isDisabledDate(tdate)){
 				return;
 			}
-			this._set('value', tdate);
-			this.emit("input");
-			if(change) {
-				this._highlighted_option = null;
-				this.set('value', tdate);
-				this.onChange(tdate);
-			}
+			this._highlighted_option = null;
+			this.set('value', tdate);
+			this.onChange(tdate);
 		},
 
 		onChange: function(/*Date*/ /*===== time =====*/){
@@ -28322,13 +28148,11 @@ define([
 			//		protected
 			if(e.keyCode == keys.DOWN_ARROW){
 				this.selectNextNode();
-				this._onOptionSelected({target: this._highlighted_option}, false);
 				e.stopPropagation();
 				e.preventDefault();
 				return false;
 			}else if(e.keyCode == keys.UP_ARROW){
 				this.selectPreviousNode();
-				this._onOptionSelected({target: this._highlighted_option}, false);
 				e.stopPropagation();
 				e.preventDefault();
 				return false;
@@ -28340,7 +28164,7 @@ define([
 
 				// Accept the currently-highlighted option as the value
 				if(this._highlighted_option){
-					this._onOptionSelected({target: this._highlighted_option}, true);
+					this._onOptionSelected({target: this._highlighted_option});
 				}
 
 				// Call stopEvent() for ENTER key so that form doesn't submit,
@@ -28368,7 +28192,7 @@ define([
 		},
 
 		onClick: function(/*DomNode*/ node){
-			this._onOptionSelected({target: node}, true);
+			this._onOptionSelected({target: node});
 		}
 	});
 
@@ -29698,10 +29522,10 @@ define([
 					}
 					this.onLoadDeferred.resolve(true);
 					this.onSetStore();
-				}), lang.hitch(this, function(err){
+				}), function(err){
 					console.error('dijit.form.Select: ' + err.toString());
 					this.onLoadDeferred.reject(err);
-				}));
+				});
 			}
 			return oStore;	// dojo/data/api/Identity
 		},
@@ -30411,8 +30235,7 @@ define([
 				count = c[this._pixelCount];
 			}
 			count--;
-			// the division is imprecise so the expression has to be rounded to avoid long floating numbers
-			var value = Math.round((this.value - this.minimum) * count / (this.maximum - this.minimum)) + signedChange;
+			var value = (this.value - this.minimum) * count / (this.maximum - this.minimum) + signedChange;
 			if(value < 0){
 				value = 0;
 			}
@@ -30919,7 +30742,6 @@ define([
 			}
 			// if the labels were not specified directly and not as <li> children, then calculate numeric labels
 			if(!labels.length && this.count > 1){
-				labels = [];	// avoid modifying labels[] array in the prototype
 				var start = this.minimum;
 				var inc = (this.maximum - start) / (this.count - 1);
 				for(var i = 0; i < this.count; i++){
@@ -31309,10 +31131,6 @@ define([
 	// During animation there are two dijtAccordionChildWrapper's shown, so we need
 	// to compensate for that.
 
-	function size(widget, dim){
-		widget.resize ? widget.resize(dim) : domGeometry.setMarginBox(widget.domNode, dim);
-	}
-
 	var AccordionButton = declare("dijit.layout._AccordionButton", [_Widget, _TemplatedMixin, _CssStateMixin], {
 		// summary:
 		//		The title bar to click to open up an accordion pane.
@@ -31616,7 +31434,7 @@ define([
 			};
 
 			if(openPane){
-				size(openPane, this._containerContentBox);
+				openPane.resize(this._containerContentBox);
 			}
 		},
 
@@ -31718,8 +31536,8 @@ define([
 				// Size the new widget, in case this is the first time it's being shown,
 				// or I have been resized since the last time it was shown.
 				// Note that page must be visible for resizing to work.
-				if(this.doLayout){
-					size(newWidget, this._containerContentBox);
+				if(this.doLayout && newWidget.resize){
+					newWidget.resize(this._containerContentBox);
 				}
 			}
 
@@ -32166,7 +31984,7 @@ define([
 			//		If onClose() returns true then remove and destroy the child.
 			// tags:
 			//		private
-			var remove = !page.onClose || page.onClose(this, page);
+			var remove = page.onClose && page.onClose(this, page);
 			if(remove){
 				this.removeChild(page);
 				// makes sure we can clean up executeScripts in ContentPane onUnLoad
@@ -33670,12 +33488,6 @@ define([
 			this.inherited(arguments);
 		},
 
-		removeChild: function(/*dijit/_WidgetBase*/ child) {
-			// Overrides StackContainer.removeChild().
-			domClass.remove(child.domNode, "dijitTabPane");
-			this.inherited(arguments);
-		},
-
 		startup: function(){
 			if(this._started){
 				return;
@@ -34864,7 +34676,7 @@ define([
 'url:dijit/form/templates/TextBox.html':"<div class=\"dijit dijitReset dijitInline dijitLeft\" id=\"widget_${id}\" role=\"presentation\"\n\t><div class=\"dijitReset dijitInputField dijitInputContainer\"\n\t\t><input class=\"dijitReset dijitInputInner\" data-dojo-attach-point='textbox,focusNode' autocomplete=\"off\"\n\t\t\t${!nameAttrSetting} type='${type}'\n\t/></div\n></div>\n",
 'url:dijit/templates/Tooltip.html':"<div class=\"dijitTooltip dijitTooltipLeft\" id=\"dojoTooltip\" data-dojo-attach-event=\"mouseenter:onMouseEnter,mouseleave:onMouseLeave\"\n\t><div class=\"dijitTooltipConnector\" data-dojo-attach-point=\"connectorNode\"></div\n\t><div class=\"dijitTooltipContainer dijitTooltipContents\" data-dojo-attach-point=\"containerNode\" role='alert'></div\n></div>\n",
 'url:dijit/form/templates/ValidationTextBox.html':"<div class=\"dijit dijitReset dijitInline dijitLeft\"\n\tid=\"widget_${id}\" role=\"presentation\"\n\t><div class='dijitReset dijitValidationContainer'\n\t\t><input class=\"dijitReset dijitInputField dijitValidationIcon dijitValidationInner\" value=\"&#935; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t/></div\n\t><div class=\"dijitReset dijitInputField dijitInputContainer\"\n\t\t><input class=\"dijitReset dijitInputInner\" data-dojo-attach-point='textbox,focusNode' autocomplete=\"off\"\n\t\t\t${!nameAttrSetting} type='${type}'\n\t/></div\n></div>\n",
-'url:dijit/form/templates/DropDownBox.html':"<div class=\"dijit dijitReset dijitInline dijitLeft\"\n\tid=\"widget_${id}\"\n\trole=\"combobox\"\n\taria-haspopup=\"true\"\n\tdata-dojo-attach-point=\"_popupStateNode\"\n\t><div class='dijitReset dijitRight dijitButtonNode dijitArrowButton dijitDownArrowButton dijitArrowButtonContainer'\n\t\tdata-dojo-attach-point=\"_buttonNode\" role=\"presentation\"\n\t\t><input class=\"dijitReset dijitInputField dijitArrowButtonInner\" value=\"&#9660; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"button presentation\" aria-hidden=\"true\"\n\t\t\t${_buttonInputDisabled}\n\t/></div\n\t><div class='dijitReset dijitValidationContainer'\n\t\t><input class=\"dijitReset dijitInputField dijitValidationIcon dijitValidationInner\" value=\"&#935; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t/></div\n\t><div class=\"dijitReset dijitInputField dijitInputContainer\"\n\t\t><input class='dijitReset dijitInputInner' ${!nameAttrSetting} type=\"${type}\" autocomplete=\"off\"\n\t\t\tdata-dojo-attach-point=\"textbox,focusNode\" role=\"textbox\"\n\t/></div\n></div>\n",
+'url:dijit/form/templates/DropDownBox.html':"<div class=\"dijit dijitReset dijitInline dijitLeft\"\n\tid=\"widget_${id}\"\n\trole=\"combobox\"\n\taria-haspopup=\"true\"\n\tdata-dojo-attach-point=\"_popupStateNode\"\n\t><div class='dijitReset dijitRight dijitButtonNode dijitArrowButton dijitDownArrowButton dijitArrowButtonContainer'\n\t\tdata-dojo-attach-point=\"_buttonNode\" role=\"presentation\"\n\t\t><input class=\"dijitReset dijitInputField dijitArrowButtonInner\" value=\"&#9660; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"button presentation\" aria-hidden=\"true\"\n\t\t\t${_buttonInputDisabled}\n\t/></div\n\t><div class='dijitReset dijitValidationContainer'\n\t\t><input class=\"dijitReset dijitInputField dijitValidationIcon dijitValidationInner\" value=\"&#935; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t/></div\n\t><div class=\"dijitReset dijitInputField dijitInputContainer\"\n\t\t><input class='dijitReset dijitInputInner' ${!nameAttrSetting} type=\"text\" autocomplete=\"off\"\n\t\t\tdata-dojo-attach-point=\"textbox,focusNode\" role=\"textbox\"\n\t/></div\n></div>\n",
 'url:dijit/form/templates/DropDownButton.html':"<span class=\"dijit dijitReset dijitInline\"\n\t><span class='dijitReset dijitInline dijitButtonNode'\n\t\tdata-dojo-attach-event=\"ondijitclick:__onClick\" data-dojo-attach-point=\"_buttonNode\"\n\t\t><span class=\"dijitReset dijitStretch dijitButtonContents\"\n\t\t\tdata-dojo-attach-point=\"focusNode,titleNode,_arrowWrapperNode,_popupStateNode\"\n\t\t\trole=\"button\" aria-haspopup=\"true\" aria-labelledby=\"${id}_label\"\n\t\t\t><span class=\"dijitReset dijitInline dijitIcon\"\n\t\t\t\tdata-dojo-attach-point=\"iconNode\"\n\t\t\t></span\n\t\t\t><span class=\"dijitReset dijitInline dijitButtonText\"\n\t\t\t\tdata-dojo-attach-point=\"containerNode\"\n\t\t\t\tid=\"${id}_label\"\n\t\t\t></span\n\t\t\t><span class=\"dijitReset dijitInline dijitArrowButtonInner\"></span\n\t\t\t><span class=\"dijitReset dijitInline dijitArrowButtonChar\">&#9660;</span\n\t\t></span\n\t></span\n\t><input ${!nameAttrSetting} type=\"${type}\" value=\"${value}\" class=\"dijitOffScreen\" tabIndex=\"-1\"\n\t\tdata-dojo-attach-event=\"onclick:_onClick\" data-dojo-attach-point=\"valueNode\" aria-hidden=\"true\"\n/></span>\n",
 'url:dijit/templates/Menu.html':"<table class=\"dijit dijitMenu dijitMenuPassive dijitReset dijitMenuTable\" role=\"menu\" tabIndex=\"${tabIndex}\"\n\t   cellspacing=\"0\">\n\t<tbody class=\"dijitReset\" data-dojo-attach-point=\"containerNode\"></tbody>\n</table>\n",
 'url:dijit/templates/MenuItem.html':"<tr class=\"dijitReset\" data-dojo-attach-point=\"focusNode\" role=\"menuitem\" tabIndex=\"-1\">\n\t<td class=\"dijitReset dijitMenuItemIconCell\" role=\"presentation\">\n\t\t<span role=\"presentation\" class=\"dijitInline dijitIcon dijitMenuItemIcon\" data-dojo-attach-point=\"iconNode\"></span>\n\t</td>\n\t<td class=\"dijitReset dijitMenuItemLabel\" colspan=\"2\" data-dojo-attach-point=\"containerNode,textDirNode\"\n\t\trole=\"presentation\"></td>\n\t<td class=\"dijitReset dijitMenuItemAccelKey\" style=\"display: none\" data-dojo-attach-point=\"accelKeyNode\"></td>\n\t<td class=\"dijitReset dijitMenuArrowCell\" role=\"presentation\">\n\t\t<span data-dojo-attach-point=\"arrowWrapper\" style=\"visibility: hidden\">\n\t\t\t<span class=\"dijitInline dijitIcon dijitMenuExpand\"></span>\n\t\t\t<span class=\"dijitMenuExpandA11y\">+</span>\n\t\t</span>\n\t</td>\n</tr>\n",
@@ -34879,7 +34691,7 @@ define([
 'url:dijit/templates/InlineEditBox.html':"<span data-dojo-attach-point=\"editNode\" role=\"presentation\" class=\"dijitReset dijitInline dijitOffScreen\"\n\t><span data-dojo-attach-point=\"editorPlaceholder\"></span\n\t><span data-dojo-attach-point=\"buttonContainer\"\n\t\t><button data-dojo-type=\"./form/Button\" data-dojo-props=\"label: '${buttonSave}', 'class': 'saveButton'\"\n\t\t\tdata-dojo-attach-point=\"saveButton\" data-dojo-attach-event=\"onClick:save\"></button\n\t\t><button data-dojo-type=\"./form/Button\"  data-dojo-props=\"label: '${buttonCancel}', 'class': 'cancelButton'\"\n\t\t\tdata-dojo-attach-point=\"cancelButton\" data-dojo-attach-event=\"onClick:cancel\"></button\n\t></span\n></span>\n",
 'url:dijit/form/templates/ComboButton.html':"<table class=\"dijit dijitReset dijitInline dijitLeft\"\n\tcellspacing='0' cellpadding='0' role=\"presentation\"\n\t><tbody role=\"presentation\"><tr role=\"presentation\"\n\t\t><td class=\"dijitReset dijitStretch dijitButtonNode\" data-dojo-attach-point=\"buttonNode\" data-dojo-attach-event=\"ondijitclick:__onClick,onkeydown:_onButtonKeyDown\"\n\t\t><div id=\"${id}_button\" class=\"dijitReset dijitButtonContents\"\n\t\t\tdata-dojo-attach-point=\"titleNode\"\n\t\t\trole=\"button\" aria-labelledby=\"${id}_label\"\n\t\t\t><div class=\"dijitReset dijitInline dijitIcon\" data-dojo-attach-point=\"iconNode\" role=\"presentation\"></div\n\t\t\t><div class=\"dijitReset dijitInline dijitButtonText\" id=\"${id}_label\" data-dojo-attach-point=\"containerNode\" role=\"presentation\"></div\n\t\t></div\n\t\t></td\n\t\t><td id=\"${id}_arrow\" class='dijitReset dijitRight dijitButtonNode dijitArrowButton'\n\t\t\tdata-dojo-attach-point=\"_popupStateNode,focusNode,_buttonNode\"\n\t\t\tdata-dojo-attach-event=\"onkeydown:_onArrowKeyDown\"\n\t\t\ttitle=\"${optionsTitle}\"\n\t\t\trole=\"button\" aria-haspopup=\"true\"\n\t\t\t><div class=\"dijitReset dijitArrowButtonInner\" role=\"presentation\"></div\n\t\t\t><div class=\"dijitReset dijitArrowButtonChar\" role=\"presentation\">&#9660;</div\n\t\t></td\n\t\t><td style=\"display:none !important;\"\n\t\t\t><input ${!nameAttrSetting} type=\"${type}\" value=\"${value}\" data-dojo-attach-point=\"valueNode\"\n\t\t\t\tclass=\"dijitOffScreen\" aria-hidden=\"true\" data-dojo-attach-event=\"onclick:_onClick\"\n\t\t/></td></tr></tbody\n></table>\n",
 'url:dijit/form/templates/CheckBox.html':"<div class=\"dijit dijitReset dijitInline\" role=\"presentation\"\n\t><input\n\t \t${!nameAttrSetting} type=\"${type}\" role=\"${type}\" aria-checked=\"false\" ${checkedAttrSetting}\n\t\tclass=\"dijitReset dijitCheckBoxInput\"\n\t\tdata-dojo-attach-point=\"focusNode\"\n\t \tdata-dojo-attach-event=\"ondijitclick:_onClick\"\n/></div>\n",
-'url:dijit/templates/Calendar.html':"<div class=\"dijitCalendarContainer dijitInline\" role=\"presentation\" aria-labelledby=\"${id}_mddb ${id}_year\">\n\t<div class=\"dijitReset dijitCalendarMonthContainer\" role=\"presentation\">\n\t\t<div class='dijitReset dijitCalendarArrow dijitCalendarDecrementArrow' data-dojo-attach-point=\"decrementMonth\">\n\t\t\t<img src=\"${_blankGif}\" alt=\"\" class=\"dijitCalendarIncrementControl dijitCalendarDecrease\" role=\"presentation\"/>\n\t\t\t<span data-dojo-attach-point=\"decreaseArrowNode\" class=\"dijitA11ySideArrow\">-</span>\n\t\t</div>\n\t\t<div class='dijitReset dijitCalendarArrow dijitCalendarIncrementArrow' data-dojo-attach-point=\"incrementMonth\">\n\t\t\t<img src=\"${_blankGif}\" alt=\"\" class=\"dijitCalendarIncrementControl dijitCalendarIncrease\" role=\"presentation\"/>\n\t\t\t<span data-dojo-attach-point=\"increaseArrowNode\" class=\"dijitA11ySideArrow\">+</span>\n\t\t</div>\n\t\t<div data-dojo-attach-point=\"monthNode\" class=\"dijitInline\"></div>\n\t</div>\n\t<table cellspacing=\"0\" cellpadding=\"0\" role=\"grid\" data-dojo-attach-point=\"gridNode\">\n\t\t<thead>\n\t\t\t<tr role=\"row\">\n\t\t\t\t${!dayCellsHtml}\n\t\t\t</tr>\n\t\t</thead>\n\t\t<tbody data-dojo-attach-point=\"dateRowsNode\" data-dojo-attach-event=\"ondijitclick: _onDayClick\" class=\"dijitReset dijitCalendarBodyContainer\">\n\t\t\t\t${!dateRowsHtml}\n\t\t</tbody>\n\t</table>\n\t<div class=\"dijitReset dijitCalendarYearContainer\" role=\"presentation\">\n\t\t<div class=\"dijitCalendarYearLabel\">\n\t\t\t<span data-dojo-attach-point=\"previousYearLabelNode\" class=\"dijitInline dijitCalendarPreviousYear\" role=\"button\"></span>\n\t\t\t<span data-dojo-attach-point=\"currentYearLabelNode\" class=\"dijitInline dijitCalendarSelectedYear\" role=\"button\" id=\"${id}_year\"></span>\n\t\t\t<span data-dojo-attach-point=\"nextYearLabelNode\" class=\"dijitInline dijitCalendarNextYear\" role=\"button\"></span>\n\t\t</div>\n\t</div>\n</div>\n",
+'url:dijit/templates/Calendar.html':"<table cellspacing=\"0\" cellpadding=\"0\" class=\"dijitCalendarContainer\" role=\"grid\" aria-labelledby=\"${id}_mddb ${id}_year\" data-dojo-attach-point=\"gridNode\">\n\t<thead>\n\t\t<tr class=\"dijitReset dijitCalendarMonthContainer\" valign=\"top\">\n\t\t\t<th class='dijitReset dijitCalendarArrow' data-dojo-attach-point=\"decrementMonth\" scope=\"col\">\n\t\t\t\t<span class=\"dijitInline dijitCalendarIncrementControl dijitCalendarDecrease\" role=\"presentation\"></span>\n\t\t\t\t<span data-dojo-attach-point=\"decreaseArrowNode\" class=\"dijitA11ySideArrow\">-</span>\n\t\t\t</th>\n\t\t\t<th class='dijitReset' colspan=\"5\" scope=\"col\">\n\t\t\t\t<div data-dojo-attach-point=\"monthNode\">\n\t\t\t\t</div>\n\t\t\t</th>\n\t\t\t<th class='dijitReset dijitCalendarArrow' scope=\"col\" data-dojo-attach-point=\"incrementMonth\">\n\t\t\t\t<span class=\"dijitInline dijitCalendarIncrementControl dijitCalendarIncrease\" role=\"presentation\"></span>\n\t\t\t\t<span data-dojo-attach-point=\"increaseArrowNode\" class=\"dijitA11ySideArrow\">+</span>\n\t\t\t</th>\n\t\t</tr>\n\t\t<tr role=\"row\">\n\t\t\t${!dayCellsHtml}\n\t\t</tr>\n\t</thead>\n\t<tbody data-dojo-attach-point=\"dateRowsNode\" data-dojo-attach-event=\"ondijitclick: _onDayClick\" class=\"dijitReset dijitCalendarBodyContainer\">\n\t\t\t${!dateRowsHtml}\n\t</tbody>\n\t<tfoot class=\"dijitReset dijitCalendarYearContainer\">\n\t\t<tr>\n\t\t\t<td class='dijitReset' valign=\"top\" colspan=\"7\" role=\"presentation\">\n\t\t\t\t<div class=\"dijitCalendarYearLabel\">\n\t\t\t\t\t<span data-dojo-attach-point=\"previousYearLabelNode\" class=\"dijitInline dijitCalendarPreviousYear\" role=\"button\"></span>\n\t\t\t\t\t<span data-dojo-attach-point=\"currentYearLabelNode\" class=\"dijitInline dijitCalendarSelectedYear\" role=\"button\" id=\"${id}_year\"></span>\n\t\t\t\t\t<span data-dojo-attach-point=\"nextYearLabelNode\" class=\"dijitInline dijitCalendarNextYear\" role=\"button\"></span>\n\t\t\t\t</div>\n\t\t\t</td>\n\t\t</tr>\n\t</tfoot>\n</table>\n",
 'url:dijit/form/templates/Spinner.html':"<div class=\"dijit dijitReset dijitInline dijitLeft\"\n\tid=\"widget_${id}\" role=\"presentation\"\n\t><div class=\"dijitReset dijitButtonNode dijitSpinnerButtonContainer\"\n\t\t><input class=\"dijitReset dijitInputField dijitSpinnerButtonInner\" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t\t/><div class=\"dijitReset dijitLeft dijitButtonNode dijitArrowButton dijitUpArrowButton\"\n\t\t\tdata-dojo-attach-point=\"upArrowNode\"\n\t\t\t><div class=\"dijitArrowButtonInner\"\n\t\t\t\t><input class=\"dijitReset dijitInputField\" value=\"&#9650; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t\t\t\t\t${_buttonInputDisabled}\n\t\t\t/></div\n\t\t></div\n\t\t><div class=\"dijitReset dijitLeft dijitButtonNode dijitArrowButton dijitDownArrowButton\"\n\t\t\tdata-dojo-attach-point=\"downArrowNode\"\n\t\t\t><div class=\"dijitArrowButtonInner\"\n\t\t\t\t><input class=\"dijitReset dijitInputField\" value=\"&#9660; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t\t\t\t\t${_buttonInputDisabled}\n\t\t\t/></div\n\t\t></div\n\t></div\n\t><div class='dijitReset dijitValidationContainer'\n\t\t><input class=\"dijitReset dijitInputField dijitValidationIcon dijitValidationInner\" value=\"&#935; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t/></div\n\t><div class=\"dijitReset dijitInputField dijitInputContainer\"\n\t\t><input class='dijitReset dijitInputInner' data-dojo-attach-point=\"textbox,focusNode\" type=\"${type}\" data-dojo-attach-event=\"onkeydown:_onKeyDown\"\n\t\t\trole=\"spinbutton\" autocomplete=\"off\" ${!nameAttrSetting}\n\t/></div\n></div>\n",
 'url:dijit/form/templates/Select.html':"<table class=\"dijit dijitReset dijitInline dijitLeft\"\n\tdata-dojo-attach-point=\"_buttonNode,tableNode,focusNode,_popupStateNode\" cellspacing='0' cellpadding='0'\n\trole=\"listbox\" aria-haspopup=\"true\"\n\t><tbody role=\"presentation\"><tr role=\"presentation\"\n\t\t><td class=\"dijitReset dijitStretch dijitButtonContents\" role=\"presentation\"\n\t\t\t><div class=\"dijitReset dijitInputField dijitButtonText\"  data-dojo-attach-point=\"containerNode,textDirNode\" role=\"presentation\"></div\n\t\t\t><div class=\"dijitReset dijitValidationContainer\"\n\t\t\t\t><input class=\"dijitReset dijitInputField dijitValidationIcon dijitValidationInner\" value=\"&#935; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t\t\t/></div\n\t\t\t><input type=\"hidden\" ${!nameAttrSetting} data-dojo-attach-point=\"valueNode\" value=\"${value}\" aria-hidden=\"true\"\n\t\t/></td\n\t\t><td class=\"dijitReset dijitRight dijitButtonNode dijitArrowButton dijitDownArrowButton dijitArrowButtonContainer\"\n\t\t\tdata-dojo-attach-point=\"titleNode\" role=\"presentation\"\n\t\t\t><input class=\"dijitReset dijitInputField dijitArrowButtonInner\" value=\"&#9660; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t\t\t\t${_buttonInputDisabled}\n\t\t/></td\n\t></tr></tbody\n></table>\n",
 'url:dijit/form/templates/HorizontalSlider.html':"<table class=\"dijit dijitReset dijitSlider dijitSliderH\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" rules=\"none\" data-dojo-attach-event=\"onkeydown:_onKeyDown, onkeyup:_onKeyUp\"\n\trole=\"presentation\"\n\t><tr class=\"dijitReset\"\n\t\t><td class=\"dijitReset\" colspan=\"2\"></td\n\t\t><td data-dojo-attach-point=\"topDecoration\" class=\"dijitReset dijitSliderDecoration dijitSliderDecorationT dijitSliderDecorationH\"></td\n\t\t><td class=\"dijitReset\" colspan=\"2\"></td\n\t></tr\n\t><tr class=\"dijitReset\"\n\t\t><td class=\"dijitReset dijitSliderButtonContainer dijitSliderButtonContainerH\"\n\t\t\t><div class=\"dijitSliderDecrementIconH\" style=\"display:none\" data-dojo-attach-point=\"decrementButton\"><span class=\"dijitSliderButtonInner\">-</span></div\n\t\t></td\n\t\t><td class=\"dijitReset\"\n\t\t\t><div class=\"dijitSliderBar dijitSliderBumper dijitSliderBumperH dijitSliderLeftBumper\" data-dojo-attach-event=\"press:_onClkDecBumper\"></div\n\t\t></td\n\t\t><td class=\"dijitReset\"\n\t\t\t><input data-dojo-attach-point=\"valueNode\" type=\"hidden\" ${!nameAttrSetting}\n\t\t\t/><div class=\"dijitReset dijitSliderBarContainerH\" role=\"presentation\" data-dojo-attach-point=\"sliderBarContainer\"\n\t\t\t\t><div role=\"presentation\" data-dojo-attach-point=\"progressBar\" class=\"dijitSliderBar dijitSliderBarH dijitSliderProgressBar dijitSliderProgressBarH\" data-dojo-attach-event=\"press:_onBarClick\"\n\t\t\t\t\t><div class=\"dijitSliderMoveable dijitSliderMoveableH\"\n\t\t\t\t\t\t><div data-dojo-attach-point=\"sliderHandle,focusNode\" class=\"dijitSliderImageHandle dijitSliderImageHandleH\" data-dojo-attach-event=\"press:_onHandleClick\" role=\"slider\"></div\n\t\t\t\t\t></div\n\t\t\t\t></div\n\t\t\t\t><div role=\"presentation\" data-dojo-attach-point=\"remainingBar\" class=\"dijitSliderBar dijitSliderBarH dijitSliderRemainingBar dijitSliderRemainingBarH\" data-dojo-attach-event=\"press:_onBarClick\"></div\n\t\t\t></div\n\t\t></td\n\t\t><td class=\"dijitReset\"\n\t\t\t><div class=\"dijitSliderBar dijitSliderBumper dijitSliderBumperH dijitSliderRightBumper\" data-dojo-attach-event=\"press:_onClkIncBumper\"></div\n\t\t></td\n\t\t><td class=\"dijitReset dijitSliderButtonContainer dijitSliderButtonContainerH\"\n\t\t\t><div class=\"dijitSliderIncrementIconH\" style=\"display:none\" data-dojo-attach-point=\"incrementButton\"><span class=\"dijitSliderButtonInner\">+</span></div\n\t\t></td\n\t></tr\n\t><tr class=\"dijitReset\"\n\t\t><td class=\"dijitReset\" colspan=\"2\"></td\n\t\t><td data-dojo-attach-point=\"containerNode,bottomDecoration\" class=\"dijitReset dijitSliderDecoration dijitSliderDecorationB dijitSliderDecorationH\"></td\n\t\t><td class=\"dijitReset\" colspan=\"2\"></td\n\t></tr\n></table>\n",

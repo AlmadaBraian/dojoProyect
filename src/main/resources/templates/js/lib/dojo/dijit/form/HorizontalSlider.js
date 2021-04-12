@@ -126,7 +126,7 @@ if(_2d<=1||_2d==Infinity){
 _2d=c[this._pixelCount];
 }
 _2d--;
-var _2e=Math.round((this.value-this.minimum)*_2d/(this.maximum-this.minimum))+_2b;
+var _2e=(this.value-this.minimum)*_2d/(this.maximum-this.minimum)+_2b;
 if(_2e<0){
 _2e=0;
 }

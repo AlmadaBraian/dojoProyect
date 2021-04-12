@@ -39,27 +39,6 @@ _3.set(this.focusNode||this.domNode,"checked",_d.checked);
 }));
 return false;
 }
-var _e=false;
-var _f;
-_1.some(this._getRelatedWidgets(),function(_10){
-if(_10.checked){
-_f=_10;
-return true;
-}
-return false;
-});
-this.checked=true;
-_f&&(_f.checked=false);
-if(this.onClick(e)===false||e.defaultPrevented){
-_e=true;
-}
-this.checked=false;
-_f&&(_f.checked=true);
-if(_e){
-e.preventDefault();
-}else{
-this.set("checked",true);
-}
-return !_e;
+return this.inherited(arguments);
 }});
 });

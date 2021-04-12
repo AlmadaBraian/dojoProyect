@@ -1,5 +1,5 @@
-define("dojox/charting/plot2d/StackedBars", ["dojo/_base/declare", "dojo/_base/lang", "./Bars", "./commonStacked"], 
-	function(declare, lang, Bars, commonStacked){
+define("dojox/charting/plot2d/StackedBars", ["dojo/_base/declare", "./Bars", "./commonStacked"], 
+	function(declare, Bars, commonStacked){
 
 	return declare("dojox.charting.plot2d.StackedBars", Bars, {
 		// summary:
@@ -9,15 +9,25 @@ define("dojox/charting/plot2d/StackedBars", ["dojo/_base/declare", "dojo/_base/l
 			//		Calculate the min/max on all attached series in both directions.
 			// returns: Object
 			//		{hmin, hmax, vmin, vmax} min/max in both directions.
-			var stats = commonStacked.collectStats(this.series, lang.hitch(this, "isNullValue")), t;
+			var stats = commonStacked.collectStats(this.series), t;
 			stats.hmin -= 0.5;
 			stats.hmax += 0.5;
 			t = stats.hmin, stats.hmin = stats.vmin, stats.vmin = t;
 			t = stats.hmax, stats.hmax = stats.vmax, stats.vmax = t;
 			return stats; // Object
 		},
-		rearrangeValues: function(values, transform, baseline){
-			return commonStacked.rearrangeValues.call(this, values, transform, baseline);
+		getValue: function(value, index, seriesIndex, indexed){
+			var y,x;
+			if(indexed){
+				x = index;
+				y = commonStacked.getIndexValue(this.series, seriesIndex, x);
+			}else{
+				x = value.x - 1;
+				y = commonStacked.getValue(this.series, seriesIndex, value.x);
+				y = [  y[0]?y[0].y:null, y[1]?y[1]:null ];
+			}
+			// in py we return the previous stack value as we need it to position labels on columns
+			return { x: x, y: y[0], py: y[1] };
 		}
 	});
 });

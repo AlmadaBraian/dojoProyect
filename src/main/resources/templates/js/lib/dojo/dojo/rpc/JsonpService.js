@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/rpc/JsonpService",["../_base/array","../_base/declare","../_base/lang","./RpcService","../io/script"],function(_1,_2,_3,_4,_5){
 return _2("dojo.rpc.JsonpService",_4,{constructor:function(_6,_7){

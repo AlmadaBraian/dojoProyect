@@ -35,7 +35,7 @@ if(this.focusNode&&this.focusNode.value&&!isNaN(this.value)){
 this.set("value",this.value);
 }
 this._decimalInfo=_7(_e);
-},_onFocus:function(by){
+},_onFocus:function(){
 if(this.disabled||this.readOnly){
 return;
 }
@@ -44,9 +44,6 @@ if(typeof val=="number"&&!isNaN(val)){
 var _10=this.format(val,this.constraints);
 if(_10!==undefined){
 this.textbox.value=_10;
-if(by!=="mouse"){
-this.textbox.select();
-}
 }
 }
 this.inherited(arguments);
@@ -66,13 +63,7 @@ _12=_2.mixin({},_12,this.editOptions);
 }
 return this._formatter(_11,_12);
 },_parser:_5.parse,parse:function(_14,_15){
-var _16=_2.mixin({},_15,(this.editOptions&&this.focused)?this.editOptions:{});
-if(this.focused&&_16.places!=null){
-var _17=_16.places;
-var _18=typeof _17==="number"?_17:Number(_17.split(",").pop());
-_16.places="0,"+_18;
-}
-var v=this._parser(_14,_16);
+var v=this._parser(_14,_2.mixin({},_15,(this.editOptions&&this.focused)?this.editOptions:{}));
 if(this.editOptions&&this.focused&&isNaN(v)){
 v=this._parser(_14,_15);
 }
@@ -80,41 +71,41 @@ return v;
 },_getDisplayedValueAttr:function(){
 var v=this.inherited(arguments);
 return isNaN(v)?this.textbox.value:v;
-},filter:function(_19){
-if(_19==null||typeof _19=="string"&&_19==""){
+},filter:function(_16){
+if(_16==null||typeof _16=="string"&&_16==""){
 return NaN;
 }else{
-if(typeof _19=="number"&&!isNaN(_19)&&_19!=0){
-_19=_5.round(_19,this._decimalInfo.places);
+if(typeof _16=="number"&&!isNaN(_16)&&_16!=0){
+_16=_5.round(_16,this._decimalInfo.places);
 }
 }
-return this.inherited(arguments,[_19]);
-},serialize:function(_1a,_1b){
-return (typeof _1a!="number"||isNaN(_1a))?"":this.inherited(arguments);
+return this.inherited(arguments,[_16]);
+},serialize:function(_17,_18){
+return (typeof _17!="number"||isNaN(_17))?"":this.inherited(arguments);
 },_setBlurValue:function(){
 var val=_2.hitch(_2.delegate(this,{focused:true}),"get")("value");
 this._setValueAttr(val,true);
-},_setValueAttr:function(_1c,_1d,_1e){
-if(_1c!==undefined&&_1e===undefined){
-_1e=String(_1c);
-if(typeof _1c=="number"){
-if(isNaN(_1c)){
-_1e="";
+},_setValueAttr:function(_19,_1a,_1b){
+if(_19!==undefined&&_1b===undefined){
+_1b=String(_19);
+if(typeof _19=="number"){
+if(isNaN(_19)){
+_1b="";
 }else{
-if(("rangeCheck" in this&&this.rangeCheck(_1c,this.constraints))||this.constraints.exponent===false||!/\de[-+]?\d/i.test(_1e)){
-_1e=undefined;
+if(("rangeCheck" in this&&this.rangeCheck(_19,this.constraints))||this.constraints.exponent===false||!/\de[-+]?\d/i.test(_1b)){
+_1b=undefined;
 }
 }
 }else{
-if(!_1c){
-_1e="";
-_1c=NaN;
+if(!_19){
+_1b="";
+_19=NaN;
 }else{
-_1c=undefined;
+_19=undefined;
 }
 }
 }
-this.inherited(arguments,[_1c,_1d,_1e]);
+this.inherited(arguments,[_19,_1a,_1b]);
 },_getValueAttr:function(){
 var v=this.inherited(arguments);
 if(isNaN(v)&&this.textbox.value!==""){
@@ -127,7 +118,7 @@ return undefined;
 }else{
 return v;
 }
-},isValid:function(_1f){
+},isValid:function(_1c){
 if(!this.focused||this._isEmpty(this.textbox.value)){
 return this.inherited(arguments);
 }else{
@@ -143,21 +134,21 @@ return false;
 }
 }
 },_isValidSubset:function(){
-var _20=(typeof this.constraints.min=="number"),_21=(typeof this.constraints.max=="number"),_22=this.get("value");
-if(isNaN(_22)||(!_20&&!_21)){
+var _1d=(typeof this.constraints.min=="number"),_1e=(typeof this.constraints.max=="number"),_1f=this.get("value");
+if(isNaN(_1f)||(!_1d&&!_1e)){
 return this.inherited(arguments);
 }
-var _23=_22|0,_24=_22<0,_25=this.textbox.value.indexOf(this._decimalInfo.sep)!=-1,_26=this.maxLength||20,_27=_26-this.textbox.value.length,_28=_25?this.textbox.value.split(this._decimalInfo.sep)[1].replace(/[^0-9]/g,""):"";
-var _29=_25?_23+"."+_28:_23+"";
-var _2a=_4.rep("9",_27),_2b=_22,_2c=_22;
-if(_24){
-_2b=Number(_29+_2a);
+var _20=_1f|0,_21=_1f<0,_22=this.textbox.value.indexOf(this._decimalInfo.sep)!=-1,_23=this.maxLength||20,_24=_23-this.textbox.value.length,_25=_22?this.textbox.value.split(this._decimalInfo.sep)[1].replace(/[^0-9]/g,""):"";
+var _26=_22?_20+"."+_25:_20+"";
+var _27=_4.rep("9",_24),_28=_1f,_29=_1f;
+if(_21){
+_28=Number(_26+_27);
 }else{
-_2c=Number(_29+_2a);
+_29=Number(_26+_27);
 }
-return !((_20&&_2c<this.constraints.min)||(_21&&_2b>this.constraints.max));
+return !((_1d&&_29<this.constraints.min)||(_1e&&_28>this.constraints.max));
 }});
-var _2d=_1("dijit.form.NumberTextBox",[_6,_c],{baseClass:"dijitTextBox dijitNumberTextBox"});
-_2d.Mixin=_c;
-return _2d;
+var _2a=_1("dijit.form.NumberTextBox",[_6,_c],{baseClass:"dijitTextBox dijitNumberTextBox"});
+_2a.Mixin=_c;
+return _2a;
 });

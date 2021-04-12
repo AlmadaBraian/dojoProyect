@@ -44,6 +44,5 @@ define("dijit/form/nls/validate", { root:
 "ca": true,
 "bg": true,
 "az": true,
-"ar": true,
-"al": true
+"ar": true
 });

@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/touch",["./_base/kernel","./aspect","./dom","./dom-class","./_base/lang","./on","./has","./mouse","./domReady","./_base/window"],function(_1,_2,_3,_4,_5,on,_6,_7,_8,_9){
 var _a=_6("ios")<5;
@@ -117,11 +116,10 @@ _18=(new Date()).getTime();
 },true);
 function _33(_34){
 _9.doc.addEventListener(_34,function(e){
-var _35=e.target;
-if(_11&&!e._dojo_click&&(new Date()).getTime()<=_18+1000&&!(_35.tagName=="INPUT"&&_4.contains(_35,"dijitOffScreen"))){
+if(_11&&!e._dojo_click&&(new Date()).getTime()<=_18+1000&&!(e.target.tagName=="INPUT"&&_4.contains(e.target,"dijitOffScreen"))){
 e.stopPropagation();
 e.stopImmediatePropagation&&e.stopImmediatePropagation();
-if(_34=="click"&&(_35.tagName!="INPUT"||(_35.type=="radio"&&(_4.contains(_35,"dijitCheckBoxInput")||_4.contains(_35,"mblRadioButton")))||(_35.type=="checkbox"&&(_4.contains(_35,"dijitCheckBoxInput")||_4.contains(_35,"mblCheckBox"))))&&_35.tagName!="TEXTAREA"&&_35.tagName!="AUDIO"&&_35.tagName!="VIDEO"){
+if(_34=="click"&&(e.target.tagName!="INPUT"||e.target.type=="radio"||e.target.type=="checkbox")&&e.target.tagName!="TEXTAREA"&&e.target.tagName!="AUDIO"&&e.target.tagName!="VIDEO"){
 e.preventDefault();
 }
 }
@@ -133,7 +131,7 @@ _33("mouseup");
 }
 }
 };
-var _36;
+var _35;
 if(_6("touch")){
 if(_b){
 _8(function(){
@@ -143,51 +141,51 @@ _28(evt,_c.move,_c.up);
 });
 }else{
 _8(function(){
-_36=_9.body();
+_35=_9.body();
 _9.doc.addEventListener("touchstart",function(evt){
 _19=(new Date()).getTime();
-var _37=_36;
-_36=evt.target;
-on.emit(_37,"dojotouchout",{relatedTarget:_36,bubbles:true});
-on.emit(_36,"dojotouchover",{relatedTarget:_37,bubbles:true});
+var _36=_35;
+_35=evt.target;
+on.emit(_36,"dojotouchout",{relatedTarget:_35,bubbles:true});
+on.emit(_35,"dojotouchover",{relatedTarget:_36,bubbles:true});
 _28(evt,"touchmove","touchend");
 },true);
-function _38(evt){
-var _39=_5.delegate(evt,{bubbles:true});
+function _37(evt){
+var _38=_5.delegate(evt,{bubbles:true});
 if(_6("ios")>=6){
-_39.touches=evt.touches;
-_39.altKey=evt.altKey;
-_39.changedTouches=evt.changedTouches;
-_39.ctrlKey=evt.ctrlKey;
-_39.metaKey=evt.metaKey;
-_39.shiftKey=evt.shiftKey;
-_39.targetTouches=evt.targetTouches;
+_38.touches=evt.touches;
+_38.altKey=evt.altKey;
+_38.changedTouches=evt.changedTouches;
+_38.ctrlKey=evt.ctrlKey;
+_38.metaKey=evt.metaKey;
+_38.shiftKey=evt.shiftKey;
+_38.targetTouches=evt.targetTouches;
 }
-return _39;
+return _38;
 };
 on(_9.doc,"touchmove",function(evt){
 _19=(new Date()).getTime();
-var _3a=_9.doc.elementFromPoint(evt.pageX-(_a?0:_9.global.pageXOffset),evt.pageY-(_a?0:_9.global.pageYOffset));
-if(_3a){
-if(_36!==_3a){
-on.emit(_36,"dojotouchout",{relatedTarget:_3a,bubbles:true});
-on.emit(_3a,"dojotouchover",{relatedTarget:_36,bubbles:true});
-_36=_3a;
+var _39=_9.doc.elementFromPoint(evt.pageX-(_a?0:_9.global.pageXOffset),evt.pageY-(_a?0:_9.global.pageYOffset));
+if(_39){
+if(_35!==_39){
+on.emit(_35,"dojotouchout",{relatedTarget:_39,bubbles:true});
+on.emit(_39,"dojotouchover",{relatedTarget:_35,bubbles:true});
+_35=_39;
 }
-if(!on.emit(_3a,"dojotouchmove",_38(evt))){
+if(!on.emit(_39,"dojotouchmove",_37(evt))){
 evt.preventDefault();
 }
 }
 });
 on(_9.doc,"touchend",function(evt){
 _19=(new Date()).getTime();
-var _3b=_9.doc.elementFromPoint(evt.pageX-(_a?0:_9.global.pageXOffset),evt.pageY-(_a?0:_9.global.pageYOffset))||_9.body();
-on.emit(_3b,"dojotouchend",_38(evt));
+var _3a=_9.doc.elementFromPoint(evt.pageX-(_a?0:_9.global.pageXOffset),evt.pageY-(_a?0:_9.global.pageYOffset))||_9.body();
+on.emit(_3a,"dojotouchend",_37(evt));
 });
 });
 }
 }
-var _3c={press:_1a("mousedown","touchstart",_c.down),move:_1a("mousemove","dojotouchmove",_c.move),release:_1a("mouseup","dojotouchend",_c.up),cancel:_1a(_7.leave,"touchcancel",_b?_c.cancel:null),over:_1a("mouseover","dojotouchover",_c.over),out:_1a("mouseout","dojotouchout",_c.out),enter:_7._eventHandler(_1a("mouseover","dojotouchover",_c.over)),leave:_7._eventHandler(_1a("mouseout","dojotouchout",_c.out))};
-1&&(_1.touch=_3c);
-return _3c;
+var _3b={press:_1a("mousedown","touchstart",_c.down),move:_1a("mousemove","dojotouchmove",_c.move),release:_1a("mouseup","dojotouchend",_c.up),cancel:_1a(_7.leave,"touchcancel",_b?_c.cancel:null),over:_1a("mouseover","dojotouchover",_c.over),out:_1a("mouseout","dojotouchout",_c.out),enter:_7._eventHandler(_1a("mouseover","dojotouchover",_c.over)),leave:_7._eventHandler(_1a("mouseout","dojotouchout",_c.out))};
+1&&(_1.touch=_3b);
+return _3b;
 });

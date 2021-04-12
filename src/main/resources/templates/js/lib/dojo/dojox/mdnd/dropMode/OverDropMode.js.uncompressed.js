@@ -4,7 +4,7 @@ define("dojox/mdnd/dropMode/OverDropMode", ["dojo/_base/kernel",
 	"dojo/_base/array",
 	"dojo/dom-geometry",
 	"dojox/mdnd/AreaManager"
-],function(dojo, declare, connect, array, geom, AreaManager){
+],function(dojo, declare, connect, array, geom){
 	var odm = declare(
 		"dojox.mdnd.dropMode.OverDropMode",
 		null,
@@ -27,8 +27,8 @@ define("dojox/mdnd/dropMode/OverDropMode", ["dojo/_base/kernel",
 		constructor: function(){
 			//console.log("dojox.mdnd.dropMode.OverDropMode ::: constructor");
 			this._dragHandler = [
-				connect.connect(AreaManager.areaManager(), "onDragEnter", function(coords, size){
-					var m = AreaManager.areaManager();
+				connect.connect(dojox.mdnd.areaManager(), "onDragEnter", function(coords, size){
+					var m = dojox.mdnd.areaManager();
 					if(m._oldIndexArea == -1){
 						m._oldIndexArea = m._lastValidIndexArea;
 					}
@@ -307,6 +307,6 @@ define("dojox/mdnd/dropMode/OverDropMode", ["dojo/_base/kernel",
 		}
 	});
 	
-	AreaManager.areaManager()._dropMode = new odm();
+	dojox.mdnd.areaManager()._dropMode = new dojox.mdnd.dropMode.OverDropMode();
 	return odm;
 });

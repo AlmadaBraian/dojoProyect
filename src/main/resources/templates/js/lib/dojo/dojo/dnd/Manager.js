@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/dnd/Manager",["../_base/array","../_base/declare","../_base/lang","../_base/window","../dom-class","../Evented","../has","../keys","../on","../topic","../touch","./common","./autoscroll","./Avatar"],function(_1,_2,_3,_4,_5,_6,_7,_8,on,_9,_a,_b,_c,_d){
 var _e=_2("dojo.dnd.Manager",[_6],{constructor:function(){

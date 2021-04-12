@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/io/iframe",["../_base/config","../_base/json","../_base/kernel","../_base/lang","../_base/xhr","../sniff","../_base/window","../dom","../dom-construct","../query","require","../aspect","../request/iframe"],function(_1,_2,_3,_4,_5,_6,_7,_8,_9,_a,_b,_c,_d){
 _3.deprecated("dojo/io/iframe","Use dojo/request/iframe.","2.0");

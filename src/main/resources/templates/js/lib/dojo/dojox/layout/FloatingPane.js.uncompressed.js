@@ -1,18 +1,16 @@
 require({cache:{
 'url:dojox/layout/resources/FloatingPane.html':"<div class=\"dojoxFloatingPane\" id=\"${id}\">\n\t<div tabindex=\"0\" role=\"button\" class=\"dojoxFloatingPaneTitle\" dojoAttachPoint=\"focusNode\">\n\t\t<span dojoAttachPoint=\"closeNode\" dojoAttachEvent=\"onclick: close\" class=\"dojoxFloatingCloseIcon\"></span>\n\t\t<span dojoAttachPoint=\"maxNode\" dojoAttachEvent=\"onclick: maximize\" class=\"dojoxFloatingMaximizeIcon\">&thinsp;</span>\n\t\t<span dojoAttachPoint=\"restoreNode\" dojoAttachEvent=\"onclick: _restore\" class=\"dojoxFloatingRestoreIcon\">&thinsp;</span>\t\n\t\t<span dojoAttachPoint=\"dockNode\" dojoAttachEvent=\"onclick: minimize\" class=\"dojoxFloatingMinimizeIcon\">&thinsp;</span>\n\t\t<span dojoAttachPoint=\"titleNode\" class=\"dijitInline dijitTitleNode\"></span>\n\t</div>\n\t<div dojoAttachPoint=\"canvas\" class=\"dojoxFloatingPaneCanvas\">\n\t\t<div dojoAttachPoint=\"containerNode\" role=\"region\" tabindex=\"-1\" class=\"${contentClass}\">\n\t\t</div>\n\t\t<span dojoAttachPoint=\"resizeHandle\" class=\"dojoxFloatingResizeHandle\"></span>\n\t</div>\n</div>\n"}});
-define("dojox/layout/FloatingPane", ["dojo/_base/kernel", "dojo/_base/lang", "dojo/_base/window", "dojo/_base/declare",
-	"dojo/_base/fx", "dojo/_base/connect", "dojo/_base/array", "dojo/_base/sniff",
-	"dojo/window", "dojo/dom", "dojo/dom-class", "dojo/dom-geometry", "dojo/dom-construct", "dojo/touch",
-	"dijit/_TemplatedMixin", "dijit/_Widget", "dijit/BackgroundIframe",
-	"dijit/registry", "dojo/dnd/Moveable", "./ContentPane", "./ResizeHandle", "dojo/text!./resources/FloatingPane.html","./Dock"
-], function(
-	kernel, lang, winUtil, declare, baseFx, connectUtil, arrayUtil,
-	has, windowLib, dom, domClass, domGeom, domConstruct, touch, TemplatedMixin, Widget, BackgroundIframe,
-	registry, Moveable, ContentPane, ResizeHandle, template, Dock){
-
+define("dojox/layout/FloatingPane", ["dojo/_base/kernel","dojo/_base/lang","dojo/_base/window","dojo/_base/declare",
+		"dojo/_base/fx","dojo/_base/connect","dojo/_base/array","dojo/_base/sniff",
+		"dojo/window","dojo/dom","dojo/dom-class","dojo/dom-geometry","dojo/dom-construct",
+		"dijit/_TemplatedMixin","dijit/_Widget","dijit/BackgroundIframe","dojo/dnd/Moveable",
+		"./ContentPane","./ResizeHandle","dojo/text!./resources/FloatingPane.html","./Dock"], function(
+	kernel, lang, winUtil, declare, baseFx, connectUtil, arrayUtil, 
+	has, windowLib, dom, domClass, domGeom, domConstruct, TemplatedMixin, Widget, BackgroundIframe, 
+	Moveable, ContentPane, ResizeHandle, template,Dock){
+	
 kernel.experimental("dojox.layout.FloatingPane");
-
-return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
+var FloatingPane = declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 	// summary:
 	//		A non-modal Floating window.
 	// description:
@@ -77,11 +75,11 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 	_startZ: 100,
 
 	templateString: template,
-
+	
 	attributeMap: lang.delegate(Widget.prototype.attributeMap, {
 		title: { type:"innerHTML", node:"titleNode" }
 	}),
-
+	
 	postCreate: function(){
 		this.inherited(arguments);
 		new Moveable(this.domNode,{ handle: this.focusNode });
@@ -100,14 +98,14 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 		}
 		this._allFPs.push(this);
 		this.domNode.style.position = "absolute";
-
+		
 		this.bgIframe = new BackgroundIframe(this.domNode);
 		this._naturalState = domGeom.position(this.domNode);
 	},
-
+	
 	startup: function(){
 		if(this._started){ return; }
-
+		
 		this.inherited(arguments);
 
 		if(this.resizable){
@@ -116,7 +114,7 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 			}else{
 				this.containerNode.style.overflow = "auto";
 			}
-
+			
 			this._resizeHandle = new ResizeHandle({
 				targetId: this.id,
 				resizeAxis: this.resizeAxis
@@ -129,9 +127,9 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 			var tmpName = this.dockTo;
 
 			if(this.dockTo){
-				this.dockTo = registry.byId(this.dockTo);
+				this.dockTo = dijit.byId(this.dockTo);
 			}else{
-				this.dockTo = registry.byId('dojoxGlobalFloatingDock');
+				this.dockTo = dijit.byId('dojoxGlobalFloatingDock');
 			}
 
 			if(!this.dockTo){
@@ -151,18 +149,18 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 				this.dockTo = new Dock({ id: tmpId, autoPosition: "south" }, tmpNode);
 				this.dockTo.startup();
 			}
-
+			
 			if((this.domNode.style.display == "none")||(this.domNode.style.visibility == "hidden")){
 				// If the FP is created dockable and non-visible, start up docked.
 				this.minimize();
 			}
 		}
-		this.connect(this.focusNode, touch.press,"bringToTop");
-		this.connect(this.domNode,	touch.press,"bringToTop");
+		this.connect(this.focusNode,"onmousedown","bringToTop");
+		this.connect(this.domNode,	"onmousedown","bringToTop");
 
 		// Initial resize to give child the opportunity to lay itself out
 		this.resize(domGeom.position(this.domNode));
-
+		
 		this._started = true;
 	},
 
@@ -172,7 +170,7 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 		kernel.deprecated("pane.setTitle", "Use pane.set('title', someTitle)", "2.0");
 		this.set("title", title);
 	},
-
+		
 	close: function(){
 		// summary:
 		//		Close and destroy this widget
@@ -219,7 +217,7 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 			})
 		}).play();
 		// use w / h from content box dimensions and x / y from position
-		var contentBox = domGeom.getContentBox(this.domNode);
+		var contentBox = domGeom.getContentBox(this.domNode)
 		this.resize(lang.mixin(domGeom.position(this.domNode), {w: contentBox.w, h: contentBox.h}));
 		this._onShow(); // lazy load trigger
 	},
@@ -258,7 +256,7 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 			this._isDocked = true;
 		}
 	},
-
+	
 	resize: function(/* Object */dim){
 		// summary:
 		//		Size the FloatingPane and place accordingly
@@ -285,7 +283,7 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 			this._singleChild.resize(mbCanvas);
 		}
 	},
-
+	
 	bringToTop: function(){
 		// summary:
 		//		bring this FloatingPane above all other panes
@@ -299,14 +297,14 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 			return a.domNode.style.zIndex - b.domNode.style.zIndex;
 		});
 		windows.push(this);
-
+		
 		arrayUtil.forEach(windows, function(w, x){
 			w.domNode.style.zIndex = this._startZ + (x * 2);
 			domClass.remove(w.domNode, "dojoxFloatingPaneFg");
 		}, this);
 		domClass.add(this.domNode, "dojoxFloatingPaneFg");
 	},
-
+	
 	destroy: function(){
 		// summary:
 		//		Destroy this FloatingPane completely
@@ -318,4 +316,5 @@ return declare("dojox.layout.FloatingPane", [ ContentPane, TemplatedMixin ],{
 	}
 });
 
+return FloatingPane;
 });

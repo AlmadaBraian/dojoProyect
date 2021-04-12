@@ -41,8 +41,7 @@ define("dojox/charting/action2d/Tooltip", ["dijit/Tooltip", "dojo/_base/lang", "
 		// the data description block for the widget parser
 		defaultParams: {
 			text: DEFAULT_TEXT,	// the function to produce a tooltip from the object
-            mouseOver: true,
-			defaultPosition: ["after-centered", "before-centered"]
+            mouseOver: true
 		},
 		optionalParams: {},	// no optional parameters
 
@@ -57,7 +56,6 @@ define("dojox/charting/action2d/Tooltip", ["dijit/Tooltip", "dojo/_base/lang", "
 			//		Optional keyword arguments object for setting parameters.
 			this.text = kwArgs && kwArgs.text ? kwArgs.text : DEFAULT_TEXT;
 			this.mouseOver = kwArgs && kwArgs.mouseOver != undefined ? kwArgs.mouseOver : true;
-			this.defaultPosition = kwArgs && kwArgs.defaultPosition != undefined ? kwArgs.defaultPosition : ["after-centered", "before-centered"];
 			this.connect();
 		},
 		
@@ -78,7 +76,7 @@ define("dojox/charting/action2d/Tooltip", ["dijit/Tooltip", "dojo/_base/lang", "
 			if(!o.shape || (this.mouseOver && o.type !== "onmouseover") || (!this.mouseOver && o.type !== "onclick")){ return; }
 			
 			// calculate relative coordinates and the position
-			var aroundRect = {type: "rect"}, position = this.defaultPosition;
+			var aroundRect = {type: "rect"}, position = ["after-centered", "before-centered"];
 			switch(o.element){
 				case "marker":
 					aroundRect.x = o.cx;

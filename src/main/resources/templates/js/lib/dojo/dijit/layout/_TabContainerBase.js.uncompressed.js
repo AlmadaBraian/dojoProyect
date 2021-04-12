@@ -81,12 +81,6 @@ define("dijit/layout/_TabContainerBase", [
 			this.inherited(arguments);
 		},
 
-		removeChild: function(/*dijit/_WidgetBase*/ child) {
-			// Overrides StackContainer.removeChild().
-			domClass.remove(child.domNode, "dijitTabPane");
-			this.inherited(arguments);
-		},
-
 		startup: function(){
 			if(this._started){
 				return;

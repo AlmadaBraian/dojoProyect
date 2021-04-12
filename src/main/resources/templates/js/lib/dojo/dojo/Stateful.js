@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/Stateful",["./_base/declare","./_base/lang","./_base/array","./when"],function(_1,_2,_3,_4){
 return _1("dojo.Stateful",null,{_attrPairNames:{},_getAttrNames:function(_5){

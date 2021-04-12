@@ -61,9 +61,7 @@ define("dojox/mobile/bookmarkable", [
 			}
 			var params = this.handleFragIds(value);
 			params.hashchange = true;
-			if (params.moveTo) {
-				new TransitionEvent(win.body(), params).dispatch();
-			}
+			new TransitionEvent(win.body(), params).dispatch();
 		},
 
 		handleFragIds: function(/*String*/fragIds){
@@ -74,7 +72,7 @@ define("dojox/mobile/bookmarkable", [
 			//		searches for a transition destination, and makes all the
 			//		views in the hash visible.
 
-			var arr, moveTo, args, dir;
+			var arr, moveTo;
 			if(!fragIds){
 				moveTo = viewRegistry.initialView.id;
 				arr = this.findTransitionViews(moveTo);
@@ -85,8 +83,8 @@ define("dojox/mobile/bookmarkable", [
 
 					var view = registry.byId(ids[i]);
 
-					// Skip a non-existent or visible view. Visible view can't be a destination candidate.
-					if(!view || view.isVisible()){ continue; }
+					// Skip a visible view. Visible view can't be a destination candidate.
+					if(view.isVisible()){ continue; }
 
 					// Check if all the ancestors are in the fragIds.
 					// If not, obviously the view was NOT visible before the previous transition.
@@ -116,17 +114,15 @@ define("dojox/mobile/bookmarkable", [
 				}
 			}
 
-			if (arr) {
-				args = this.getTransitionInfo(arr[0].id, arr[1].id);
-				dir = 1;
-				if(!args){
-					args = this.getTransitionInfo(arr[1].id, arr[0].id);
-					dir = -1;
-				}
+			var args = this.getTransitionInfo(arr[0].id, arr[1].id);
+			var dir = 1;
+			if(!args){
+				args = this.getTransitionInfo(arr[1].id, arr[0].id);
+				dir = -1;
 			}
 
 			return {
-				moveTo: moveTo ? "#" + moveTo : null,
+				moveTo: "#" + moveTo,
 				transitionDir: args ? args.transitionDir * dir : 1,
 				transition: args ? args.transition : "none"
 			};

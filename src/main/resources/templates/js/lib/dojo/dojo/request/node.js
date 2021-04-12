@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/request/node",["require","./util","./handlers","../errors/RequestTimeoutError","../node!http","../node!https","../node!url","../node!stream"],function(_1,_2,_3,_4,_5,_6,_7,_8){
 var _9=_8.Stream,_a;
@@ -55,9 +54,6 @@ if(_17){
 clearTimeout(_17);
 }
 _f.text=_15.join("");
-if(!_2.checkStatus(_f.status)){
-def.reject({message:"http response code "+_f.status,response:_f});
-}
 try{
 _3(_f);
 def.resolve(_f);

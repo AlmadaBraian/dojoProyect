@@ -1,4 +1,4 @@
-define("dojo/dom-style", ["./sniff", "./dom", "./_base/window"], function(has, dom, win){
+define("dojo/dom-style", ["./sniff", "./dom"], function(has, dom){
 	// module:
 	//		dojo/dom-style
 
@@ -45,12 +45,8 @@ define("dojo/dom-style", ["./sniff", "./dom", "./_base/window"], function(has, d
 		};
 	}else{
 		getComputedStyle = function(node){
-			if(node.nodeType === 1 /* ELEMENT_NODE*/){
-				var dv = node.ownerDocument.defaultView,
-					w = dv.opener ? dv : win.global.window;
-				return w.getComputedStyle(node, null);
-			}
-			return {};
+			return node.nodeType == 1 /* ELEMENT_NODE*/ ?
+				node.ownerDocument.defaultView.getComputedStyle(node, null) : {};
 		};
 	}
 	style.getComputedStyle = getComputedStyle;

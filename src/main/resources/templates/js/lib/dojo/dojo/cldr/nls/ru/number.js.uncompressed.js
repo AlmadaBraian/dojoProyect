@@ -1,26 +1,23 @@
 define(
 "dojo/cldr/nls/ru/number", //begin v1.x content
 {
-	"scientificFormat": "#E0",
-	"infinity": "∞",
-	"superscriptingExponent": "×",
-	"list": ";",
-	"percentSign": "%",
-	"minusSign": "-",
-	"decimalFormat-short": "000 трлн",
-	"nan": "не число",
-	"plusSign": "+",
-	"currencyFormat": "#,##0.00 ¤",
-	"perMille": "‰",
-	"approximatelySign": "≈",
 	"group": " ",
+	"percentSign": "%",
+	"exponential": "E",
+	"scientificFormat": "#E0",
 	"percentFormat": "#,##0 %",
-	"decimalFormat-long": "000 триллиона",
-	"decimalFormat": "#,##0.###",
-	"currencyFormat-short": "000 трлн ¤",
-	"timeSeparator": ":",
+	"list": ";",
+	"infinity": "∞",
+	"minusSign": "-",
 	"decimal": ",",
-	"exponential": "E"
+	"superscriptingExponent": "×",
+	"nan": "не число",
+	"perMille": "‰",
+	"decimalFormat": "#,##0.###",
+	"currencyFormat": "#,##0.00 ¤",
+	"plusSign": "+",
+	"decimalFormat-long": "000 триллиона",
+	"decimalFormat-short": "000 трлн"
 }
 //end v1.x content
 );

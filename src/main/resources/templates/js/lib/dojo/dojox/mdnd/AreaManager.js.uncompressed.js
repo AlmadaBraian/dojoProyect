@@ -12,9 +12,8 @@ define("dojox/mdnd/AreaManager", ["dojo/_base/kernel",
 	"dojo/dom-construct",
 	"dijit/registry",
 	"dijit/_Widget",
-	"./Moveable",
-	"dojox/mdnd/AutoScroll"
-],function(dojo, declare, connect, win, array, sniff, lang, query, topic, domClass, geom, domConstruct, registry, _Widget, Moveable, AutoScroll){
+	"./Moveable"
+],function(dojo, declare, connect, win, array, sniff, lang, query, topic, domClass, geom, domConstruct, registry, _Widget, Moveable){
 	var am = declare(
 		"dojox.mdnd.AreaManager",
 		null,
@@ -685,8 +684,8 @@ define("dojox/mdnd/AreaManager", ["dojo/_base/kernel",
 			connect.disconnect(this.resizeHandler);
 			this._dropIndicator.destroy();
 			this._dropMode.destroy();
-			if(AutoScroll.autoScroll){
-				AutoScroll.autoScroll.destroy();
+			if(dojox.mdnd.autoScroll){
+				dojox.mdnd.autoScroll.destroy();
 			}
 			if(this.refreshListener){
 				connect.unsubscribe(this.refreshListener);
@@ -710,14 +709,15 @@ define("dojox/mdnd/AreaManager", ["dojo/_base/kernel",
 		});
 	}
 
-	am._areaManager = null;
-	am.areaManager = function(){
+	// TODO for 2.0 (or earlier): these values should be set on "am", the export of this module, not in dojox.mdnd
+	dojox.mdnd._areaManager = null;
+	dojox.mdnd.areaManager = function(){
 		// summary:
 		//		Returns the current areaManager, creates one if it is not created yet.
-		if(!am._areaManager){
-			am._areaManager = new am();
+		if(!dojox.mdnd._areaManager){
+			dojox.mdnd._areaManager = new dojox.mdnd.AreaManager();
 		}
-		return am._areaManager;	// Object
+		return dojox.mdnd._areaManager;	// Object
 	};
 	return am;
 });

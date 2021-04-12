@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/fx",["./_base/lang","./Evented","./_base/kernel","./_base/array","./aspect","./_base/fx","./dom","./dom-style","./dom-geometry","./ready","require"],function(_1,_2,_3,_4,_5,_6,_7,_8,_9,_a,_b){
 if(!_3.isAsync){
@@ -134,7 +133,7 @@ this._onEndCtx.remove();
 }});
 _1.extend(_11,_e);
 _d.chain=function(_1d){
-return new _11(_1.isArray(_1d)?_1d:Array.prototype.slice.call(_1d,0));
+return new _11(_1d);
 };
 var _1e=function(_1f){
 this._animations=_1f||[];
@@ -201,7 +200,7 @@ _2b.remove();
 }});
 _1.extend(_1e,_e);
 _d.combine=function(_2c){
-return new _1e(_1.isArray(_2c)?_2c:Array.prototype.slice.call(_2c,0));
+return new _1e(_2c);
 };
 _d.wipeIn=function(_2d){
 var _2e=_2d.node=_7.byId(_2d.node),s=_2e.style,o;

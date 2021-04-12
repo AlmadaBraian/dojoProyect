@@ -149,7 +149,7 @@ _4.replace(_26._wrapper,"dijitHidden","dijitVisible");
 }
 _26.onHide&&_26.onHide();
 },closeChild:function(_27){
-var _28=!_27.onClose||_27.onClose(this,_27);
+var _28=_27.onClose&&_27.onClose(this,_27);
 if(_28){
 this.removeChild(_27);
 _27.destroyRecursive();

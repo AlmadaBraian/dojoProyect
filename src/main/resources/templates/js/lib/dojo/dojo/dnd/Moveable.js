@@ -1,9 +1,8 @@
 /*
-	Copyright (c) 2004-2016, The JS Foundation All Rights Reserved.
+	Copyright (c) 2004-2017, The JS Foundation All Rights Reserved.
 	Available via Academic Free License >= 2.1 OR the modified BSD license.
 	see: http://dojotoolkit.org/license for details
 */
-
 //>>built
 define("dojo/dnd/Moveable",["../_base/array","../_base/declare","../_base/lang","../dom","../dom-class","../Evented","../has","../on","../topic","../touch","./common","./Mover","../_base/window"],function(_1,_2,_3,_4,_5,_6,_7,on,_8,_9,_a,_b,_c){
 var _d;
@@ -52,7 +51,7 @@ if(this.skip&&_a.isFormElement(e)){
 return;
 }
 if(this.delay){
-this.events.push(on(this.handle,_9.move,_3.hitch(this,"onMouseMove")),on(this.handle.ownerDocument,_9.release,_3.hitch(this,"onMouseUp")));
+this.events.push(on(this.handle,_9.move,_3.hitch(this,"onMouseMove")),on(this.handle,_9.release,_3.hitch(this,"onMouseUp")));
 this._lastX=e.pageX;
 this._lastY=e.pageY;
 }else{

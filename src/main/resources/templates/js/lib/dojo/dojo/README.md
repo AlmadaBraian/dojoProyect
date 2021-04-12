@@ -1,11 +1,7 @@
 dojo
 ====
 
-This is the foundation package for the Dojo 1 Toolkit.  While still being maintained, new development is primarily focused on modern Dojo.
-
-Checkout the [Dojo framework website](https://dojo.io/) or if you want a more detailed technical status and overview, checkout the [`Dojo roadmap`](https://dojo.io/community/).
-
-This package is sometimes
+**dojo** is the foundation package of version 1.x of the Dojo Toolkit. Sometimes
 referred to as the “core”, it contains the most generally applicable sub-packages
 and modules. The dojo package covers a wide range of functionality like Ajax, DOM
 manipulation, class-type programming, events, promises, data stores,
@@ -77,4 +73,4 @@ License and Copyright
 The Dojo Toolkit (including this package) is dual licensed under BSD 3-Clause
 and AFL. For more information on the license please see the [License
 Information](<http://dojotoolkit.org/license>). The Dojo Toolkit is Copyright
-(c) 2005-2018, JS Foundation. All rights reserved.
+(c) 2005-2017, JS Foundation. All rights reserved.
