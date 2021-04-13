@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
     <link rel="stylesheet" href="/src/main/resources/templates/js/lib/dojo/dijit/themes/claro/claro.css" />
     <link rel="stylesheet" href="/src/main/resources/templates/css/main.css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a062562745.js" crossorigin="anonymous"></script>
+    <title>Pokedex Dojo</title>
+    <link rel=stylesheet href="style.css" media=all/>
 
     <!-- Dojo Config e import -->
     <script>
@@ -22,7 +26,6 @@
     </script>
     <script src="/src/main/resources/templates/js/lib/dojo/dojo/dojo.js"></script>
 
-    <title>Document</title>
 
 </head>
 
@@ -32,45 +35,111 @@
         <div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'">
             <div class="panel">
                 <h4>Escriba el nombre del pokemon</h4>
-                <input id="pokemonName" name="stateSelect" data-dojo-props="
+                <input id="pokemonName" name="pokemonSelect" data-dojo-props="
                 value: '',
                 placeHolder: 'Select a Pokemon'">
 
                 </input>
-                <div id="cosa"></div>
 
             </div>
-            <div>
-                <br/>
-            </div>
+
+            <br/>
+
             <div>
                 <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
             </div>
             <div id="tabla"></div>
         </div>
+
         <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'">
-            <div class="contenedor1">
-                <h1>Pokedex Dojo</h1>
+            <div class="top">
+                <table style="border: 0cm; ">
+                    <tr>
+                        <td style="border: 0cm; background-color: rgb(0, 4, 7);">
+                            <a href="https://dojotoolkit.org/"><img id="dojo" class="mediana" alt="dojo-toolkit" src='/src/main/resources/templates/images/96_dojo-toolkit.be45374836.png' /></a>
+                        </td>
+                        <td rowspan="2" style="border: 0cm;">
+                            <h1>Pokedex Dojo</h1>
+                            <a href="https://pokeapi.co/"><img alt="Pokeapi" src='/src/main/resources/templates/images/pokeapi_256.888baca4.png' /></a>
+                        </td>
+                        <td style="border: 0cm;background-color: rgb(19, 18, 18);">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 0cm; background-color: rgb(253, 6, 6);">
+                            <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='/src/main/resources/templates/images/25231.png' /></a>
+                        </td>
+
+                        <td style="border: 0cm;background-color: rgb(253, 6, 6);">
+
+                        </td>
+
+                    </tr>
+
+                </table>
             </div>
         </div>
         <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
             <button id="botonTest" class="btn btn-danger">boton test</button>
             </br>
             <div id="test"></div>
-            <select id="stateSelect" name="stateSelect" data-dojo-type="dijit/form/ComboBox" data-dojo-props="
-            value: '',
-            placeHolder: 'Select a State'">
-                <option value="AL">Alabama</option>
-                <option value="AK">Alaska</option>
-                <option value="AZ">Arizona</option>
-                <option value="AR">Arkansas</option>
-                <option value="CA">California</option>
+            <audio id="myAudio" ontimeupdate="onTimeUpdate()">
+                <!-- <source src="audio.ogg" type="audio/ogg"> -->
+                <source id="source-audio" src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
 
-    </select>
+            <div class="player-ctn">
+                <div class="infos-ctn">
+                    <div class="timer">00:00</div>
+                    <div class="title"></div>
+                    <div class="duration">00:00</div>
+                </div>
+                <div id="myProgress">
+                    <div id="myBar"></div>
+                </div>
+                <div class="btn-ctn">
+                    <div class="btn-action first-btn" onclick="previous()">
+                        <div id="btn-faws-back">
+                            <i class='fas fa-step-backward'></i>
+                        </div>
+                    </div>
+                    <div class="btn-action" onclick="rewind()">
+                        <div id="btn-faws-rewind">
+                            <i class='fas fa-backward'></i>
+                        </div>
+                    </div>
+                    <div class="btn-action" onclick="toggleAudio()">
+                        <div id="btn-faws-play-pause">
+                            <i class='fas fa-play' id="icon-play"></i>
+                            <i class='fas fa-pause' id="icon-pause" style="display: none"></i>
+                        </div>
+                    </div>
+                    <div class="btn-play" onclick="forward()">
+                        <div id="btn-faws-forward">
+                            <i class='fas fa-forward'></i>
+                        </div>
+                    </div>
+                    <div class="btn-action" onclick="next()">
+                        <div id="btn-faws-next">
+                            <i class='fas fa-step-forward'></i>
+                        </div>
+                    </div>
+                    <div class="btn-mute" id="toggleMute" onclick="toggleMute()">
+                        <div id="btn-faws-volume">
+                            <i id="icon-vol-up" class='fas fa-volume-up'></i>
+                            <i id="icon-vol-mute" class='fas fa-volume-mute' style="display: none"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="playlist-ctn"></div>
+            </div>
+            <script src='/src/main/resources/templates/js/app.js'></script>
         </div>
         <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">
             Sidebar content (right)</br>
-            <div id="input"></div>
+            <div id="abilidades"></div>
 
         </div>
 
@@ -82,8 +151,8 @@
         // Para hacer la solicitud a la API importar la funcion "dojo/request"
         require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
             "dijit/layout/ContentPane", "dojo/store/Memory", "dojo/json",
-            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/domReady!"
-        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect) {
+            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/domReady!"
+        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct) {
 
             let botonRefresh = dom.byId("botonRefresh");
             let botonTest = dom.byId("botonTest");
@@ -142,71 +211,68 @@
 
             function searchPokemon() {
                 var pokemonId = dom.byId("pokeStore").value;
+                var abilidades = dom.byId("abilidades");
+                request.get(url + pokemonId, {
+                        handleAs: "json"
+                    })
+                    .then(
+                        function(res) {
+                            //console.log(res.abilities[0].ability.name)
+                            res.abilities.forEach(element => {
+                                console.log(element.ability.name)
+                            });
+                            var html = "<table class=`table table-hover  table-responsive table-condensed` border= `1px;`><thead><tr><th scope=`col`>Nombre</th><th scope=`col`>Altura</th><th scope=`col`>Peso</th><th scope=`col`>Tipo</th><th scope=`col`>Batallas</th><th scope=`col`>Sprite</th></tr></thead>";
+                            const pokeObjeto = {
+                                id: res.id,
+                                Nombre: res.name,
+                                Tipo: res.types[0].type.name,
+                                Altura: Math.round(res.height * 10),
+                                Peso: Math.round(res.weight / 10),
+                                Batallas: res.game_indices.length,
+                                Frente: res.sprites.front_default,
+                                Espalda: res.sprites.back_default,
+                            };
+                            pokeArray.push(pokeObjeto);
+                            let cont = 0;
+                            pokeArray.forEach(element => {
+                                let background = "";
+                                if (cont % 2 == 0) {
+                                    background = "background-color: rgb(253, 6, 6);"
+                                } else {
+                                    background = "background-color: rgb(0, 4, 7);"
+                                }
 
-                var xmlhttp = new XMLHttpRequest();
+                                html = html + "<tr style='" + background + ";color: #fff;'>";
+                                html = html + "<td scope='row'>" + element.Nombre + "</td>";
+                                html = html + "<td scope='row'>" + element.Altura + "cm" + "</td>";
+                                html = html + "<td scope='row'>" + element.Peso + "kg" + "</td>";
+                                html = html + "<td scope='row'>" + element.Tipo + "</td>";
+                                html = html + "<td scope='row'>" + element.Batallas + "</td>";
+                                html = html + "<td scope='row'>" + `<img src="${element.Frente}" alt=""></td>`;
+                                html = html + "</tr>";
+                                cont++;
+                            });
+                            html = html + "</table>";
+                            tabla.innerHTML = html;
 
-                xmlhttp.onreadystatechange = function() {
-                    var response,
-                        types;
-                    if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-
-                        /* Success request */
-                        if (xmlhttp.status == 200) {
-                            var html = "<table class=`table` border= `1px;><thead><tr><th scope=`col`>Nombre</th><th scope=`col`>Altura</th><th scope=`col`>Peso</th><th scope=`col`>Tipo</th><th scope=`col`>Batallas</th><th scope=`col`>Sprite</th></tr></thead>";
-                            //response = JSON.parse(xmlhttp.responseText);
-                            fetch(url + pokemonId)
-                                .then(res => res.json())
-                                .then(res => {
-                                    const pokeObjeto = {
-                                        id: res.id,
-                                        Nombre: res.name,
-                                        Tipo: res.types[0].type.name,
-                                        Altura: Math.round(res.height * 10),
-                                        Peso: Math.round(res.weight / 10),
-                                        Batallas: res.game_indices.length,
-                                        Frente: res.sprites.front_default,
-                                        Espalda: res.sprites.back_default,
-                                    };
-                                    pokeArray.push(pokeObjeto);
-
-                                    pokeArray.forEach(element => {
-                                        html = html + "<tr>";
-                                        html = html + "<th scope='row'>" + element.Nombre + "</th>";
-                                        html = html + "<th scope='row'>" + element.Altura + "cm" + "</th>";
-                                        html = html + "<th scope='row'>" + element.Peso + "kg" + "</th>";
-                                        html = html + "<th scope='row'>" + element.Tipo + "</th>";
-                                        html = html + "<th scope='row'>" + element.Batallas + "</th>";
-                                        html = html + "<th scope='row'>" + `<img src="${element.Frente}" alt=""></th>`;
-                                        html = html + "</tr>";
-                                    });
-                                    html = html + "</table>";
-                                    tabla.innerHTML = html;
-
-                                });
-                        }
-                        /* Errors */
-                        else if (xmlhttp.status == 0) {
-                            alert('Debes escribir el nombre de un pokemon');
-
-                        } else if (xmlhttp.status == 400) {
-                            alert('There was an error 400');
-
-                        } else {
-
-                            alert('something else other than 200 was returned');
-                        }
-                    }
-                };
-
-                xmlhttp.open('GET', url + pokemonId + '/', true);
-                xmlhttp.send();
+                        })
             }
+
             //dojo.destroy("dijit_form_FilteringSelect_0");
 
 
             //obtenerPokemones()
             // Funcion de evento click izquierda
             // params (target, event, function)
+            on(document, "keyup", function(event) {
+                if (event.keyCode == 13) {
+                    var pokemonId = dom.byId("pokeStore").value;
+                    if (pokemonId != "") {
+                        searchPokemon();
+                    }
+
+                }
+            });
             on(botonRefresh, "mousedown", function(event) {
                 if (mouse.isLeft(event)) {
                     searchPokemon();

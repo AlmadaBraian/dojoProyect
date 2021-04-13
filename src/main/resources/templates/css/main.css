@@ -1,6 +1,7 @@
 table {
+    table-layout: fixed;
     width: 100%;
-    border: 1px solid #000;
+    border: 3px solid rgb(31, 25, 31);
 }
 
 th,
@@ -22,6 +23,11 @@ caption {
 
 th {
     background: #eee;
+    white-space: nowrap;
+}
+
+.top {
+    background-image: url(/src/main/resources/templates/images/twitch_banner_commission_by_kiichiii_dd4uacs-fullview.png);
 }
 
 html,
@@ -37,7 +43,12 @@ body {
 }
 
 #leftCol {
-    width: 14em;
+    width: 20em;
+    margin: 0;
+}
+
+#rightCol {
+    width: 15em;
 }
 
 .claro .demoLayout .edgePanel {
@@ -56,6 +67,17 @@ body {
     font-size: .85em;
 }
 
+img.mediana {
+    width: 100px;
+    height: 100px;
+    vertical-align: middle;
+}
+
+img.pequeña {
+    width: 75px;
+    height: 75px;
+}
+
 .edgePanel {
     display: table-cell;
     vertical-align: middle;
@@ -68,4 +90,160 @@ body {
     vertical-align: middle;
     text-align: center;
     /* requerido para alineación horizontal */
+}
+
+.leftPanel {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: left;
+    /* requerido para alineación horizontal */
+}
+
+.rightPanel {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right;
+    /* requerido para alineación horizontal */
+}
+
+.topTable {
+    width: 100%;
+    border: 0px solid rgb(255, 255, 255);
+}
+
+.centerPanel {
+    background-image: url(/src/main/resources/templates/images/thumb-1920-592678.jpg);
+}
+
+#myProgress {
+    width: 210px;
+    background-color: #d9d9f2;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#myBar {
+    width: 0%;
+    height: 3px;
+    background-color: #ffc266;
+    border-radius: 5px;
+}
+
+.logo {
+    fill: red;
+}
+
+.btn-action {
+    cursor: pointer;
+    padding-top: 10px;
+    width: 30px;
+}
+
+.btn-ctn,
+.infos-ctn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.infos-ctn {
+    padding-top: 10px;
+}
+
+.btn-ctn>div {
+    padding: 3px;
+    margin-top: 9px;
+    margin-bottom: 9px;
+}
+
+.infos-ctn>div {
+    margin-bottom: 4px;
+    color: #ffc266;
+}
+
+.first-btn {
+    margin-left: 3px;
+}
+
+.duration {
+    margin-left: 5px;
+}
+
+.title {
+    margin-left: 5px;
+    width: 105px;
+    text-align: center;
+}
+
+.player-ctn {
+    border-radius: 7px;
+    width: 210px;
+    padding: 5px;
+    background-color: #373737;
+    margin: auto;
+    margin-top: 50px;
+}
+
+.playlist-track-ctn {
+    display: flex;
+    background-color: #464646;
+    margin-top: 3px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.playlist-track-ctn:last-child {
+    /*border: 1px solid #ffc266; */
+}
+
+.playlist-track-ctn>div {
+    margin: 10px;
+}
+
+.playlist-info-track {
+    width: 80%;
+}
+
+.playlist-info-track,
+.playlist-duration {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    color: #e9cc95;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.playlist-ctn {
+    padding-bottom: 20px;
+}
+
+.active-track {
+    background: #4d4d4d;
+    color: #ffc266 !important;
+    font-weight: bold;
+}
+
+.active-track>.playlist-info-track,
+.active-track>.playlist-duration,
+.active-track>.playlist-btn-play {
+    color: #ffc266 !important;
+}
+
+.playlist-btn-play {
+    pointer-events: none;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.fas {
+    color: #ffc266;
+    font-size: 20px;
+}
+
+@import "{{baseUrl}}dojox/grid/resources/claroGrid.css";
+
+/*Grid needs an explicit height by default*/
+
+#gridDiv {
+    height: 20em;
 }
