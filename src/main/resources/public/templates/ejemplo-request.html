@@ -6,12 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
-    <link rel="stylesheet" href="/src/main/resources/templates/js/lib/dojo/dijit/themes/claro/claro.css" />
-    <link rel="stylesheet" href="/src/main/resources/templates/css/main.css" />
+    <link rel="stylesheet" href="js/lib/dojo/dijit/themes/claro/claro.css" />
+    <link rel="stylesheet" href="css/main.css" />
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a062562745.js" crossorigin="anonymous"></script>
     <title>Pokedex Dojo</title>
-    <link rel=stylesheet href="style.css" media=all/>
 
     <!-- Dojo Config e import -->
     <script>
@@ -24,7 +23,7 @@
             }, ],
         };
     </script>
-    <script src="/src/main/resources/templates/js/lib/dojo/dojo/dojo.js"></script>
+    <script src="js/lib/dojo/dojo/dojo.js"></script>
 
 
 </head>
@@ -56,11 +55,11 @@
                 <table style="border: 0cm; ">
                     <tr>
                         <td style="border: 0cm; background-color: rgb(0, 4, 7);">
-                            <a href="https://dojotoolkit.org/"><img id="dojo" class="mediana" alt="dojo-toolkit" src='/src/main/resources/templates/images/96_dojo-toolkit.be45374836.png' /></a>
+                            <a href="https://dojotoolkit.org/"><img id="dojo" class="mediana" alt="dojo-toolkit" src='images/96_dojo-toolkit.be45374836.png' /></a>
                         </td>
                         <td rowspan="2" style="border: 0cm;">
                             <h1>Pokedex Dojo</h1>
-                            <a href="https://pokeapi.co/"><img alt="Pokeapi" src='/src/main/resources/templates/images/pokeapi_256.888baca4.png' /></a>
+                            <a href="https://pokeapi.co/"><img alt="Pokeapi" src='images/pokeapi_256.888baca4.png' /></a>
                         </td>
                         <td style="border: 0cm;background-color: rgb(19, 18, 18);">
 
@@ -68,7 +67,7 @@
                     </tr>
                     <tr>
                         <td style="border: 0cm; background-color: rgb(253, 6, 6);">
-                            <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='/src/main/resources/templates/images/25231.png' /></a>
+                            <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='images/25231.png' /></a>
                         </td>
 
                         <td style="border: 0cm;background-color: rgb(253, 6, 6);">
@@ -81,9 +80,7 @@
             </div>
         </div>
         <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
-            <button id="botonTest" class="btn btn-danger">boton test</button>
-            </br>
-            <div id="test"></div>
+
             <audio id="myAudio" ontimeupdate="onTimeUpdate()">
                 <!-- <source src="audio.ogg" type="audio/ogg"> -->
                 <source id="source-audio" src="" type="audio/mpeg">
@@ -135,7 +132,7 @@
                 </div>
                 <div class="playlist-ctn"></div>
             </div>
-            <script src='/src/main/resources/templates/js/app.js'></script>
+            <script src='js/app.js'></script>
         </div>
         <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">
             Sidebar content (right)</br>
@@ -277,11 +274,6 @@
                 if (mouse.isLeft(event)) {
                     searchPokemon();
 
-                }
-            });
-            on(botonTest, "mousedown", function(event) {
-                if (mouse.isLeft(event)) {
-                    test.innerHTML = "<label>mensaje</label>";
                 }
             });
         });

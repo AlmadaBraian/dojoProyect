@@ -30,12 +30,12 @@ function createTrackItem(index, name, duration) {
 
 var listAudio = [{
         name: "Oscar Roa - pokemon opening",
-        file: "/src/main/resources/templates/music/pokemon_opening.mp3",
+        file: "music/pokemon_opening.mp3",
         duration: "03:21"
     },
     {
         name: "Artist 2 - audio 2",
-        file: "/src/main/resources/templates/music/pokemusic.mp3",
+        file: "music/pokemusic.mp3",
         duration: "01:14:18"
     },
     {
