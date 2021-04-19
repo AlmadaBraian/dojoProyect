@@ -26,121 +26,192 @@
     <script src="js/lib/dojo/dojo/dojo.js"></script>
 
 
+
 </head>
 
 <body class="claro">
 
     <div id="appLayout" class="demoLayout" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design: 'headline'">
         <div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'">
+
             <div class="panel">
-                <h4>Escriba el nombre del pokemon</h4>
-                <input id="pokemonName" name="pokemonSelect" data-dojo-props="
-                value: '',
-                placeHolder: 'Select a Pokemon'">
+                <div id="buscador" class="container">
+                    <div class="row">
+                        <div class="col-12 col-md-8">
+                            <button id="tienda" class="btn btn-danger">Click para ir a la tienda</button>
+                            <br/>
+                            <br/>
+                            <h4 style="background-color: rgba(250, 235, 215, 0.301);font-size:4vw;">Escriba el nombre del pokemon</h4>
+                            <input id="pokemonName" name="pokemonSelect" data-dojo-props="
+                        value: '',
+                        placeHolder: 'Select a Pokemon'" />
 
-                </input>
+                            <br/>
+                            <br/>
+                            <div>
+                                <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
+
+                            </div>
+                            <div id="tabla" style="width: 100%;"></div>
+                        </div>
+                        <div id="musica" class="col-auto" style="left: 20px;">
+                            <audio id="myAudio" ontimeupdate="onTimeUpdate()">
+                                <!-- <source src="audio.ogg" type="audio/ogg"> -->
+                                <source id="source-audio" src="" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                              </audio>
+
+                            <div class="player-ctn" style="width: 100%; height: auto; background-color: black;">
+                                <div class="infos-ctn">
+                                    <div class="timer">00:00</div>
+                                    <div class="title"></div>
+                                    <div class="duration">00:00</div>
+                                </div>
+                                <div id="myProgress">
+                                    <div id="myBar"></div>
+                                </div>
+                                <div class="btn-ctn">
+                                    <div class="btn-action first-btn" onclick="previous()">
+                                        <div id="btn-faws-back">
+                                            <i class='fas fa-step-backward'></i>
+                                        </div>
+                                    </div>
+                                    <div class="btn-action" onclick="rewind()">
+                                        <div id="btn-faws-rewind">
+                                            <i class='fas fa-backward'></i>
+                                        </div>
+                                    </div>
+                                    <div class="btn-action" onclick="toggleAudio()">
+                                        <div id="btn-faws-play-pause">
+                                            <i class='fas fa-play' id="icon-play"></i>
+                                            <i class='fas fa-pause' id="icon-pause" style="display: none"></i>
+                                        </div>
+                                    </div>
+                                    <div class="btn-play" onclick="forward()">
+                                        <div id="btn-faws-forward">
+                                            <i class='fas fa-forward'></i>
+                                        </div>
+                                    </div>
+                                    <div class="btn-action" onclick="next()">
+                                        <div id="btn-faws-next">
+                                            <i class='fas fa-step-forward'></i>
+                                        </div>
+                                    </div>
+                                    <div class="btn-mute" id="toggleMute" onclick="toggleMute()">
+                                        <div id="btn-faws-volume">
+                                            <i id="icon-vol-up" class='fas fa-volume-up'></i>
+                                            <i id="icon-vol-mute" class='fas fa-volume-mute' style="display: none"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="playlist-ctn"></div>
+                            </div>
+                            <script src='js/app.js'></script>
+
+                        </div>
+
+                    </div>
+                </div>
 
             </div>
+            <div class="panel">
 
-            <br/>
+                <div id="tiendaContainer" class="container" style="opacity: 0;">
+                    <div class="row">
+                        <div class="col-7" data-dojo-type="dijit/layout/TabContainer" data-dojo-props="region:'center'" style=" width: 100%;">
+                            <div class="container" data-dojo-type="dijit/layout/ContentPane" title="Remeras">
+                                <div class="row"><br/>
+                                    <br/>
+                                </div>
+                                <div class="row">
+                                    <div class="col-1">
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <div id="izquierda" class="triangulo izquierda" style="position: absolute;  ">
+                                            <div>
 
-            <div>
-                <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-10">
+                                        <main id="items" class="col-sm-12 row"></main>
+
+                                    </div>
+                                    <div class="col-auto">
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <div id="derecha" class="triangulo derecha" style="position: absolute; left: 100%;">
+                                            <div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div data-dojo-type="dijit/layout/ContentPane" title="tab #2">tab pane #2</div>
+                            <div data-dojo-type="dijit/layout/ContentPane" title="tab #3">tab pane #3</div>
+                        </div>
+
+                        <div class="col-5">
+                            <!-- Carrito -->
+                            <aside class="col-sm-9">
+                                <h2 style="text-align: center; background-color: rgba(247, 247, 247, 0.432);">Carrito</h2>
+                                <!-- Elementos del carrito -->
+                                <ul id="carrito" class="list-group"></ul>
+                                <hr>
+                                <!-- Precio total -->
+                                <p class="text-left" style="background-color: aliceblue;">Total: <span id="total"></span>&dollar;</p>
+                                <button id="boton-vaciar" class="btn btn-danger">Vaciar</button>
+                                <button data-dojo-type="dijit/form/Button" type="button" onclick="myDialog.show();">Comprar carrito</button>
+                                </button>
+                            </aside>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            <div id="tabla"></div>
         </div>
 
         <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'">
             <div class="top">
-                <table style="border: 0cm; ">
+                <table class="table table-hover  table-responsive table-condensed 'border= 1px;'" style="border: 0cm; height: 100%;">
                     <tr>
-                        <td style="border: 0cm; background-color: rgb(0, 4, 7);">
+                        <td style="border: 0cm; background-color: rgb(0, 4, 7); vertical-align: middle; ">
                             <a href="https://dojotoolkit.org/"><img id="dojo" class="mediana" alt="dojo-toolkit" src='images/96_dojo-toolkit.be45374836.png' /></a>
                         </td>
-                        <td rowspan="2" style="border: 0cm;">
-                            <h1>Pokedex Dojo</h1>
-                            <a href="https://pokeapi.co/"><img alt="Pokeapi" src='images/pokeapi_256.888baca4.png' /></a>
+                        <td rowspan="2" style="border: 0cm; width: 40%;">
+                            <h1 style="font-size:5vw;">Pokeapi dojo</h1>
+                            <a href="https://pokeapi.co/"><img class="mediana" alt="Pokeapi" src='images/pokeapi_256.888baca4.png' /></a>
                         </td>
-                        <td style="border: 0cm;background-color: rgb(19, 18, 18);">
-
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border: 0cm; background-color: rgb(253, 6, 6);">
+                        <td style="border: 0cm; background-color: rgb(253, 6, 6); vertical-align: middle; width: 20%;">
                             <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='images/25231.png' /></a>
                         </td>
-
-                        <td style="border: 0cm;background-color: rgb(253, 6, 6);">
-
-                        </td>
-
                     </tr>
+
+                    <tr>
+                        <td style="border: 0cm; background-color: rgb(253, 6, 6);"></td>
+                        <td style="border: 0cm; background-color: rgb(14, 13, 13);"></td>
+                    </tr>
+
 
                 </table>
             </div>
         </div>
-        <div id="leftCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'left', splitter: true">
-
-            <audio id="myAudio" ontimeupdate="onTimeUpdate()">
-                <!-- <source src="audio.ogg" type="audio/ogg"> -->
-                <source id="source-audio" src="" type="audio/mpeg">
-                Your browser does not support the audio element.
-              </audio>
-
-            <div class="player-ctn">
-                <div class="infos-ctn">
-                    <div class="timer">00:00</div>
-                    <div class="title"></div>
-                    <div class="duration">00:00</div>
-                </div>
-                <div id="myProgress">
-                    <div id="myBar"></div>
-                </div>
-                <div class="btn-ctn">
-                    <div class="btn-action first-btn" onclick="previous()">
-                        <div id="btn-faws-back">
-                            <i class='fas fa-step-backward'></i>
-                        </div>
-                    </div>
-                    <div class="btn-action" onclick="rewind()">
-                        <div id="btn-faws-rewind">
-                            <i class='fas fa-backward'></i>
-                        </div>
-                    </div>
-                    <div class="btn-action" onclick="toggleAudio()">
-                        <div id="btn-faws-play-pause">
-                            <i class='fas fa-play' id="icon-play"></i>
-                            <i class='fas fa-pause' id="icon-pause" style="display: none"></i>
-                        </div>
-                    </div>
-                    <div class="btn-play" onclick="forward()">
-                        <div id="btn-faws-forward">
-                            <i class='fas fa-forward'></i>
-                        </div>
-                    </div>
-                    <div class="btn-action" onclick="next()">
-                        <div id="btn-faws-next">
-                            <i class='fas fa-step-forward'></i>
-                        </div>
-                    </div>
-                    <div class="btn-mute" id="toggleMute" onclick="toggleMute()">
-                        <div id="btn-faws-volume">
-                            <i id="icon-vol-up" class='fas fa-volume-up'></i>
-                            <i id="icon-vol-mute" class='fas fa-volume-mute' style="display: none"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="playlist-ctn"></div>
-            </div>
-            <script src='js/app.js'></script>
-        </div>
-        <div id="rightCol" class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'right', splitter: true">
-            Sidebar content (right)</br>
-            <div id="abilidades"></div>
-
-        </div>
-
-    </div>
 
     </div>
     <!-- Funciones Dojo -->
@@ -148,10 +219,13 @@
         // Para hacer la solicitud a la API importar la funcion "dojo/request"
         require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
             "dijit/layout/ContentPane", "dojo/store/Memory", "dojo/json",
-            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/domReady!"
-        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct) {
+            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/html", 'dojo/fx', "dojo/dom-style", "js/tienda", "dojo/_base/fx", "dojo/domReady!"
+        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct, html, coreFx, domStyle, tienda, fx) {
 
             let botonRefresh = dom.byId("botonRefresh");
+            let botonTienda = dom.byId('tienda');
+            let contenedor = dom.byId('buscador');
+            let contenedorTienda = dom.byId('tiendaContainer');
             let botonTest = dom.byId("botonTest");
             let tabla = dom.byId("tabla");
             let test = dom.byId("test");
@@ -162,6 +236,34 @@
             //let test2 = "<option>" + url + "</option>";
             //options.innerHTML = test2;
 
+            function irTienda() {
+
+                domStyle.set(contenedor, "opacity", "1");
+                var fadeArgs = {
+                    node: contenedor,
+                    duration: 2000,
+                };
+                fx.fadeOut(fadeArgs).play();
+
+                setTimeout(function() {
+                    domStyle.set("tiendaContainer", "opacity", "0");
+                    var fadeArgs = {
+                        node: "tiendaContainer",
+                        duration: 4000,
+                    };
+                    fx.fadeIn(fadeArgs).play();
+
+                }, 1000);
+
+
+                //domStyle.set("tiendaContainer", "opacity", "1");
+
+                setTimeout(function() {
+                    domConstruct.destroy(contenedor);
+                }, 2000);
+
+
+            }
 
             function setOptions() {
                 var deferred = new Deferred();
@@ -218,7 +320,8 @@
                             res.abilities.forEach(element => {
                                 console.log(element.ability.name)
                             });
-                            var html = "<table class=`table table-hover  table-responsive table-condensed` border= `1px;`><thead><tr><th scope=`col`>Nombre</th><th scope=`col`>Altura</th><th scope=`col`>Peso</th><th scope=`col`>Tipo</th><th scope=`col`>Batallas</th><th scope=`col`>Sprite</th></tr></thead>";
+
+                            var ht = "<table class=`table table-hover  table-responsive table-condensed` border= `1px;`><thead><tr style='font-size:1.5vw;'><th scope=`col`>Nombre</th><th scope=`col`>Altura</th><th scope=`col`>Peso</th><th scope=`col`>Tipo</th><th scope=`col`>Batallas</th><th scope=`col`>Sprite</th></tr></thead>";
                             const pokeObjeto = {
                                 id: res.id,
                                 Nombre: res.name,
@@ -239,18 +342,21 @@
                                     background = "background-color: rgb(0, 4, 7);"
                                 }
 
-                                html = html + "<tr style='" + background + ";color: #fff;'>";
-                                html = html + "<td scope='row'>" + element.Nombre + "</td>";
-                                html = html + "<td scope='row'>" + element.Altura + "cm" + "</td>";
-                                html = html + "<td scope='row'>" + element.Peso + "kg" + "</td>";
-                                html = html + "<td scope='row'>" + element.Tipo + "</td>";
-                                html = html + "<td scope='row'>" + element.Batallas + "</td>";
-                                html = html + "<td scope='row'>" + `<img src="${element.Frente}" alt=""></td>`;
-                                html = html + "</tr>";
+                                ht = ht + "<tr style='" + background + ";color: #fff; font-size:2vw;'>";
+                                ht = ht + "<td scope='row' >" + element.Nombre + "</td>";
+                                ht = ht + "<td scope='row'>" + element.Altura + "cm" + "</td>";
+                                ht = ht + "<td scope='row'>" + element.Peso + "kg" + "</td>";
+                                ht = ht + "<td scope='row'>" + element.Tipo + "</td>";
+                                ht = ht + "<td scope='row'>" + element.Batallas + "</td>";
+                                ht = ht + "<td scope='row'>" + `<img src="${element.Frente}" alt="" style='width: 120%; height: auto;'></td>`;
+                                ht = ht + "</tr>";
                                 cont++;
                             });
-                            html = html + "</table>";
-                            tabla.innerHTML = html;
+                            ht = ht + "</table>";
+                            html.set(tabla, ht, {
+                                    parseContent: true
+                                })
+                                //tabla.innerHTML = html;
 
                         })
             }
@@ -273,6 +379,12 @@
             on(botonRefresh, "mousedown", function(event) {
                 if (mouse.isLeft(event)) {
                     searchPokemon();
+
+                }
+            });
+            on(botonTienda, "mousedown", function(event) {
+                if (mouse.isLeft(event)) {
+                    irTienda();
 
                 }
             });

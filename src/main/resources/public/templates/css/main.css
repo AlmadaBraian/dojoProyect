@@ -6,7 +6,7 @@ table {
 
 th,
 td {
-    width: 25%;
+    width: 30%;
     text-align: center;
     vertical-align: middle;
     border: 1px solid #000;
@@ -28,6 +28,8 @@ th {
 
 .top {
     background-image: url(../images/twitch_banner_commission_by_kiichiii_dd4uacs-fullview.png);
+    width: 100%;
+    height: auto;
 }
 
 html,
@@ -43,14 +45,15 @@ body {
 }
 
 #leftCol {
-    width: 20em;
+    width: 20%;
     margin: 0;
     background-color: #000000;
 }
 
 #rightCol {
-    width: 15em;
+    width: 20%;
     background-image: url(../images/tumblr_static_pokemon.png);
+    margin: 0;
     color: #eee;
 }
 
@@ -71,14 +74,15 @@ body {
 }
 
 img.mediana {
-    width: 100px;
-    height: 100px;
+    width: 60%;
+    height: auto;
     vertical-align: middle;
 }
 
 img.pequeña {
-    width: 75px;
-    height: 75px;
+    width: 40%;
+    height: auto;
+    vertical-align: middle;
 }
 
 .edgePanel {
@@ -92,6 +96,7 @@ img.pequeña {
     display: table-cell;
     vertical-align: middle;
     text-align: center;
+    width: 80%;
     /* requerido para alineación horizontal */
 }
 
@@ -138,7 +143,7 @@ img.pequeña {
 
 .btn-action {
     cursor: pointer;
-    padding-top: 10px;
+    padding-top: 5px;
     width: 30px;
 }
 
@@ -150,7 +155,7 @@ img.pequeña {
 }
 
 .infos-ctn {
-    padding-top: 10px;
+    padding-top: 5px;
 }
 
 .btn-ctn>div {
@@ -181,7 +186,7 @@ img.pequeña {
 .player-ctn {
     border-radius: 7px;
     width: 210px;
-    padding: 5px;
+    padding: 3px;
     background-color: #ff0000;
     margin: auto;
     margin-top: 50px;
@@ -200,11 +205,11 @@ img.pequeña {
 }
 
 .playlist-track-ctn>div {
-    margin: 10px;
+    margin: 3px;
 }
 
 .playlist-info-track {
-    width: 80%;
+    width: 60%;
 }
 
 .playlist-info-track,
