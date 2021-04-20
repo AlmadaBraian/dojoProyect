@@ -38,7 +38,6 @@
                 <div id="buscador" class="container">
                     <div class="row">
                         <div class="col-12 col-md-8">
-                            <button id="tienda" class="btn btn-danger">Click para ir a la tienda</button>
                             <br/>
                             <br/>
                             <h4 style="background-color: rgba(250, 235, 215, 0.301);font-size:4vw;">Escriba el nombre del pokemon</h4>
@@ -54,60 +53,11 @@
                             </div>
                             <div id="tabla" style="width: 100%;"></div>
                         </div>
-                        <div id="musica" class="col-auto" style="left: 20px;">
-                            <audio id="myAudio" ontimeupdate="onTimeUpdate()">
-                                <!-- <source src="audio.ogg" type="audio/ogg"> -->
-                                <source id="source-audio" src="" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                              </audio>
-
-                            <div class="player-ctn" style="width: 100%; height: auto; background-color: black;">
-                                <div class="infos-ctn">
-                                    <div class="timer">00:00</div>
-                                    <div class="title"></div>
-                                    <div class="duration">00:00</div>
-                                </div>
-                                <div id="myProgress">
-                                    <div id="myBar"></div>
-                                </div>
-                                <div class="btn-ctn">
-                                    <div class="btn-action first-btn" onclick="previous()">
-                                        <div id="btn-faws-back">
-                                            <i class='fas fa-step-backward'></i>
-                                        </div>
-                                    </div>
-                                    <div class="btn-action" onclick="rewind()">
-                                        <div id="btn-faws-rewind">
-                                            <i class='fas fa-backward'></i>
-                                        </div>
-                                    </div>
-                                    <div class="btn-action" onclick="toggleAudio()">
-                                        <div id="btn-faws-play-pause">
-                                            <i class='fas fa-play' id="icon-play"></i>
-                                            <i class='fas fa-pause' id="icon-pause" style="display: none"></i>
-                                        </div>
-                                    </div>
-                                    <div class="btn-play" onclick="forward()">
-                                        <div id="btn-faws-forward">
-                                            <i class='fas fa-forward'></i>
-                                        </div>
-                                    </div>
-                                    <div class="btn-action" onclick="next()">
-                                        <div id="btn-faws-next">
-                                            <i class='fas fa-step-forward'></i>
-                                        </div>
-                                    </div>
-                                    <div class="btn-mute" id="toggleMute" onclick="toggleMute()">
-                                        <div id="btn-faws-volume">
-                                            <i id="icon-vol-up" class='fas fa-volume-up'></i>
-                                            <i id="icon-vol-mute" class='fas fa-volume-mute' style="display: none"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="playlist-ctn"></div>
-                            </div>
-                            <script src='js/app.js'></script>
-
+                        <div class="col-auto" style="left: 20px;">
+                            <div id="musica"></div>
+                            <br/>
+                            <br/>
+                            <button id="tienda" class="btn btn-danger">Click para ir a la tienda</button>
                         </div>
 
                     </div>
@@ -117,71 +67,7 @@
             <div class="panel">
 
                 <div id="tiendaContainer" class="container" style="opacity: 0;">
-                    <div class="row">
-                        <div class="col-7" data-dojo-type="dijit/layout/TabContainer" data-dojo-props="region:'center'" style=" width: 100%;">
-                            <div class="container" data-dojo-type="dijit/layout/ContentPane" title="Remeras">
-                                <div class="row"><br/>
-                                    <br/>
-                                </div>
-                                <div class="row">
-                                    <div class="col-1">
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <div id="izquierda" class="triangulo izquierda" style="position: absolute;  ">
-                                            <div>
 
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <div class="col-10">
-                                        <main id="items" class="col-sm-12 row"></main>
-
-                                    </div>
-                                    <div class="col-auto">
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-                                        <div id="derecha" class="triangulo derecha" style="position: absolute; left: 100%;">
-                                            <div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div data-dojo-type="dijit/layout/ContentPane" title="tab #2">tab pane #2</div>
-                            <div data-dojo-type="dijit/layout/ContentPane" title="tab #3">tab pane #3</div>
-                        </div>
-
-                        <div class="col-5">
-                            <!-- Carrito -->
-                            <aside class="col-sm-9">
-                                <h2 style="text-align: center; background-color: rgba(247, 247, 247, 0.432);">Carrito</h2>
-                                <!-- Elementos del carrito -->
-                                <ul id="carrito" class="list-group"></ul>
-                                <hr>
-                                <!-- Precio total -->
-                                <p class="text-left" style="background-color: aliceblue;">Total: <span id="total"></span>&dollar;</p>
-                                <button id="boton-vaciar" class="btn btn-danger">Vaciar</button>
-                                <button data-dojo-type="dijit/form/Button" type="button" onclick="myDialog.show();">Comprar carrito</button>
-                                </button>
-                            </aside>
-                        </div>
-                    </div>
 
                 </div>
             </div>
@@ -219,8 +105,8 @@
         // Para hacer la solicitud a la API importar la funcion "dojo/request"
         require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
             "dijit/layout/ContentPane", "dojo/store/Memory", "dojo/json",
-            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/html", 'dojo/fx', "dojo/dom-style", "js/tienda", "dojo/_base/fx", "dojo/domReady!"
-        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct, html, coreFx, domStyle, tienda, fx) {
+            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/html", 'dojo/fx', "dojo/dom-style", "js/tienda", "dojo/_base/fx", "js/app", "dojo/domReady!"
+        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct, html, coreFx, domStyle, tienda, fx, app) {
 
             let botonRefresh = dom.byId("botonRefresh");
             let botonTienda = dom.byId('tienda');
@@ -233,6 +119,7 @@
 
             const url = "https://pokeapi.co/api/v2/pokemon/";
 
+
             //let test2 = "<option>" + url + "</option>";
             //options.innerHTML = test2;
 
@@ -241,9 +128,14 @@
                 domStyle.set(contenedor, "opacity", "1");
                 var fadeArgs = {
                     node: contenedor,
-                    duration: 2000,
+                    duration: 500,
                 };
                 fx.fadeOut(fadeArgs).play();
+
+                coreFx.slideTo({
+                    node: contenedor,
+                    left: "1500",
+                }).play();
 
                 setTimeout(function() {
                     domStyle.set("tiendaContainer", "opacity", "0");
@@ -254,13 +146,18 @@
                     fx.fadeIn(fadeArgs).play();
 
                 }, 1000);
+                coreFx.slideTo({
+                    node: contenedor,
+                    bottom: "1500",
+                    right: "1500"
+                }).play();
 
 
                 //domStyle.set("tiendaContainer", "opacity", "1");
 
-                setTimeout(function() {
-                    domConstruct.destroy(contenedor);
-                }, 2000);
+                //setTimeout(function() {
+                //  domConstruct.destroy(contenedor);
+                //}, 2000);
 
 
             }
