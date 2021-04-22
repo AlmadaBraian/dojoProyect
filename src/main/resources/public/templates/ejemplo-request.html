@@ -6,9 +6,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
-    <link rel="stylesheet" href="js/lib/dojo/dijit/themes/claro/claro.css" />
-    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css">
+
+
+    <link rel="stylesheet" href="css/tienda.css" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/claro/EnhancedGrid.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/EnhancedGrid_rtl.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+
+    <style type="text/css">
+        /*Grid need a explicit width/height by default*/
+        
+        #grid {
+            width: 45em;
+            height: 400px;
+        }
+    </style>
+    <link rel="stylesheet" href="css/main.css" />
     <script src="https://kit.fontawesome.com/a062562745.js" crossorigin="anonymous"></script>
     <title>Pokedex Dojo</title>
 
@@ -51,13 +65,70 @@
                                 <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
 
                             </div>
-                            <div id="tabla" style="width: 100%;"></div>
+                            <div style="height:400px">
+                                <div id="tabla"></div>
+                            </div>
                         </div>
-                        <div class="col-auto" style="left: 20px;">
-                            <div id="musica"></div>
-                            <br/>
-                            <br/>
+
+                        <div class="col-auto" style="left: 10px;">
                             <button id="tienda" class="btn btn-danger">Click para ir a la tienda</button>
+                            <div id="musica">
+                                <audio id="myAudio" ontimeupdate="onTimeUpdate()">
+                            <!-- <source src="audio.ogg" type="audio/ogg"> -->
+                            <source id="source-audio" src="" type="audio/mpeg"> Your browser does not support the audio element.
+                            </audio>
+
+                                <div class="player-ctn" style="width: 100%; height: auto; background-color: black;">
+                                    <div class="infos-ctn">
+                                        <div class="timer">00:00</div>
+                                        <div class="title"></div>
+                                        <div class="duration">00:00</div>
+                                    </div>
+                                    <div id="myProgress">
+                                        <div id="myBar"></div>
+                                    </div>
+                                    <div class="btn-ctn">
+                                        <div class="btn-action first-btn" onclick="previous()">
+                                            <div id="btn-faws-back">
+                                                <i class='fas fa-step-backward'></i>
+                                            </div>
+                                        </div>
+                                        <div class="btn-action" onclick="rewind()">
+                                            <div id="btn-faws-rewind">
+                                                <i class='fas fa-backward'></i>
+                                            </div>
+                                        </div>
+                                        <div class="btn-action" onclick="toggleAudio()">
+                                            <div id="btn-faws-play-pause">
+                                                <i class='fas fa-play' id="icon-play"></i>
+                                                <i class='fas fa-pause' id="icon-pause" style="display: none"></i>
+                                            </div>
+                                        </div>
+                                        <div class="btn-play" onclick="forward()">
+                                            <div id="btn-faws-forward">
+                                                <i class='fas fa-forward'></i>
+                                            </div>
+                                        </div>
+                                        <div class="btn-action" onclick="next()">
+                                            <div id="btn-faws-next">
+                                                <i class='fas fa-step-forward'></i>
+                                            </div>
+                                        </div>
+                                        <div class="btn-mute" id="toggleMute" onclick="toggleMute()">
+                                            <div id="btn-faws-volume">
+                                                <i id="icon-vol-up" class='fas fa-volume-up'></i>
+                                                <i id="icon-vol-mute" class='fas fa-volume-mute' style="display: none"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="playlist-ctn"></div>
+
+                                </div>
+                                <script src="js/app.js"></script>
+                            </div>
+                            <br/>
+                            <br/>
+
                         </div>
 
                     </div>
@@ -73,19 +144,19 @@
             </div>
         </div>
 
-        <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'">
-            <div class="top">
+        <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'" style="height: 40%;">
+            <div class="top" style="width: 100%;">
                 <table class="table table-hover  table-responsive table-condensed 'border= 1px;'" style="border: 0cm; height: 100%;">
                     <tr>
                         <td style="border: 0cm; background-color: rgb(0, 4, 7); vertical-align: middle; ">
-                            <a href="https://dojotoolkit.org/"><img id="dojo" class="mediana" alt="dojo-toolkit" src='images/96_dojo-toolkit.be45374836.png' /></a>
+                            <a href="https://dojotoolkit.org/"><img id="dojo" class="mediana" alt="dojo-toolkit" src='images/96_dojo-toolkit.be45374836.png' width="20%" /></a>
                         </td>
                         <td rowspan="2" style="border: 0cm; width: 40%;">
                             <h1 style="font-size:5vw;">Pokeapi dojo</h1>
-                            <a href="https://pokeapi.co/"><img class="mediana" alt="Pokeapi" src='images/pokeapi_256.888baca4.png' /></a>
+                            <a href="https://pokeapi.co/"><img class="mediana" alt="Pokeapi" src='images/pokeapi_256.888baca4.png' width="20%" /></a>
                         </td>
                         <td style="border: 0cm; background-color: rgb(253, 6, 6); vertical-align: middle; width: 20%;">
-                            <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='images/25231.png' /></a>
+                            <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='images/25231.png' width="20%" /></a>
                         </td>
                     </tr>
 
@@ -105,19 +176,21 @@
         // Para hacer la solicitud a la API importar la funcion "dojo/request"
         require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
             "dijit/layout/ContentPane", "dojo/store/Memory", "dojo/json",
-            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/html", 'dojo/fx', "dojo/dom-style", "js/tienda", "dojo/_base/fx", "js/app", "dojo/domReady!"
-        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct, html, coreFx, domStyle, tienda, fx, app) {
+            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/html", 'dojo/fx', "dojo/dom-style", "js/tienda", "dojo/_base/fx", "dojo/domReady!"
+        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct, html, coreFx, domStyle, tienda, fx) {
 
             let botonRefresh = dom.byId("botonRefresh");
             let botonTienda = dom.byId('tienda');
+            let botonBuscador = dom.byId("busc")
             let contenedor = dom.byId('buscador');
+            let musica = dom.byId("musica");
             let contenedorTienda = dom.byId('tiendaContainer');
             let botonTest = dom.byId("botonTest");
             let tabla = dom.byId("tabla");
             let test = dom.byId("test");
             let pokeArray = [];
 
-            const url = "https://pokeapi.co/api/v2/pokemon/";
+
 
 
             //let test2 = "<option>" + url + "</option>";
@@ -151,7 +224,8 @@
                     bottom: "1500",
                     right: "1500"
                 }).play();
-
+                domConstruct.place(musica, "rep");
+                domStyle.set("rep", "opacity", "1");
 
                 //domStyle.set("tiendaContainer", "opacity", "1");
 
@@ -161,6 +235,33 @@
 
 
             }
+
+
+
+            function irBuscador() {
+                domStyle.set(musica, "opacity", "1");
+                setTimeout(function() {
+                    domStyle.set("tiendaContainer", "opacity", "1");
+                    var fadeArgs = {
+                        node: "tiendaContainer",
+                        duration: 1000,
+                    };
+                    fx.fadeOut(fadeArgs).play();
+
+                }, 1000);
+                location.reload();
+                //domConstruct.place("rep", musica);
+                //
+
+                //domStyle.set("tiendaContainer", "opacity", "1");
+
+                //setTimeout(function() {
+                //  domConstruct.destroy(contenedor);
+                //}, 2000);
+
+
+            }
+
 
             function setOptions() {
                 var deferred = new Deferred();
@@ -205,88 +306,30 @@
             // let opcion = "<option>" + element + "</option>";
             //poke.innerHTML = opcion;})
 
-            function searchPokemon() {
-                var pokemonId = dom.byId("pokeStore").value;
-                var abilidades = dom.byId("abilidades");
-                request.get(url + pokemonId, {
-                        handleAs: "json"
-                    })
-                    .then(
-                        function(res) {
-                            //console.log(res.abilities[0].ability.name)
-                            res.abilities.forEach(element => {
-                                console.log(element.ability.name)
-                            });
-
-                            var ht = "<table class=`table table-hover  table-responsive table-condensed` border= `1px;`><thead><tr style='font-size:1.5vw;'><th scope=`col`>Nombre</th><th scope=`col`>Altura</th><th scope=`col`>Peso</th><th scope=`col`>Tipo</th><th scope=`col`>Batallas</th><th scope=`col`>Sprite</th></tr></thead>";
-                            const pokeObjeto = {
-                                id: res.id,
-                                Nombre: res.name,
-                                Tipo: res.types[0].type.name,
-                                Altura: Math.round(res.height * 10),
-                                Peso: Math.round(res.weight / 10),
-                                Batallas: res.game_indices.length,
-                                Frente: res.sprites.front_default,
-                                Espalda: res.sprites.back_default,
-                            };
-                            pokeArray.push(pokeObjeto);
-                            let cont = 0;
-                            pokeArray.forEach(element => {
-                                let background = "";
-                                if (cont % 2 == 0) {
-                                    background = "background-color: rgb(253, 6, 6);"
-                                } else {
-                                    background = "background-color: rgb(0, 4, 7);"
-                                }
-
-                                ht = ht + "<tr style='" + background + ";color: #fff; font-size:2vw;'>";
-                                ht = ht + "<td scope='row' >" + element.Nombre + "</td>";
-                                ht = ht + "<td scope='row'>" + element.Altura + "cm" + "</td>";
-                                ht = ht + "<td scope='row'>" + element.Peso + "kg" + "</td>";
-                                ht = ht + "<td scope='row'>" + element.Tipo + "</td>";
-                                ht = ht + "<td scope='row'>" + element.Batallas + "</td>";
-                                ht = ht + "<td scope='row'>" + `<img src="${element.Frente}" alt="" style='width: 120%; height: auto;'></td>`;
-                                ht = ht + "</tr>";
-                                cont++;
-                            });
-                            ht = ht + "</table>";
-                            html.set(tabla, ht, {
-                                    parseContent: true
-                                })
-                                //tabla.innerHTML = html;
-
-                        })
-            }
-
             //dojo.destroy("dijit_form_FilteringSelect_0");
 
 
             //obtenerPokemones()
             // Funcion de evento click izquierda
             // params (target, event, function)
-            on(document, "keyup", function(event) {
-                if (event.keyCode == 13) {
-                    var pokemonId = dom.byId("pokeStore").value;
-                    if (pokemonId != "") {
-                        searchPokemon();
-                    }
 
-                }
-            });
-            on(botonRefresh, "mousedown", function(event) {
-                if (mouse.isLeft(event)) {
-                    searchPokemon();
 
-                }
-            });
             on(botonTienda, "mousedown", function(event) {
                 if (mouse.isLeft(event)) {
                     irTienda();
 
                 }
             });
+            on(botonBuscador, "mousedown", function(event) {
+                if (mouse.isLeft(event)) {
+                    irBuscador();
+
+                }
+            });
         });
     </script>
+    <script src="js/tabla2.js"></script>
+
 </body>
 
 </html>

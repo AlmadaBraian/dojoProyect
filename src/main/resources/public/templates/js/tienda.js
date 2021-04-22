@@ -3,6 +3,7 @@ let total = 0;
 define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query", "dojo/store/Memory", "dijit/Dialog", "dojo/domReady!"], function(dom, domConstruct, on, query, Memory, Dialog) {
     var node = domConstruct.toDom(`<div class="row">
     <div class="col-7" data-dojo-type="dijit/layout/TabContainer" data-dojo-props="region:'center'" style=" width: 100%;">
+    <button id="busc" class="btn btn-danger">Click para ir al buscador</button>
         <div class="container" data-dojo-type="dijit/layout/ContentPane" title="Remeras">
             <div class="row"><br/>
                 <br/>
@@ -64,6 +65,7 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
             <button data-dojo-type="dijit/form/Button" type="button" onclick="myDialog.show();">Comprar carrito</button>
             </button>
         </aside>
+        <div id="rep"></div>
     </div>
 </div>`);
     domConstruct.place(node, "tiendaContainer");
@@ -188,11 +190,11 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
                 return itemId === item ? total += 1 : total;
             }, 0);
             // Creamos el nodo del item del carrito
-            const miNodo = document.createElement('li');
+            const miNodo = domConstruct.create('li');
             miNodo.classList.add('list-group-item', 'text-left', 'mx-2');
             miNodo.textContent = `${numeroUnidadesItem} x ${miItem[0].nombre} - ${miItem[0].precio}$`;
             // Boton de borrar
-            const miBoton = document.createElement('button');
+            const miBoton = domConstruct.create('button');
             miBoton.classList.add('btn', 'btn-danger', 'mx-2');
             miBoton.textContent = 'X';
             miBoton.style.marginLeft = '1rem';

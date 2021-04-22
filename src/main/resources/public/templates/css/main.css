@@ -7,6 +7,7 @@ table {
 th,
 td {
     width: 30%;
+    height: 100%;
     text-align: center;
     vertical-align: middle;
     border: 1px solid #000;
@@ -246,6 +247,10 @@ img.pequeña {
 .fas {
     color: #ffffff;
     font-size: 20px;
+}
+
+.dojoxGridRowTable {
+    height: 120%;
 }
 
 @import "{{baseUrl}}dojox/grid/resources/claroGrid.css";

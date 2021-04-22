@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/resources/dojo.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/claro/EnhancedGrid.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/EnhancedGrid_rtl.css">
+    <style type="text/css">
+        /*Grid need a explicit width/height by default*/
+        
+        #grid {
+            width: 45em;
+            height: 20em;
+        }
+    </style>
+    <!-- Dojo Config e import -->
+    <script>
+        var dojoConfig = {
+            parseOnLoad: 1,
+            async: true,
+            packages: [{
+                name: "js",
+                location: location.pathname.replace(/\/[^/]*$/, "") + "/js",
+            }, ],
+        };
+    </script>
+    <script src="js/lib/dojo/dojo/dojo.js"></script>
+
+
+
+</head>
+
+<body class="claro">
+    <script src="js/tabla.js">
+    </script>
+    <div id="gridDiv" class="grid"></div>
+</body>
+
+</html>
