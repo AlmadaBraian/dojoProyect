@@ -2,8 +2,8 @@ let carrito = [];
 let total = 0;
 define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query", "dojo/store/Memory", "dijit/Dialog", "dojo/domReady!"], function(dom, domConstruct, on, query, Memory, Dialog) {
     var node = domConstruct.toDom(`<div class="row">
-    <div class="col-7" data-dojo-type="dijit/layout/TabContainer" data-dojo-props="region:'center'" style=" width: 100%;">
-    <button id="busc" class="btn btn-danger">Click para ir al buscador</button>
+    <div class="col-12" data-dojo-type="dijit/layout/TabContainer" data-dojo-props="style: { height: '400px', width: '200px' }">
+    
         <div class="container" data-dojo-type="dijit/layout/ContentPane" title="Remeras">
             <div class="row"><br/>
                 <br/>
@@ -18,7 +18,7 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
                     <br/>
                     <br/>
                     <br/>
-                    <div id="izquierda" class="triangulo izquierda" style="position: absolute;  ">
+                    <div id="izquierda" class="triangulo izquierda" style="position: absolute; right: 30%; ">
                         <div>
 
                         </div>
@@ -38,7 +38,7 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
                     <br/>
                     <br/>
                     <br/>
-                    <div id="derecha" class="triangulo derecha" style="position: absolute; left: 100%;">
+                    <div id="derecha" class="triangulo derecha" style="position: absolute; left: 30%;">
                         <div>
 
                         </div>
@@ -50,11 +50,9 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
 
         <div data-dojo-type="dijit/layout/ContentPane" title="tab #2">tab pane #2</div>
         <div data-dojo-type="dijit/layout/ContentPane" title="tab #3">tab pane #3</div>
-    </div>
-
-    <div class="col-5">
+        <div data-dojo-type="dijit/layout/ContentPane" title="Carrito">
         <!-- Carrito -->
-        <aside class="col-sm-9">
+        <aside >
             <h2 style="text-align: center; background-color: rgba(247, 247, 247, 0.432);">Carrito</h2>
             <!-- Elementos del carrito -->
             <ul id="carrito" class="list-group"></ul>
@@ -65,8 +63,9 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
             <button data-dojo-type="dijit/form/Button" type="button" onclick="myDialog.show();">Comprar carrito</button>
             </button>
         </aside>
-        <div id="rep"></div>
+        </div>
     </div>
+
 </div>`);
     domConstruct.place(node, "tiendaContainer");
 
@@ -129,7 +128,7 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
             const miNodoCardBody = domConstruct.create('div');
             miNodoCardBody.classList.add('card-body');
             // Titulo
-            const miNodoTitle = domConstruct.create('h5');
+            const miNodoTitle = domConstruct.create('p');
             miNodoTitle.classList.add('card-title');
             miNodoTitle.textContent = info.nombre;
             // Imagen

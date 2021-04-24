@@ -58,8 +58,12 @@ body {
     color: #eee;
 }
 
-.claro .demoLayout .edgePanel {
+.demoLayout .edgePanel {
     background-color: #d0e9fc;
+}
+
+.claro {
+    background-color: rgba(0, 0, 0, 0);
 }
 
 #viewsChart {
@@ -75,13 +79,13 @@ body {
 }
 
 img.mediana {
-    width: 60%;
+    width: 110px;
     height: auto;
     vertical-align: middle;
 }
 
 img.pequeña {
-    width: 40%;
+    width: 20%;
     height: auto;
     vertical-align: middle;
 }
@@ -99,6 +103,14 @@ img.pequeña {
     text-align: center;
     width: 80%;
     /* requerido para alineación horizontal */
+}
+
+.container {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.dijitTabContainerTopChildWrapper {
+    background-color: #c4c411;
 }
 
 .leftPanel {
@@ -249,8 +261,8 @@ img.pequeña {
     font-size: 20px;
 }
 
-.dojoxGridRowTable {
-    height: 120%;
+.dijitTabContainerTopChildWrapper {
+    background-color: rgba(0, 0, 0, 0)
 }
 
 @import "{{baseUrl}}dojox/grid/resources/claroGrid.css";

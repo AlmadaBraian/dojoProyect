@@ -5,21 +5,23 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/resources/dojo.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/claro/EnhancedGrid.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/EnhancedGrid_rtl.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
 
 
     <link rel="stylesheet" href="css/tienda.css" />
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/claro/EnhancedGrid.css">
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/EnhancedGrid_rtl.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 
     <style type="text/css">
         /*Grid need a explicit width/height by default*/
         
         #grid {
-            width: 45em;
-            height: 400px;
+            width: 55em;
+            height: 350px;
         }
     </style>
     <link rel="stylesheet" href="css/main.css" />
@@ -46,37 +48,55 @@
 <body class="claro">
 
     <div id="appLayout" class="demoLayout" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design: 'headline'">
-        <div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'">
-
+        <div class="centerPanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'center'" style="height: 150%;">
             <div class="panel">
-                <div id="buscador" class="container">
+                <div class="container">
                     <div class="row">
-                        <div class="col-12 col-md-8">
-                            <br/>
-                            <br/>
-                            <h4 style="background-color: rgba(250, 235, 215, 0.301);font-size:4vw;">Escriba el nombre del pokemon</h4>
-                            <input id="pokemonName" name="pokemonSelect" data-dojo-props="
+                        <div class="col-8" data-dojo-type="dijit/layout/TabContainer" data-dojo-props="style: { height: '100%', width: '400px' }">
+                            <div class="container" data-dojo-type="dijit/layout/ContentPane" title="buscador">
+
+                                <div>
+                                    <br/>
+                                    <br/>
+                                    <h4 style="background-color: rgba(250, 235, 215, 0.432);font-size:4vw;">Escriba el nombre del pokemon</h4>
+                                    <input id="pokemonName" name="pokemonSelect" data-dojo-props="
                         value: '',
                         placeHolder: 'Select a Pokemon'" />
 
-                            <br/>
-                            <br/>
-                            <div>
-                                <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
+                                    <br/>
+                                    <br/>
+                                    <div>
+                                        <h4><button id="botonRefresh" class="btn btn-danger">Click para hacer el request</button></h4>
 
+                                    </div>
+                                    <div class="grid">
+                                        <div id="tabla"></div>
+                                    </div>
+
+
+
+                                </div>
                             </div>
-                            <div style="height:400px">
-                                <div id="tabla"></div>
+
+
+                            <div class="container" data-dojo-type="dijit/layout/ContentPane" title="tienda">
+
+                                <div id="tiendaContainer" class="container">
+
+
+                                </div>
+                            </div>
+                            <div id="tab" class="container" data-dojo-type="dijit/layout/ContentPane" title="Poke tabla">
+                                <div id="gridDiv" class="grid"></div>
                             </div>
                         </div>
+                        <div class="col-auto">
 
-                        <div class="col-auto" style="left: 10px;">
-                            <button id="tienda" class="btn btn-danger">Click para ir a la tienda</button>
                             <div id="musica">
                                 <audio id="myAudio" ontimeupdate="onTimeUpdate()">
-                            <!-- <source src="audio.ogg" type="audio/ogg"> -->
-                            <source id="source-audio" src="" type="audio/mpeg"> Your browser does not support the audio element.
-                            </audio>
+                <!-- <source src="audio.ogg" type="audio/ogg"> -->
+                <source id="source-audio" src="" type="audio/mpeg"> Your browser does not support the audio element.
+                </audio>
 
                                 <div class="player-ctn" style="width: 100%; height: auto; background-color: black;">
                                     <div class="infos-ctn">
@@ -126,37 +146,27 @@
                                 </div>
                                 <script src="js/app.js"></script>
                             </div>
-                            <br/>
-                            <br/>
-
                         </div>
-
                     </div>
-                </div>
-
-            </div>
-            <div class="panel">
-
-                <div id="tiendaContainer" class="container" style="opacity: 0;">
-
-
                 </div>
             </div>
         </div>
 
-        <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'" style="height: 40%;">
-            <div class="top" style="width: 100%;">
+
+
+        <div class="edgePanel" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region: 'top'" style="height: 30%;">
+            <div class="top" style="width: 100%; height: 100%;">
                 <table class="table table-hover  table-responsive table-condensed 'border= 1px;'" style="border: 0cm; height: 100%;">
                     <tr>
                         <td style="border: 0cm; background-color: rgb(0, 4, 7); vertical-align: middle; ">
-                            <a href="https://dojotoolkit.org/"><img id="dojo" class="mediana" alt="dojo-toolkit" src='images/96_dojo-toolkit.be45374836.png' width="20%" /></a>
+                            <a href="https://dojotoolkit.org/"><img id="dojo" class="mediana" alt="dojo-toolkit" src='images/96_dojo-toolkit.be45374836.png' /></a>
                         </td>
                         <td rowspan="2" style="border: 0cm; width: 40%;">
-                            <h1 style="font-size:5vw;">Pokeapi dojo</h1>
-                            <a href="https://pokeapi.co/"><img class="mediana" alt="Pokeapi" src='images/pokeapi_256.888baca4.png' width="20%" /></a>
+
+                            <a href="https://pokeapi.co/"><img class="mediana" alt="Pokeapi" src='images/pokeapi_256.888baca4.png' /></a>
                         </td>
                         <td style="border: 0cm; background-color: rgb(253, 6, 6); vertical-align: middle; width: 20%;">
-                            <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='images/25231.png' width="20%" /></a>
+                            <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='images/25231.png' /></a>
                         </td>
                     </tr>
 
@@ -179,7 +189,7 @@
             "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/html", 'dojo/fx', "dojo/dom-style", "js/tienda", "dojo/_base/fx", "dojo/domReady!"
         ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct, html, coreFx, domStyle, tienda, fx) {
 
-            let botonRefresh = dom.byId("botonRefresh");
+
             let botonTienda = dom.byId('tienda');
             let botonBuscador = dom.byId("busc")
             let contenedor = dom.byId('buscador');
@@ -189,9 +199,6 @@
             let tabla = dom.byId("tabla");
             let test = dom.byId("test");
             let pokeArray = [];
-
-
-
 
             //let test2 = "<option>" + url + "</option>";
             //options.innerHTML = test2;
@@ -313,22 +320,10 @@
             // Funcion de evento click izquierda
             // params (target, event, function)
 
-
-            on(botonTienda, "mousedown", function(event) {
-                if (mouse.isLeft(event)) {
-                    irTienda();
-
-                }
-            });
-            on(botonBuscador, "mousedown", function(event) {
-                if (mouse.isLeft(event)) {
-                    irBuscador();
-
-                }
-            });
         });
     </script>
     <script src="js/tabla2.js"></script>
+    <script src="js/tabla.js"></script>
 
 </body>
 
