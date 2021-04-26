@@ -318,10 +318,10 @@
     <script src="js/tabla2.js"></script>
     <script src="js/tabla.js"></script>
     <script>
-        require(["dijit/form/ValidationTextBox", "dojox/validate/web", "dijit/form/NumberTextBox"])
+        require(["dijit/form/ValidationTextBox", "dojox/validate/web", "dijit/form/NumberTextBox", "dojo/parser", "dijit/form/ComboBox"])
     </script>
     <div data-dojo-type="dijit/Dialog" data-dojo-id="myDialog" title="Pagar" style="width: 50%;">
-        <div data-dojo-type="dijit/form/Form" id="myForm" data-dojo-id="myForm" encType="multipart/form-data" action="" method="">
+        <div data-dojo-type="dijit/form/Form" id="myForm" data-dojo-id="myForm" encType="multipart/form-data" action="" method="post">
             <script type="dojo/on" data-dojo-event="reset">
                 return confirm('Press OK to reset widget values');
             </script>
@@ -339,14 +339,59 @@
                     <td><input type="text" required="true" name="bday" id="bday" data-dojo-type="dijit/form/DateTextBox" value="7/5/1983" /></td>
                 </tr>
                 <tr>
+                    <td>
+                        <label for="dni">DNI:</label>
+                    </td>
+                    <td>
+                        <input id="dni" name="dni" data-dojo-type="dijit/form/TextBox" required="true" data-dojo-props="regExp:'\\d{8}', required:true, invalidMessage:'Invalid cp number.'"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="phone">Telefono:</label>
+                    </td>
+                    <td>
+                        <input id="phone" name="phone" data-dojo-type="dijit/form/TextBox" required="true" data-dojo-props="regExp:'\\d{10}', required:true, invalidMessage:'Invalid cp number.'"></td>
+                </tr>
+                <tr>
                     <td><label for="Street">Calle:</label></td>
                     <td><input data-dojo-type="dijit/form/ValidationTextBox" required="true" name="calle" id="calle"></td>
                 </tr>
-                <td>
-                    <label for="numero">Numero:</label>
-                </td>
-                <td>
-                    <input id="numero" name="numero" data-dojo-type="dijit/form/NumberTextBox" required="true"></td>
+                <tr>
+                    <td>
+                        <label for="numero">Numero:</label>
+                    </td>
+                    <td>
+                        <input id="numero" name="numero" data-dojo-type="dijit/form/NumberTextBox" required="true"></td>
+                </tr>
+                <tr>
+                    <td><label for="Provincia">Provincia:</label></td>
+                    <td><select data-dojo-type="dijit/form/ComboBox" id="provincia" name="provincia" required="true">
+                        <option>Buenos Aires</option>
+                        <option selected>Buenos Aires(GBA)</option>
+                        <option>CABA</option>
+                        <option>Catamarca</option>
+                        <option>Chaco</option>
+                        <option>Chubut</option>
+                        <option>Córdoba</option>
+                        <option>Corrientes</option>
+                        <option>Entre Ríos</option>
+                        <option>Formosa</option>
+                        <option>Jujuy</option>
+                        <option>La Pampa</option>
+                        <option>La Rioja</option>
+                        <option>Mendoza</option>
+                        <option>Misiones</option>
+                        <option>Neuquén</option>
+                        <option>Río Negro</option>
+                        <option>Salta</option>
+                        <option>San Juan</option>
+                        <option>San Luis</option>
+                        <option>Santa Cruz</option>
+                        <option>Santa Fé</option>
+                        <option>Santiago del Estero</option>
+                        <option>Tierra del Fuego</option>
+                        <option>Tucumán</option>
+                    </select></td>
                 </tr>
                 </tr>
                 <td>
