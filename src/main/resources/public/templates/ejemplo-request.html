@@ -317,6 +317,90 @@
     </script>
     <script src="js/tabla2.js"></script>
     <script src="js/tabla.js"></script>
+    <script>
+        require(["dijit/form/ValidationTextBox", "dojox/validate/web", "dijit/form/NumberTextBox"])
+    </script>
+    <div data-dojo-type="dijit/Dialog" data-dojo-id="myDialog" title="Pagar" style="width: 50%;">
+        <div data-dojo-type="dijit/form/Form" id="myForm" data-dojo-id="myForm" encType="multipart/form-data" action="" method="">
+            <script type="dojo/on" data-dojo-event="reset">
+                return confirm('Press OK to reset widget values');
+            </script>
+
+            <script type="dojo/on" data-dojo-event="submit">
+                if(this.validate()){ confirmar.show(); }else{ alerta.show(); return false; } return true;
+            </script>
+            <table class="dijitDialogPaneContentArea">
+                <tr>
+                    <td><label for="name&lastName">Nombre y Apellido:</label></td>
+                    <td><input data-dojo-type="dijit/form/ValidationTextBox" required="true" name="name" id="name"></td>
+                </tr>
+                <tr>
+                    <td valign="top">Nacimiento:</td>
+                    <td><input type="text" required="true" name="bday" id="bday" data-dojo-type="dijit/form/DateTextBox" value="7/5/1983" /></td>
+                </tr>
+                <tr>
+                    <td><label for="Street">Calle:</label></td>
+                    <td><input data-dojo-type="dijit/form/ValidationTextBox" required="true" name="calle" id="calle"></td>
+                </tr>
+                <td>
+                    <label for="numero">Numero:</label>
+                </td>
+                <td>
+                    <input id="numero" name="numero" data-dojo-type="dijit/form/NumberTextBox" required="true"></td>
+                </tr>
+                </tr>
+                <td>
+                    <label for="cp">CP:</label>
+                </td>
+                <td>
+                    <input id="cp" name="cp" data-dojo-type="dijit/form/TextBox" required="true" data-dojo-props="regExp:'\\d{4}', required:true, invalidMessage:'Invalid cp number.'"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="email">Email:</label>
+                    </td>
+                    <td>
+                        <input id="email" name="email" data-dojo-type="dijit.form.ValidationTextBox" required="true" data-dojo-props="validator:dojox.validate.isEmailAddress,
+    invalidMessage:'This is not a valid email!'">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="tarjetaCredito">Tarjeta de Credito:</label>
+                    </td>
+                    <td>
+                        <input id="tarjetaCredito" name="tarjetaCredito" data-dojo-type="dijit.form.ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{16}', required:true, invalidMessage:'Invalid credit card number.'"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="cvv">CVV:</label>
+                    </td>
+                    <td>
+                        <input id="cvv" name="cvv" data-dojo-type="dijit.form.ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{3}', required:true, invalidMessage:'Invalid cvv number.'"></td>
+                </tr>
+            </table>
+
+            <div class="dijitDialogPaneActionBar">
+                <button data-dojo-type="dijit/form/Button" type="submit" id="ok">OK</button>
+                <button data-dojo-type="dijit/form/Button" type="button" data-dojo-props="onClick:function(){myDialog.hide();}" id="cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div data-dojo-type="dijit/Dialog" data-dojo-id="alerta" title="Datos invalidos">
+        <p>Uno o mas campos obligatorios estan vacios</p>
+
+        <div class="dijitDialogPaneActionBar">
+            <button data-dojo-type="dijit/form/Button" type="button" data-dojo-props="onClick:function(){alerta.hide();}">Ok</button>
+        </div>
+    </div>
+    <div data-dojo-type="dijit/Dialog" data-dojo-id="alerta2" title="Carrito vacio">
+        <p>No hay items a pagar</p>
+
+        <div class="dijitDialogPaneActionBar">
+            <button data-dojo-type="dijit/form/Button" type="button" data-dojo-props="onClick:function(){alerta2.hide();}">Ok</button>
+        </div>
+    </div>
+
 
 </body>
 

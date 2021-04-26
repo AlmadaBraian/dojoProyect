@@ -265,6 +265,10 @@ img.pequeña {
     background-color: rgba(0, 0, 0, 0)
 }
 
+.dijitCalendarPopup {
+    width: 25%;
+}
+
 @import "{{baseUrl}}dojox/grid/resources/claroGrid.css";
 
 /*Grid needs an explicit height by default*/

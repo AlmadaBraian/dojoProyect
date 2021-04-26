@@ -60,15 +60,23 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
             <!-- Precio total -->
             <p class="text-left" style="background-color: aliceblue;">Total: <span id="total"></span>&dollar;</p>
             <button id="boton-vaciar" class="btn btn-danger">Vaciar</button>
-            <button data-dojo-type="dijit/form/Button" type="button" onclick="myDialog.show();">Comprar carrito</button>
-            </button>
+            <button data-dojo-type="dijit/form/Button" type="button">Pagar
+    <script type="dojo/on" data-dojo-event="click" data-dojo-args="evt">
+        require(["dojo/dom"], function(dom){
+            if(carrito.length>0){
+                myDialog.show();
+            }else{
+                alerta2.show();
+            }
+        });
+    </script>
+</button>
         </aside>
         </div>
     </div>
 
 </div>`);
     domConstruct.place(node, "tiendaContainer");
-
     const baseDeDatos = [{
             id: 1,
             nombre: 'Remera pokebola',
