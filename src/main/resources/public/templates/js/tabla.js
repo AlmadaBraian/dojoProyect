@@ -1,5 +1,5 @@
-require(['dojo/_base/lang', 'dojox/grid/EnhancedGrid', 'dojo/data/ItemFileWriteStore', 'dojo/dom', "dojo/Deferred", "dojo/request", "dojox/grid/enhanced/plugins/Pagination", 'dojo/domReady!'],
-    function(lang, EnhancedGrid, ItemFileWriteStore, dom, Deferred, request, Pagination) {
+require(['dojo/_base/lang', 'dojox/grid/EnhancedGrid', 'dojo/data/ItemFileWriteStore', 'dojo/dom', "dojo/Deferred", "dojo/request", "dojox/grid/enhanced/plugins/Pagination", "dojo/on", 'dojo/domReady!'],
+    function(lang, EnhancedGrid, ItemFileWriteStore, dom, Deferred, request, Pagination, on) {
         const url = "https://pokeapi.co/api/v2/pokemon/";
         /*set up data store*/
         var data = {
@@ -64,8 +64,22 @@ require(['dojo/_base/lang', 'dojox/grid/EnhancedGrid', 'dojo/data/ItemFileWriteS
         /*Call startup() to render the grid*/
         grid.startup();
 
+        let div = dom.byId('gridDiv')
+
+        on(div, "mousedown", function(event) {
+            setTimeout(function() {
+                let pagina = grid.plugin('pagination')._currentPage;
+                if (pagina % 7 == 0) {
+                    for (let i = 0; i < 10; i++) {
+                        agregarPokemons(index + 7)
+
+                    }
+                }
+            }, 500);
+
+        })
+
         let pokeArray = [];
-        let maxPokemon = 60;
         request.get(`https://pokeapi.co/api/v2/pokemon/?limit=-1`, {
                 handleAs: "json"
             })
@@ -75,25 +89,18 @@ require(['dojo/_base/lang', 'dojox/grid/EnhancedGrid', 'dojo/data/ItemFileWriteS
                     listaPokemon = response.results;
 
                     //listaPokemon = response.results;
-                    let cont = 1;
+
                     const nombres = listaPokemon.map((pokemon) => pokemon.name).forEach(element => {
                         pokenombres.push({
-                            id: cont,
                             name: element,
                             value: element
                         });
-                        cont++
 
                     })
-                    pokenombres.sort((a, b) => (a.id > b.id) ? 1 : -1)
 
                     for (let i = 0; i < 10; i++) {
-                        agregarPokemons(index + 6)
-
+                        agregarPokemons(index + 7)
                     }
-
-
-
                 })
 
         function agregarPokemons(fin) {
@@ -118,7 +125,7 @@ require(['dojo/_base/lang', 'dojox/grid/EnhancedGrid', 'dojo/data/ItemFileWriteS
 
                             pokeArray.push(pokeObjeto);
                             var data = {
-                                identifier: 'id',
+                                identifier: "id",
                                 items: pokeArray
                             };
                             let store = new ItemFileWriteStore({ data: data });
@@ -128,13 +135,4 @@ require(['dojo/_base/lang', 'dojox/grid/EnhancedGrid', 'dojo/data/ItemFileWriteS
 
             };
         }
-
-
-
-
-
-
-
-
-
     })

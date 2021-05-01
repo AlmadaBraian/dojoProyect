@@ -247,6 +247,9 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
         DOMtotal.textContent = total.toFixed(2);
     }
 
+
+
+
     /**
      * Vacia el carrito y vuelve a dibujarlo
      */
@@ -257,11 +260,6 @@ define(['dojo/dom', 'dojo/dom-construct', "dojo/on", "dojo/mouse", "dojo/query",
         calcularTotal();
     }
 
-    function pagarCarrito() {
-        console.log(carrito)
-
-        vaciarCarrito();
-    }
     on(DOMbotonVaciar, "mousedown", function(event) {
         vaciarCarrito();
     })

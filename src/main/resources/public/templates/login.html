@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/resources/dojo.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/claro/EnhancedGrid.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/EnhancedGrid_rtl.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <title>Login</title>
+    <!-- Dojo Config e import -->
+    <script>
+        var dojoConfig = {
+            parseOnLoad: 1,
+            async: true,
+            packages: [{
+                name: "js",
+                location: location.pathname.replace(/\/[^/]*$/, "") + "/js",
+            }, ],
+        };
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script>
+
+
+
+</head>
+
+<body class="claro">
+    <script src="js/login.js"></script>
+    <script>
+        require(["dijit/form/ValidationTextBox", "dojox/validate/web", "dijit/form/NumberTextBox", "dojo/parser", "dijit/form/ComboBox"])
+    </script>
+    <div data-dojo-type="dijit/form/Form" id="myForm" data-dojo-id="myForm" encType="multipart/form-data" action="" method="GET" style="width: 50%;">
+        <label for="validationDefaultUsername" class="form-label">Username</label>
+        <input type="text" class="form-control" data-dojo-type="dijit/form/ValidationTextBox" id="user" required="true" invalidMessage="Please type a user name">
+        <br/>
+        <label>Password</label>
+        <input type="password" class="form-control" data-dojo-type="dijit/form/ValidationTextBox" required="true" name="password" id="password" invalidMessage="Please type a password" />
+        <button id="search" type="button">Login</button>
+        </form>
+
+    </div>
+
+</body>
+
+</html>

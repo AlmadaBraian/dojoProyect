@@ -90,8 +90,15 @@
                                 <div id="gridDiv" class="grid"></div>
                             </div>
                         </div>
-                        <div class="col-sm-3">
 
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <div class="col" id="usuario" style="background-color: aquamarine;"></div>
+                                <div class="col" id="avatar"></div>
+                            </div>
+
+
+                            <button id="logout" type="button"></button>
                             <div id="musica">
                                 <audio id="myAudio" ontimeupdate="onTimeUpdate()">
                 <!-- <source src="audio.ogg" type="audio/ogg"> -->
@@ -166,6 +173,7 @@
                         </div>
                         <div class="col-3" style="background-color: red;">
                             <a href="https://github.com/AlmadaBraian/dojoProyect"><img class="pequeña" alt="Pokeapi-repository" src='images/25231.png' style="width: 50%;" /></a>
+
                         </div>
                     </div>
                 </div>
@@ -179,8 +187,8 @@
         // Para hacer la solicitud a la API importar la funcion "dojo/request"
         require(["dojo/dom", "dojo/on", "dojo/mouse", "dojo/request", "dijit/layout/BorderContainer", "dijit/layout/TabContainer",
             "dijit/layout/ContentPane", "dojo/store/Memory", "dojo/json",
-            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/html", 'dojo/fx', "dojo/dom-style", "js/tienda", "dojo/_base/fx", "dojo/domReady!"
-        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct, html, coreFx, domStyle, tienda, fx) {
+            "dojo/when", "dojo/Deferred", "dijit/form/FilteringSelect", "dojo/dom-construct", "dojo/html", 'dojo/fx', "dojo/dom-style", "js/tienda", "dojo/_base/fx", "dijit/form/Button", "dojo/domReady!"
+        ], function(dom, on, mouse, request, BorderContainer, TabContainer, ContentPane, Memory, json, when, Deferred, FilteringSelect, domConstruct, html, coreFx, domStyle, tienda, fx, Button) {
 
 
             let botonTienda = dom.byId('tienda');
@@ -192,6 +200,37 @@
             let tabla = dom.byId("tabla");
             let test = dom.byId("test");
             let pokeArray = [];
+            const urlus = 'https://60898d938c8043001757f0db.mockapi.io/api/usuarios/';
+            let us = {
+                userName: localStorage.getItem('userName'),
+                email: localStorage.getItem('email'),
+                name: localStorage.getItem('name'),
+                avatar: localStorage.getItem('avatar')
+
+            };
+
+            if (us.name === null) {
+                var myButton = new Button({
+                    label: "Iniciar sesion",
+                    onClick: function() {
+                        window.location.href = "login.html";
+                    }
+                }, "logout");
+            } else {
+                let bienvenida = dom.byId("usuario");
+                let avatar = dom.byId("avatar");
+                bienvenida.innerHTML = `<p>Bienvenido ${us.userName}</p>`;
+                avatar.innerHTML = `<img alt="" src="${us.avatar}" width='55%'/>`
+                var myButton = new Button({
+                    label: "Cerrar sesion",
+                    onClick: function() {
+                        localStorage.clear();
+                        location.reload();
+                    }
+                }, "logout");
+            }
+
+
 
             //let test2 = "<option>" + url + "</option>";
             //options.innerHTML = test2;
@@ -263,6 +302,7 @@
             }
 
 
+
             function setOptions() {
                 var deferred = new Deferred();
                 let pokenombres = [];
@@ -321,14 +361,18 @@
         require(["dijit/form/ValidationTextBox", "dojox/validate/web", "dijit/form/NumberTextBox", "dojo/parser", "dijit/form/ComboBox"])
     </script>
     <div data-dojo-type="dijit/Dialog" data-dojo-id="myDialog" title="Pagar" style="width: 50%;">
-        <div data-dojo-type="dijit/form/Form" id="myForm" data-dojo-id="myForm" encType="multipart/form-data" action="" method="post">
+        <div data-dojo-type="dijit/form/Form" id="myForm" data-dojo-id="myForm" encType="multipart/form-data" action="form.html" method="post">
             <script type="dojo/on" data-dojo-event="reset">
                 return confirm('Press OK to reset widget values');
             </script>
 
             <script type="dojo/on" data-dojo-event="submit">
-                if(this.validate()){ confirmar.show(); }else{ alerta.show(); return false; } return true;
+                event.preventDefault(); if(this.validate()){ sessionStorage.setItem('name', document.getElementById("name").value); sessionStorage.setItem('bday', document.getElementById("bday").value); sessionStorage.setItem('dni', document.getElementById("dni").value);
+                sessionStorage.setItem('phone', document.getElementById("phone").value); sessionStorage.setItem('calle', document.getElementById("calle").value); sessionStorage.setItem('numero', document.getElementById("numero").value); sessionStorage.setItem('provincia',
+                document.getElementById("provincia").value); sessionStorage.setItem('cp', document.getElementById("cp").value); sessionStorage.setItem('email', document.getElementById("email").value); sessionStorage.setItem('cc', document.getElementById("cc").value);
+                sessionStorage.setItem('cvv', document.getElementById("cvv").value); window.location.href = "confirmar.html";}else{ alerta.show(); return false; } return true;
             </script>
+
             <table class="dijitDialogPaneContentArea">
                 <tr>
                     <td><label for="name&lastName">Nombre y Apellido:</label></td>
@@ -343,14 +387,14 @@
                         <label for="dni">DNI:</label>
                     </td>
                     <td>
-                        <input id="dni" name="dni" data-dojo-type="dijit/form/TextBox" required="true" data-dojo-props="regExp:'\\d{8}', required:true, invalidMessage:'Invalid cp number.'"></td>
+                        <input id="dni" name="dni" data-dojo-type="dijit/form/ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{8}', invalidMessage:'Invalid dni number.'"></td>
                 </tr>
                 <tr>
                     <td>
                         <label for="phone">Telefono:</label>
                     </td>
                     <td>
-                        <input id="phone" name="phone" data-dojo-type="dijit/form/TextBox" required="true" data-dojo-props="regExp:'\\d{10}', required:true, invalidMessage:'Invalid cp number.'"></td>
+                        <input id="phone" name="phone" data-dojo-type="dijit/form/ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{10}', invalidMessage:'Invalid phone number.'"></td>
                 </tr>
                 <tr>
                     <td><label for="Street">Calle:</label></td>
@@ -395,36 +439,42 @@
                 </tr>
                 </tr>
                 <td>
-                    <label for="cp">CP:</label>
-                </td>
-                <td>
-                    <input id="cp" name="cp" data-dojo-type="dijit/form/TextBox" required="true" data-dojo-props="regExp:'\\d{4}', required:true, invalidMessage:'Invalid cp number.'"></td>
+                    <label for="cp">CP:</label></td>
+                <td><input id="cp" name="cp" data-dojo-type="dijit/form/ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{4}', invalidMessage:'Invalid cp number.'"></td>
                 </tr>
                 <tr>
                     <td>
                         <label for="email">Email:</label>
                     </td>
                     <td>
-                        <input id="email" name="email" data-dojo-type="dijit.form.ValidationTextBox" required="true" data-dojo-props="validator:dojox.validate.isEmailAddress,
+                        <input id="email" name="email" data-dojo-type="dijit/form/ValidationTextBox" required="true" data-dojo-props="validator:dojox.validate.isEmailAddress,
     invalidMessage:'This is not a valid email!'">
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="tarjetaCredito">Tarjeta de Credito:</label>
+                        <label for="cc">Tarjeta de credito:</label>
                     </td>
                     <td>
-                        <input id="tarjetaCredito" name="tarjetaCredito" data-dojo-type="dijit.form.ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{16}', required:true, invalidMessage:'Invalid credit card number.'"></td>
+                        <input id="cc" name="cc" data-dojo-type="dijit/form/ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{16}', invalidMessage:'Invalid cp number.'"></td>
                 </tr>
                 <tr>
                     <td>
                         <label for="cvv">CVV:</label>
                     </td>
                     <td>
-                        <input id="cvv" name="cvv" data-dojo-type="dijit.form.ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{3}', required:true, invalidMessage:'Invalid cvv number.'"></td>
+                        <input id="cvv" name="cvv" data-dojo-type="dijit/form/ValidationTextBox" required="true" data-dojo-props="regExp:'\\d{3}', invalidMessage:'Invalid cp number.'"></td>
                 </tr>
-            </table>
 
+
+            </table>
+            <script>
+                if (sessionStorage.getItem("name") !== null) {
+
+                    var nombre = document.getElementById("name");
+                    nombre.value = "cosa" //sessionStorage.getItem("name");
+                }
+            </script>
             <div class="dijitDialogPaneActionBar">
                 <button data-dojo-type="dijit/form/Button" type="submit" id="ok">OK</button>
                 <button data-dojo-type="dijit/form/Button" type="button" data-dojo-props="onClick:function(){myDialog.hide();}" id="cancel">Cancel</button>
@@ -435,9 +485,12 @@
         <p>Uno o mas campos obligatorios estan vacios</p>
 
         <div class="dijitDialogPaneActionBar">
+
             <button data-dojo-type="dijit/form/Button" type="button" data-dojo-props="onClick:function(){alerta.hide();}">Ok</button>
+
         </div>
     </div>
+
     <div data-dojo-type="dijit/Dialog" data-dojo-id="alerta2" title="Carrito vacio">
         <p>No hay items a pagar</p>
 

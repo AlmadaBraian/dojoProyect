@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Confirmar datos</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/resources/dojo.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/claro/EnhancedGrid.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojox/grid/enhanced/resources/EnhancedGrid_rtl.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+
+    <title>Confirmar datos</title>
+    <!-- Dojo Config e import -->
+    <script>
+        var dojoConfig = {
+            parseOnLoad: 1,
+            async: true,
+            packages: [{
+                name: "js",
+                location: location.pathname.replace(/\/[^/]*$/, "") + "/js",
+            }, ],
+        };
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js"></script>
+</head>
+
+<body>
+    <script>
+        require(['dojox/grid/DataGrid'])
+    </script>
+    <table data-dojo-type="dojox.grid.DataGrid">
+        <tr>
+            <th field="fieldName" width="200px">Nombre</th>
+            <th field="fieldName" width="200px">Nacimiento</th>
+            <th field="fieldName" width="200px">Telefono</th>
+            <th field="fieldName" width="200px">DNI</th>
+            <th field="fieldName" width="200px">Domicilio</th>
+            <th field="fieldName" width="200px">Provincia</th>
+            <th field="fieldName" width="200px">CP</th>
+            <th field="fieldName" width="200px">Email</th>
+            <th field="fieldName" width="200px">Tarjeta de credito</th>
+            <th field="fieldName" width="200px">CVV</th>
+        </tr>
+        <tr id="Datos"></tr>
+    </table>
+    <script>
+        let comprador = {
+            name: sessionStorage.getItem("name"),
+            bday: sessionStorage.getItem('bday'),
+            phone: sessionStorage.getItem('phone'),
+            dni: sessionStorage.getItem('dni'),
+            calle: sessionStorage.getItem('calle'),
+            numero: sessionStorage.getItem('numero'),
+            provincia: sessionStorage.getItem('provincia'),
+            cp: sessionStorage.getItem('cp'),
+            email: sessionStorage.getItem('email'),
+            cc: sessionStorage.getItem('cc'),
+            cvv: sessionStorage.getItem('cvv')
+        }
+
+
+        document.getElementById("Datos").innerHTML = `<td>${comprador.name}</td>
+            <td>${comprador.bday}</td>
+            <td>${comprador.phone}</td>
+            <td>${comprador.dni}</td>
+            <td>${comprador.calle} ${comprador.numero}</td>
+            <td>${comprador.provincia}</td>
+            <td>${comprador.cp}</td>
+            <td>${comprador.email}</td>
+            <td>${comprador.cc}</td>
+            <td>${comprador.cvv}</td>`;
+    </script>
+
+    <button onclick='window.location.href = "ejemplo-request.html"'>Confirmar</button>
+    <button onclick="goBack()">Coreegir</button>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+
+</html>
