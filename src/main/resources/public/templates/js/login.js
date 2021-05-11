@@ -4,7 +4,7 @@ require(['dojo/_base/lang', 'dojo/dom', "dojo/Deferred", "dojo/request", "dojo/o
     if (us === null) {
 
     } else {
-        let userName = dom.byId("user").value = us;
+        let userName = dom.byId("userName").value = us;
         let password = dom.byId("password").value = "";
     }
     var myButton = new Button({
@@ -15,6 +15,8 @@ require(['dojo/_base/lang', 'dojo/dom', "dojo/Deferred", "dojo/request", "dojo/o
         }
     }, "search");
 
+    registrarse("Registrate");
+
     function validateUser(largo) {
 
         if (largo < 1) {
@@ -24,26 +26,15 @@ require(['dojo/_base/lang', 'dojo/dom', "dojo/Deferred", "dojo/request", "dojo/o
         return true
     }
 
-    alertaLogin = new Dialog({
-        title: "My Dialog",
-        content: `
-    <p>Usuario o contraseña incorrectos</p>
-
-    <div class="dijitDialogPaneActionBar">
-        <button data-dojo-type="dijit/form/Button" type="button" data-dojo-props="onClick:function(){alertaLogin.hide();}">Ok</button>
-    </div>
-`,
-        style: "width: 300px"
-    });
-
     function searchUser() {
 
-        request.get(url + "/users?search=" + dom.byId("user").value, {
+        request.get(url + "/users?search=" + dom.byId("userName").value, {
                 handleAs: "json"
             })
             .then(
                 function(response) {
-                    if (validateUser(response.length)) {
+                    let arrayNames = ["userName", "password"]
+                    if (isValido(arrayNames)) {
                         let us = response[0];
                         var result = us.password.localeCompare(dom.byId("password").value);
                         if (result == 0) {
@@ -51,10 +42,11 @@ require(['dojo/_base/lang', 'dojo/dom', "dojo/Deferred", "dojo/request", "dojo/o
                             localStorage.setItem('email', us.email);
                             localStorage.setItem('name', us.name);
                             localStorage.setItem('avatar', us.avatar);
+                            localStorage.setItem('admin', us.admin)
                             window.location.href = "ejemplo-request.html";
                         }
                     } else {
-                        alertaLogin.show();
+                        alertaCamposInvalidos(crearMensajeInvalidos(arrayNames))
                     }
 
 

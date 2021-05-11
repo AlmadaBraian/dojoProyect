@@ -31,19 +31,28 @@
 
 <body class="claro">
     <script src="js/login.js"></script>
+
+    <script src="js/botones.js"></script>
     <script>
-        require(["dijit/form/ValidationTextBox", "dojox/validate/web", "dijit/form/NumberTextBox", "dojo/parser", "dijit/form/ComboBox"])
+        require(["dijit/form/ValidationTextBox", "dojox/validate/web", "dijit/form/NumberTextBox", "dojo/parser", "dijit/form/ComboBox", "dojo/request"])
     </script>
     <div data-dojo-type="dijit/form/Form" id="myForm" data-dojo-id="myForm" encType="multipart/form-data" action="" method="GET" style="width: 50%;">
         <label for="validationDefaultUsername" class="form-label">Username</label>
-        <input type="text" class="form-control" data-dojo-type="dijit/form/ValidationTextBox" id="user" required="true" invalidMessage="Please type a user name">
+        <input type="text" class="form-control" data-dojo-type="dijit/form/ValidationTextBox" id="userName" required="true" invalidMessage="Please type a user name">
         <br/>
         <label>Password</label>
         <input type="password" class="form-control" data-dojo-type="dijit/form/ValidationTextBox" required="true" name="password" id="password" invalidMessage="Please type a password" />
         <button id="search" type="button">Login</button>
         </form>
+        <button type="button" id="Registrate">Registrarme</button>
 
     </div>
+    <script src="js/dialogos.js"></script>
+    <script src="js/validarFormulario.js"></script>
+    <script src="js/singIn.js"></script>
+    <script>
+        require(["dijit/form/ValidationTextBox", "dojox/validate/web", "dijit/form/NumberTextBox", "dojo/parser", "dijit/form/ComboBox"])
+    </script>
 
 </body>
 

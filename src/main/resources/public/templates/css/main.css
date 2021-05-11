@@ -270,6 +270,7 @@ img.pequeña {
 }
 
 @import "{{baseUrl}}dojox/grid/resources/claroGrid.css";
+@import "{{baseUrl}}dojox/widget/TitleGroup/TitleGroup.css";
 
 /*Grid needs an explicit height by default*/
 
